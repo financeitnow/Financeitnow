@@ -1,0 +1,3 @@
+cd "C:\Users\Zed\Documents\FIN Website - Video Version"
+
+python -m http.server

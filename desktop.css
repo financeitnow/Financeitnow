@@ -1,0 +1,904 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.websiteNavBtnContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    border: 1px solid #4CAF50;
+}
+
+.websiteNavBtnContainer button {
+    margin: 0 10px;
+    padding: 10px 0; /* Equal padding for both sides */
+    border: 2px solid #4CAF50; /* Border color */
+    border-radius: 5px;
+    background-color: #4CAF50; /* Green background */
+    color: white; /* White text */
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s; /* Smooth transition */
+    width: 150px;  /* Fixed width */
+    height: 50px;  /* Fixed height */
+    display: flex;
+    justify-content: center;
+    align-items: center;  /* Center text horizontally and vertically */
+    text-align: center;
+}
+
+.websiteNavBtnContainer button:hover {
+    background-color: white;  /* Change background to white */
+    color: #4CAF50;  /* Change font color to green */
+    border-color: #4CAF50; /* Change border to green */
+}
+
+.page-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    flex-grow: 1;
+    color: #4CAF50;
+    margin: 0 20px;
+}
+
+.mainContainer {
+    width: 85vw;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    animation-duration: 0.5s;
+    animation-timing-function: ease-out;
+    margin: auto;
+    margin-top: 15px;
+    height: 70vh;
+    overflow: hidden;
+    background-color: white;
+    position: relative;
+}
+
+.mainContainer::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.2);
+    z-index: -1;
+    border-radius: 8px;
+}
+
+.car-info-container,
+.finance-info-container {
+    display: flex;
+    border: 2px solid #4CAF50;
+    border-radius: 5px;
+    width: 30%;
+    height: 65%;
+    position: relative;
+    top: 20%;
+    transform: translateY(-50%);
+    background: white;
+    z-index: 10;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    flex-direction: column;
+    font-size: 0.5vw;
+}
+
+.videoLeftRightbtnWrapper {
+    display: flex;
+    border: 1px solid blue;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    top: 0;
+    left: 0;
+    transform: translateY(-50%);
+    opacity: 0;
+    animation: slideUp 0.8s ease forwards;
+    animation-delay: 1s;
+}
+
+.videoLeftRightbtnDIV {
+    border: 1px solid purple;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2%;
+    height: 100%;
+}
+
+.video-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #4CAF50;
+    border-radius: 5px;
+    width: 75%;
+    height: 90%;
+    overflow: hidden;
+    background: #000;
+}
+
+.carInfoVideoFinanceInfoContainer {
+    display: flex;
+    height: 75%;
+    border: 1px solid blue;
+    background-image: none;
+    background-image: url('logo.png');
+    background-size: 30vw 30vh;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: white;
+}
+
+.car-info-container {
+    left: 2%;
+}
+
+.finance-info-container {
+    right: 2%;
+}
+
+@keyframes slideInFromRight {
+    0% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInFromLeft {
+    0% {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.slide-in-from-right {
+    animation-name: slideInFromRight;
+}
+
+.slide-in-from-left {
+    animation-name: slideInFromLeft;
+}
+
+.slide-inLEFT {
+    animation: slideInFromLeft 0.5s ease forwards;
+}
+
+.slide-inRIGHT {
+    animation: slideInFromRight 0.5s ease forwards;
+}
+
+.hidden {
+    display: none;
+}
+
+footer {
+    margin-top: auto;
+    text-align: center;
+    background-color: #4CAF50;
+    color: white;
+    padding: 20px;
+    position: relative;
+    font-size: calc(0.4vw + 0.4vh);
+}
+
+.carSearchFilters {
+    display: flex;
+    border: 1px solid #4CAF50;
+    justify-content: space-between;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 0;
+    max-width: 80%;
+    margin: auto;
+}
+
+.carSearchFilters input,
+.carSearchFilters select {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #4CAF50;
+    border-radius: 4px;
+    background-color: white;
+    font-size: calc(0.8vw + 0.4vh);
+}
+
+.carSearchFilters button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    border: 2px solid #4CAF50;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    font-size: calc(0.8vw + 0.4vh);
+}
+
+.carSearchFilters button:hover {
+    background-color: #45a049;
+}
+
+@media (max-width: 768px) {
+    .carSearchFilters {
+        flex-wrap: wrap;
+    }
+
+    .carSearchFilters input,
+    .carSearchFilters select,
+    .carSearchFilters button {
+        flex-basis: 100%;
+        margin-bottom: 5px;
+    }
+
+    .carSearchFilters button {
+        margin-bottom: 0;
+    }
+}
+
+.mainContainer h2 {
+    text-align: center;
+    color: #4CAF50;
+    margin: 0 0 5px;
+    border: 1px solid #4CAF50;
+    font-weight: bold;
+}
+
+.aiFunctionBtns {
+    display: flex;
+    border: 1px solid #4CAF50;
+    justify-content: center;
+    gap: 0.5em;
+}
+
+.LeftRightFunctionsBtns {
+    padding: 10px 15px;
+    border: 2px solid #4CAF50;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    font-size: 1.5rem;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+    font-size: calc(1vw + 0.5vh);
+}
+
+.LeftRightFunctionsBtns:hover {
+    background-color: white;
+    color: #4CAF50;
+}
+
+.video-container video {
+    width: 100%;
+    height: auto;
+}
+
+@media (max-width: 768px) {
+    .videoLeftRightbtnDIV {
+        flex-direction: column;
+    }
+
+    .video-container {
+        width: 80%;
+        height: auto;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+#postcode {
+    border: 2px solid red;
+}
+
+.button {
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.default-style {
+    background-color: #4CAF50;
+    color: white;
+    border: 2px solid transparent;
+}
+
+.clicked-style {
+    background-color: white;
+    color: red;
+    border-color: green;
+}
+
+.default-style:hover,
+.clicked-style:hover {
+    background-color: white;
+    color: red;
+    border-color: green;
+}
+
+.aiFunctionBtns button:hover {
+    color: red;
+}
+
+.finance-PriceDeposit {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.finance-PriceDeposit-div {
+    width: 45%;
+    padding: 5px;
+    border: 1px solid #ccc;	
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.finance-PriceDeposit-div label,
+.finance-PriceDeposit-div input {
+    width: 100%;
+    margin: 0px 0;
+    text-align: center;
+    font-size: 0.8vw;
+}
+
+.finance-PriceDeposit-div input {
+    border: 1px solid #aaa;
+    padding: 5px;
+    width: 90%;
+}
+
+.finance-Months {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+    align-items: centre;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+
+.finance-Months label {
+    margin-bottom: 5px;
+}
+
+.finance-Months select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    font-size: 0.8vw;
+}
+
+.finance-Months option {
+    font-size: 0.8vw;
+}
+
+.finance-label {
+    color: #4CAF50;
+    margin: 20px;
+    border: 1px solid #ccc;
+}
+
+#monthlyCost {
+    font-weight: bold;
+    font-size: calc(0.8vw + 0.8vh);
+}
+
+.credit-score {
+    background-color: #4CAF50;
+    color: white;
+    border: 1px solid #4CAF50;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    font-size: 0.8vw;
+}
+
+.credit-score.selected {
+    background-color: white;
+    color: #4CAF50;
+    border: 2px solid #4CAF50;
+}
+
+/* Default style for the getQuote button */
+#getQuote {
+    background-color: #4CAF50; /* Green background */
+    color: white; /* White text */
+    border: 2px solid #4CAF50; /* Green border */
+    padding: 0.2vh 0.2vw; /* Padding inside the button */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s; /* Smooth transition */
+    font-size: 0.8vw; /* Font size set to 0.8vw */
+}
+
+/* Hover style for the getQuote button */
+#getQuote:hover {
+    background-color: white; /* White background */
+    color: #4CAF50; /* Green text */
+    border-color: #4CAF50; /* Green border */
+}
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.websiteNavBtnContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    border: 1px solid #4CAF50;
+}
+
+.websiteNavBtnContainer button {
+    margin: 0 10px;
+    padding: 10px 0; /* Equal padding for both sides */
+    border: 2px solid #4CAF50; /* Border color */
+    border-radius: 5px;
+    background-color: #4CAF50; /* Green background */
+    color: white; /* White text */
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s; /* Smooth transition */
+    width: 150px;  /* Fixed width */
+    height: 50px;  /* Fixed height */
+    display: flex;
+    justify-content: center;
+    align-items: center;  /* Center text horizontally and vertically */
+    text-align: center;
+}
+
+.websiteNavBtnContainer button:hover {
+    background-color: white;  /* Change background to white */
+    color: #4CAF50;  /* Change font color to green */
+    border-color: #4CAF50; /* Change border to green */
+}
+
+.page-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    flex-grow: 1;
+    color: #4CAF50;
+    margin: 0 20px;
+}
+
+.mainContainer {
+    width: 85vw;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    animation-duration: 0.5s;
+    animation-timing-function: ease-out;
+    margin: auto;
+    margin-top: 15px;
+    height: 70vh;
+    overflow: hidden;
+    background-color: white;
+    position: relative;
+}
+
+.mainContainer::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.2);
+    z-index: -1;
+    border-radius: 8px;
+}
+
+.car-info-container,
+.finance-info-container {
+    display: flex;
+    border: 2px solid #4CAF50;
+    border-radius: 5px;
+    width: 30%;
+    height: 65%;
+    position: relative;
+    top: 20%;
+    transform: translateY(-50%);
+    background: white;
+    z-index: 10;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    flex-direction: column;
+    font-size: 0.5vw;
+}
+
+.videoLeftRightbtnWrapper {
+    display: flex;
+    border: 1px solid blue;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    top: 0;
+    left: 0;
+    transform: translateY(-50%);
+    opacity: 0;
+    animation: slideUp 0.8s ease forwards;
+    animation-delay: 1s;
+}
+
+.videoLeftRightbtnDIV {
+    border: 1px solid purple;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2%;
+    height: 100%;
+}
+
+.video-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #4CAF50;
+    border-radius: 5px;
+    width: 75%;
+    height: 90%;
+    overflow: hidden;
+    background: #000;
+}
+
+.carInfoVideoFinanceInfoContainer {
+    display: flex;
+    height: 75%;
+    border: 1px solid blue;
+    background-image: none;
+    background-image: url('logo.png');
+    background-size: 30vw 30vh;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: white;
+}
+
+.car-info-container {
+    left: 2%;
+}
+
+.finance-info-container {
+    right: 2%;
+}
+
+@keyframes slideInFromRight {
+    0% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInFromLeft {
+    0% {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.slide-in-from-right {
+    animation-name: slideInFromRight;
+}
+
+.slide-in-from-left {
+    animation-name: slideInFromLeft;
+}
+
+.slide-inLEFT {
+    animation: slideInFromLeft 0.5s ease forwards;
+}
+
+.slide-inRIGHT {
+    animation: slideInFromRight 0.5s ease forwards;
+}
+
+.hidden {
+    display: none;
+}
+
+footer {
+    margin-top: auto;
+    text-align: center;
+    background-color: #4CAF50;
+    color: white;
+    padding: 20px;
+    position: relative;
+    font-size: calc(0.4vw + 0.4vh);
+}
+
+.carSearchFilters {
+    display: flex;
+    border: 1px solid #4CAF50;
+    justify-content: space-between;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 0;
+    max-width: 80%;
+    margin: auto;
+}
+
+.carSearchFilters input,
+.carSearchFilters select {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #4CAF50;
+    border-radius: 4px;
+    background-color: white;
+    font-size: calc(0.8vw + 0.4vh);
+}
+
+.carSearchFilters button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    border: 2px solid #4CAF50;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    font-size: calc(0.8vw + 0.4vh);
+}
+
+.carSearchFilters button:hover {
+    background-color: #45a049;
+}
+
+@media (max-width: 768px) {
+    .carSearchFilters {
+        flex-wrap: wrap;
+    }
+
+    .carSearchFilters input,
+    .carSearchFilters select,
+    .carSearchFilters button {
+        flex-basis: 100%;
+        margin-bottom: 5px;
+    }
+
+    .carSearchFilters button {
+        margin-bottom: 0;
+    }
+}
+
+.mainContainer h2 {
+    text-align: center;
+    color: #4CAF50;
+    margin: 0 0 5px;
+    border: 1px solid #4CAF50;
+    font-weight: bold;
+}
+
+.aiFunctionBtns {
+    display: flex;
+    border: 1px solid #4CAF50;
+    justify-content: center;
+    gap: 0.5em;
+}
+
+.LeftRightFunctionsBtns {
+    padding: 10px 15px;
+    border: 2px solid #4CAF50;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    font-size: 1.5rem;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+    font-size: calc(1vw + 0.5vh);
+}
+
+.LeftRightFunctionsBtns:hover {
+    background-color: white;
+    color: #4CAF50;
+}
+
+.video-container video {
+    width: 100%;
+    height: auto;
+}
+
+@media (max-width: 768px) {
+    .videoLeftRightbtnDIV {
+        flex-direction: column;
+    }
+
+    .video-container {
+        width: 80%;
+        height: auto;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+#postcode {
+    border: 2px solid red;
+}
+
+.button {
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.default-style {
+    background-color: #4CAF50;
+    color: white;
+    border: 2px solid transparent;
+}
+
+.clicked-style {
+    background-color: white;
+    color: red;
+    border-color: green;
+}
+
+.default-style:hover,
+.clicked-style:hover {
+    background-color: white;
+    color: red;
+    border-color: green;
+}
+
+.aiFunctionBtns button:hover {
+    color: red;
+}
+
+.finance-PriceDeposit {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.finance-PriceDeposit-div {
+    width: 45%;
+    padding: 5px;
+    border: 1px solid #ccc;	
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.finance-PriceDeposit-div label,
+.finance-PriceDeposit-div input {
+    width: 100%;
+    margin: 0px 0;
+    text-align: center;
+    font-size: 0.8vw;
+}
+
+.finance-PriceDeposit-div input {
+    border: 1px solid #aaa;
+    padding: 5px;
+    width: 90%;
+}
+
+.finance-Months {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+    align-items: centre;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+
+.finance-Months label {
+    margin-bottom: 5px;
+}
+
+.finance-Months select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    font-size: 0.8vw;
+}
+
+.finance-Months option {
+    font-size: 0.8vw;
+}
+
+.finance-label {
+    color: #4CAF50;
+    margin: 20px;
+    border: 1px solid #ccc;
+}
+
+#monthlyCost {
+    font-weight: bold;
+    font-size: calc(0.8vw + 0.8vh);
+}
+
+.credit-score {
+    background-color: #4CAF50;
+    color: white;
+    border: 1px solid #4CAF50;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    font-size: 0.8vw;
+}
+
+.credit-score.selected {
+    background-color: white;
+    color: #4CAF50;
+    border: 2px solid #4CAF50;
+}
+
+/* Default style for the getQuote button */
+#getQuote {
+    background-color: #4CAF50; /* Green background */
+    color: white; /* White text */
+    border: 2px solid #4CAF50; /* Green border */
+    padding: 0.2vh 0.2vw; /* Padding inside the button */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s; /* Smooth transition */
+    font-size: 0.8vw; /* Font size set to 0.8vw */
+}
+
+/* Hover style for the getQuote button */
+#getQuote:hover {
+    background-color: white; /* White background */
+    color: #4CAF50; /* Green text */
+    border-color: #4CAF50; /* Green border */
+}

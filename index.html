@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controlled Slide Effect Form Transition</title>
+    <!-- Desktop Stylesheet (applies when viewport width is 768px and up) -->
+    <link rel="stylesheet" href="desktop.css" media="(min-width: 768px)">
+    <link rel="stylesheet" href="mobile.css" media="(max-width: 767px)">
+    <script src="https://cdn.jsdelivr.net/npm/geolib@3.3.4/lib/index.min.js"></script>
+</head>
+<body>
+
+    <div class="websiteNavBtnContainer">
+        <button onclick="showForm('carPage')">Cars</button>
+        
+        <button onclick="showForm('form2')">Products</button>
+    </div>
+    
+
+<div id="carPage" class="mainContainer slide-in-from-left">
+    <div class="carSearchFilters">
+        <input type="text" id="postcode" placeholder="Postcode" required>
+        <select id="makeDropdown">
+            <option value="">Make (any)</option>
+        </select>
+        <select id="model">
+            <option value="">Model (any)</option>
+        </select>
+        <select id="minPrice">
+            <option value="">Min price (any)</option>
+        </select>
+        <select id="maxPrice">
+            <option value="">Max price (any)</option>
+        </select>
+        <button id="searchButton" type="button">SEARCH</button>
+    </div>
+    
+    <div class="aiFunctionBtns">
+        <button class="LeftRightFunctionsBtns manual" id="AIButton">AI OFF</button>
+        <button class="LeftRightFunctionsBtns auto" data-sec="3" id="threeSecButton">3 Sec</button>
+        <button class="LeftRightFunctionsBtns auto" data-sec="5" id="fiveSecButton">5 Sec</button>
+        <button class="LeftRightFunctionsBtns random" id="randomButton">Random</button>
+    </div>
+    
+    <div class="carInfoVideoFinanceInfoContainer">    
+        <div id="carInfoContainer" class="car-info-container hidden"></div>
+
+        <div class="videoLeftRightbtnWrapper" id="videoNavigationWrapper">
+            <div class="videoLeftRightbtnDIV">
+                <button id="prevButton" class="LeftRightFunctionsBtns">&lt;</button>
+                <div id="videoContainer" class="video-container">
+                    <video id="videoPlayer" controls autoplay muted preload="auto">
+                        <source src="" type="video/mp4">
+                        Your browser does not support HTML5 video.
+                    </video>
+                </div>
+                <button id="nextButton" class="LeftRightFunctionsBtns">&gt;</button>
+            </div>
+        </div>
+        
+        <div id="financeInfoContainer" class="finance-info-container">
+            <h2 class="finance-title">FinanceItNOW!</h2>
+            <div class="finance-PriceDeposit">
+                <div class="finance-PriceDeposit-div">
+                    <label for="price">Price</label>
+                    <input type="number" id="price" placeholder="8000" class="finance-input">
+                </div>
+                <div class="finance-PriceDeposit-div">
+                    <label for="deposit">Deposit</label>
+                    <input type="number" id="deposit" value="0" class="finance-input">
+                </div>
+            </div>
+            <div class="finance-Months">
+                <label for="loanTerm">Months</label>
+                <select id="loanTerm" class="finance-select">
+                    <option value="12">12</option>
+                    <option value="24">24</option>
+                    <option value="36">36</option>
+                    <option value="48">48</option>
+                    <option value="60" selected>60</option>
+                </select>
+            </div>
+            <label class="credit-score-label">Credit Score</label>
+            <div id="creditScores">
+                <button class="credit-score" data-apr="5.9">Excellent</button>
+                <button class="credit-score" data-apr="11.9">Good</button>
+                <button class="credit-score" data-apr="14">Fair</button>
+                <button class="credit-score" data-apr="18">Bad</button>
+            </div>
+            <div class="finance-label">
+                <label id="monthlyCost">£264.32 p/m</label>
+            </div>
+            <button id="getQuote" class="get-quote">Get FULL QUOTE!</button>
+        </div>
+    </div>
+
+    <div id="form2" class="mainContainer hidden">
+        <h2>Form 2</h2>
+    </div>
+</div>
+
+<footer>
+    <p>FinanceItNow is registered in England and Wales under company number: 11846021. 3 Free Trade House, Stanmore, Middlesex, HA7 1EP</p>
+    <p>FinanceItNow is authorised and regulated by the Financial Conduct Authority, under FCA number: 967562. We act as a credit broker not a lender. We work with a number of carefully selected credit providers who may be able to offer you finance for your purchase. (Written Quotation available upon request). Whichever lender we introduce you to, we will typically receive commission from them (either a fixed fee or a fixed percentage of the amount you borrow). The lenders we work with could pay commission at different rates. All finance is subject to status and income. Terms and conditions apply. Applicants must be 18 years or over. We are only able to offer finance products from these providers.</p>
+</footer>
+
+<script>
+    var parsedData = [];  // This will hold the parsed data globally
+    var videoHistory = [];
+    var parsedMakeModels = {}; // This will store your make-models relationship
+    var postCodeLatitudeLongitude = []; // This will hold the postcode data globally
+    
+    let allCarsViewed = false; // Flag to indicate all unique cars have been viewed
+    let isPostCodeDataLoaded = false;
+    let validPostcode = false;
+    let isMobileFlag = false;
+    let autoClickerInterval;
+    
+    let currentAPR = 5.9; // Default APR for "Excellent"
+    let financeDetails = {
+        carPrice: 0,
+        deposit: 0,
+        months: 60 // Default months
+    };
+
+    let isNextClicked = true;
+    let nextVideoSrc = '';
+    let videoPlayer;
+
+    function showForm(formId) {
+        const forms = document.querySelectorAll('.mainContainer');
+        const selectedForm = document.getElementById(formId);
+        const carPage = document.getElementById('carPage');
+        const form2 = document.getElementById('form2');
+
+        if (formId === 'carPage') {
+            carPage.classList.remove('hidden');
+            carPage.classList.add('slide-in-from-left');
+            form2.classList.add('hidden');
+            form2.classList.remove('slide-in-from-right');
+        } else {
+            form2.classList.remove('hidden');
+            form2.classList.add('slide-in-from-right');
+            carPage.classList.add('hidden');
+            carPage.classList.remove('slide-in-from-left');
+        }
+    }
+
+    async function fetchSheetData() {
+        const sheetId = '1FJinS-akBSQppmHDAxDaVacNY72Bl-6yoj8vuihCEBI';
+        const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
+
+        try {
+            const response = await fetch(url);
+            const data = await response.text();
+            parsedData = parseCSV(data);
+            console.log(parsedData);
+
+            // Once the data is parsed, select a random car.
+            selectRandomCar();
+        } catch (error) {
+            console.error('Error fetching or parsing data:', error);
+        }
+    }
+
+    function parseCSV(data) {
+        const rows = data.split(/\r\n|\n|\r/).filter(Boolean).map(line => line.trim());
+        const headers = rows.shift().split(',').map(header => header.replace(/^"|"$/g, '').trim());
+        console.log('Headers:', headers); // Log the headers to check if they are correct
+
+        return rows.map(row => {
+            const values = row.split(',').map(value => value.replace(/^"|"$/g, '').trim());
+            if (values.length !== headers.length) {
+                console.error('Row has a different number of values than headers:', row);
+                return {};
+            }
+            return headers.reduce((object, header, index) => {
+                object[header] = values[index] || 'N/A'; // Fallback to 'N/A' if value is undefined
+                return object;
+            }, {});
+        });
+    }
+
+    async function filterByCID(cid) {
+        if (parsedData.length === 0) {
+            await fetchSheetData();
+        }
+        return parsedData.filter(car => car.CID === String(cid));
+    }
+
+    async function selectRandomCar() {
+        if (parsedData.length === 0) {
+            await fetchSheetData();
+        }
+
+        if (!allCarsViewed && parsedData.length > 0) {
+            let randomIndex;
+            let randomCar;
+            let attempts = 0;
+
+            do {
+                randomIndex = Math.floor(Math.random() * parsedData.length);
+                randomCar = parsedData[randomIndex];
+                attempts++;
+                if (attempts > parsedData.length) {
+                    allCarsViewed = true; // Set flag if all cars have been attempted
+                    break;
+                }
+            } while (videoHistory.includes(randomCar.CID));
+
+            // Use the random car if not all have been viewed or attempts didn't exceed
+            if (!allCarsViewed) {
+
+
+
+                updateVideoAndInfoContainers(randomCar.CID);
+            }
+        }
+
+        // If all cars have been viewed, cycle through the video history
+        if (allCarsViewed) {
+            if (videoHistory.length > 0) {
+                const nextHistoryVideoCID = videoHistory.shift(); // Get the first video in history
+                videoHistory.push(nextHistoryVideoCID); // Move it to the end to cycle through
+                updateVideoAndInfoContainers(nextHistoryVideoCID);
+            }
+        }
+    }
+
+
+    function updateVideoAndInfoContainers(CID) {
+    const carData = parsedData.find(car => car.CID === CID);
+    const videoSrc = CID + '.mp4'; // Construct the video filename
+    const videoPlayer = document.getElementById('videoPlayer');
+
+    if (isMobileFlag) {
+        // Set the source to videoPlayerClone if on mobile
+        if (videoPlayer) {
+            videoPlayer.src = videoSrc;
+            videoPlayer.load(); // Load the video to apply the source
+            console.log('Video Source Set To (Mobile): ' + videoSrc);
+        } else {
+            console.error('Mobile video player clone not found');
+        }
+    } else if (videoPlayer) {
+        // Set the source to videoPlayer if not on mobile
+        nextVideoSrc = videoSrc;
+        videoPlayer.src = nextVideoSrc;
+        videoPlayer.load(); // Load the video immediately
+        console.log('Video Source Set (Desktop): ' + videoSrc);
+    } else {
+        console.error('Video player element not found');
+    }
+
+    const carInfoContainer = document.getElementById('carInfoContainer');
+
+    if (carInfoContainer) {
+        if (carData) {
+
+            const make = carData.Make;
+            const model = carData.Model;
+            const mileage = carData.Mileage;
+            const gearbox = carData.Gearbox;
+            const engine = carData.Engine;
+            const fuelType = carData.FuelType;
+            const registration = carData.Registration;
+            const price = carData.Price;
+
+            let carInfoHTML = '';
+
+            if (isMobileFlag) {
+                // Mobile specific styling
+                carInfoHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <div style="color: green; font-size: 3.4vw; margin-bottom: 0.6em; text-align: center;"><strong>${make}</strong></div>
+                        <div style="color: green; font-size: 3vw; margin-bottom: 0.2em; text-align: center;">${model}</div>
+                        <div style="color: green; font-size: 2.8vw; margin-bottom: 0.2em; text-align: center;">${mileage}</div>
+                        <div style="color: green; font-size: 2.8vw; margin-bottom: 0.2em; text-align: center;">${gearbox}</div>
+                        <div style="color: green; font-size: 2.8vw; margin-bottom: 0.2em; text-align: center;">${engine}</div>
+                        <div style="color: green; font-size: 2.8vw; margin-bottom: 0.2em; text-align: center;">${fuelType}</div>
+                        <div style="color: green; font-size: 2.8vw; margin-bottom: 0.2em; text-align: center;">${registration}</div>
+                        <div style="color: green; font-size: 2.8vw; text-align: center;">£${price}</div>
+                    </div>
+                `;
+
+                // Mobile specific ContactNow styling with adjusted left positioning
+                carInfoHTML += `
+                    <div style="display: flex; justify-content: flex-start; align-items: center; width: 100%; padding-left: 7vw;">
+                        <a href="https://wa.me/+447506301308" target="_blank" style="display: flex; align-items: center; text-align: center;">
+                            <img src="whatsapp.png" alt="Contact us on WhatsApp" style="width: 10vw; height: auto; margin-right: 0.1vw;">
+                            <span style="font-size: 4vw; color: purple; font-weight: bold;">ContactNow!</span>
+                        </a>
+                    </div>
+                `;
+            } else {
+                // Desktop specific styling
+                carInfoHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <div style="color: green; font-size: 1.4vw; margin-bottom: 0.4em; text-align: center;"><strong>${make}</strong></div>
+                        <div style="color: green; font-size: 0.8vw; margin-bottom: 0.2em; text-align: center;">${model}</div>
+                        <div style="color: green; font-size: 0.8vw; margin-bottom: 0.2em; text-align: center;">${mileage}</div>
+                        <div style="color: green; font-size: 0.8vw; margin-bottom: 0.2em; text-align: center;">${gearbox}</div>
+                        <div style="color: green; font-size: 0.8vw; margin-bottom: 0.2em; text-align: center;">${engine}</div>
+                        <div style="color: green; font-size: 0.8vw; margin-bottom: 0.2em; text-align: center;">${fuelType}</div>
+                        <div style="color: green; font-size: 0.8vw; margin-bottom: 0.2em; text-align: center;">${registration}</div>
+                        <div style="color: green; font-size: 0.8vw; margin-bottom: 0.2em; text-align: center;">£${price}</div>
+                    </div>
+                `;
+
+                // Desktop specific ContactNow styling
+                carInfoHTML += `
+                    <div style="display: flex; justify-content: center; align-items: center; width: 100%; ">
+                        <a href="https://wa.me/+447506301308" target="_blank" style="display: flex; align-items: center; justify-content: center; text-align: center;">
+                            <img src="whatsapp.png" alt="Contact us on WhatsApp" style="width: 2.8vw; height: auto; margin-right: 0.1vw;">
+                            <span style="font-size: 1.4vw; color: purple; font-weight: bold;">ContactNow!</span>
+                        </a>
+                    </div>
+                `;
+            }
+
+            carInfoContainer.innerHTML = carInfoHTML;
+
+            financeDetails.carPrice = parseFloat(carData.Price); // Update car price globally
+            calculateFinanceDetails();
+
+            if (validPostcode) {
+                const userPostcode = document.getElementById('postcode').value;
+                const lastCarCID = videoHistory[videoHistory.length - 1]; // Get the last CID from video history
+                let distance = calculateDistanceFromUserToCar(userPostcode, lastCarCID); // Execute the distance calculation
+                carInfoContainer.innerHTML += `<div id="distanceMessage" style="color: green; font-size: ${isMobileFlag ? '2.5vw' : '1.2vw'}; text-align: center;">Distance: ${Math.round(distance)} miles</div>`;
+            } else {
+                carInfoContainer.innerHTML += `<div id="distanceMessage" style="color: red; font-size: ${isMobileFlag ? '2.5vw' : '1.2vw'}; text-align: center;">Please enter a valid postcode</div>`;
+            }
+
+            const priceInput = document.getElementById('price');
+            if (priceInput) {
+                priceInput.value = carData.Price; // Set the price input to the new car's price
+            }
+
+            carInfoContainer.classList.remove('hidden');
+            carInfoContainer.classList.add('slide-inLEFT');
+        } else {
+            console.error('Car data not found for CID: ' + CID);
+            carInfoContainer.innerHTML = '<strong>Make:</strong> N/A<br><strong>Model:</strong> N/A';
+            carInfoContainer.classList.add('hidden');
+        }
+    }
+
+    // Update finance info container, if necessary
+    const financeInfoContainer = document.getElementById('financeInfoContainer');
+    if (financeInfoContainer) {
+        financeInfoContainer.classList.remove('hidden');
+        financeInfoContainer.classList.add('slide-inRIGHT');
+    }
+
+    // Record the CID in video history to avoid duplicates
+    if (!videoHistory.includes(CID)) {
+        videoHistory.push(CID);
+        console.log('Video History: ' + videoHistory);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+function calculateDistanceFromUserToCar(userPostCode, carCID) {
+    // Normalize the user's postcode by removing spaces and converting to upper case
+    userPostCode = userPostCode.toUpperCase().replace(/\s/g, '');
+
+    // Use regex to extract the outward code
+    const userOutwardCodeRegex = /^([A-Z]{1,2}\d[A-Z\d]?).*$/;
+    const match = userOutwardCodeRegex.exec(userPostCode);
+
+    if (!match) {
+        console.error('Invalid or incomplete user postcode.');
+        validPostcode = false; // Set the flag to false due to invalid postcode
+        return null;
+    }
+
+    const userOutwardCode = match[1]; // This is the matched outward code
+
+    // Proceed with finding the car data by CID and extracting the postcode information
+    const carData = parsedData.find(car => car.CID === carCID);
+    if (!carData) {
+        console.error('Car data not found for the given CID.');
+        validPostcode = false; // Keep the flag false if car data not found
+        return null;
+    }
+
+    const carOutwardCode = carData.PostCode;
+
+    // Find the matching entry for the user's and car's outward postcode
+    const userPostcodeData = postCodeLatitudeLongitude.find(entry => userOutwardCode.startsWith(entry.PostalCode));
+    const carPostcodeData = postCodeLatitudeLongitude.find(entry => carOutwardCode.startsWith(entry.PostalCode));
+
+    if (!userPostcodeData || !carPostcodeData) {
+        console.error('Postcode data not found for user or car.');
+        validPostcode = false; // Set the flag to false if no matching postcode data found
+        return null;
+    }
+
+    // At this point, we have valid postcode data, so we set the flag to true
+    validPostcode = true;
+
+    // Convert strings to numbers for latitude and longitude
+    const coordsUser = {
+        latitude: Number(userPostcodeData.Latitude),
+        longitude: Number(userPostcodeData.Longitude),
+    };
+    const coordsCar = {
+        latitude: Number(carPostcodeData.Latitude),
+        longitude: Number(carPostcodeData.Longitude),
+    };
+
+    // Calculate the distance with geolib
+    const distance = geolib.getDistance(coordsUser, coordsCar);
+    const distanceInMiles = distance / 1609.34; // Convert from meters to miles
+
+    // Use backticks for string interpolation
+    console.log(`The distance between the user and the car is ${distanceInMiles.toFixed(2)} miles.`);
+    return distanceInMiles;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+    // A shared function to handle animations and updating the video
+    function updateVideoContent(updateFunction) {
+        const videoNavigationWrapper = document.getElementById('videoNavigationWrapper');
+        const carInfoContainer = document.getElementById('carInfoContainer');
+        const financeInfoContainer = document.getElementById('financeInfoContainer');
+
+        // Reset animations and hide elements
+        videoNavigationWrapper.style.animation = 'none';
+        videoNavigationWrapper.offsetHeight; // Trigger reflow
+        videoNavigationWrapper.classList.add('hidden');
+        carInfoContainer.classList.add('hidden');
+        financeInfoContainer.classList.add('hidden');
+
+        if (isMobileFlag) {
+
+           // alert(nextVideoSrc);
+
+            //videoPlayerClone.src = nextVideoSrc;
+            //videoPlayerClone.load(); // Load the video to apply the source
+            
+
+            updateFunction(); 
+            carInfoContainer.classList.remove('hidden');
+            
+            
+        } else {
+            // Delay for the desktop animations
+            setTimeout(() => {
+                // Reset the wrapper to slide it up
+                videoNavigationWrapper.style.animation = '';
+                videoNavigationWrapper.classList.remove('hidden');
+                videoNavigationWrapper.style.animation = 'slideUp 0.8s ease forwards';
+
+                // Execute the specific update function passed as a callback
+                updateFunction();
+
+                // Slide in normally for desktop
+                carInfoContainer.classList.remove('hidden');
+                carInfoContainer.classList.add('slide-inLEFT');
+
+                financeInfoContainer.classList.remove('hidden');
+                financeInfoContainer.classList.add('slide-inRIGHT');
+            }, 500); // Match the duration of your hide animation
+        }
+    }
+
+    function nextButtonClicked() {
+        // Update the video content by selecting a new random car
+        isNextClicked = true;
+        updateVideoContent(selectRandomCar);
+    }
+
+    function backButtonClicked() {
+        isNextClicked = false;
+        clearInterval(autoClickerInterval); // Clear any existing auto-click interval
+        updateButtonStyles("AIButton");
+	
+        // Ensure there's a history to go back to
+        if (videoHistory.length > 1) {
+            videoHistory.pop(); // Remove the current video from history
+            const previousVideoCID = videoHistory[videoHistory.length - 1]; // Get the previous CID
+            updateVideoAndInfoContainers(previousVideoCID);
+            updateVideoContent(() => {
+                const videoPlayer = document.getElementById('videoPlayer');
+                if (videoPlayer) {
+                    videoPlayer.src = previousVideoCID + '.mp4';
+                }
+            });
+        } else {
+            console.warn("No more video history to go back to.");
+            updateVideoContent(selectRandomCar);
+        }
+    }
+
+    function populateMakeDropdown(makes) {
+        const makeDropdown = document.getElementById('makeDropdown');
+        makes.forEach(make => {
+            const option = document.createElement('option');
+            option.value = make;
+            option.textContent = make;
+            makeDropdown.appendChild(option);
+        });
+    }
+
+    function updateModelDropdown(selectedMake, dropdownId) {
+        const modelDropdown = document.getElementById(dropdownId);
+        modelDropdown.innerHTML = ''; // Clear old models
+
+        if (selectedMake === "") {
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Model (any)';
+            modelDropdown.appendChild(defaultOption);
+        } else {
+            const models = parsedMakeModels[selectedMake] || [];
+            models.forEach(model => {
+                const option = document.createElement('option');
+                option.value = model;
+                option.textContent = model;
+                modelDropdown.appendChild(option);
+            });
+        }
+    }
+
+    async function fetchMakeModels() {
+        const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_vd2oCuauzaTa_okc-h-1gNcShDs8MrU0YjY3bWSitz6Nn_ABWhk5QNHG4zSSnhRb11mMcEkHPuy4/pub?gid=1442789279&single=true&output=csv';
+
+        try {
+            const response = await fetch(url);
+            const textData = await response.text();
+            const allRows = textData.split('\n'); // Get all rows
+            const makes = allRows[0].split(',').map(make => make.trim()); // First row contains makes
+
+            makes.forEach((make, index) => {
+                if (make) {
+                    const models = allRows.slice(1).map(row => { // Start from second row for models
+                        const rowData = row.split(',');
+                        return rowData[index] ? rowData[index].trim() : null;
+                    }).filter(model => model); // Filter out any empty or null values
+
+                    parsedMakeModels[make] = models;
+                }
+            });
+
+            populateMakeDropdown(Object.keys(parsedMakeModels)); // Populate make dropdown
+        } catch (error) {
+            console.error('Error fetching make and model data:', error);
+        }
+    }
+
+    async function fetchPostCodesLatitudeLongitude() {
+        const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_vd2oCuauzaTa_okc-h-1gNcShDs8MrU0YjY3bWSitz6Nn_ABWhk5QNHG4zSSnhRb11mMcEkHPuy4/pub?gid=1253312641&single=true&output=csv';
+        
+        try {
+            const response = await fetch(url);
+            const textData = await response.text();
+            const allRows = textData.split('\n');
+            allRows.shift(); // Remove the header row
+
+            postCodeLatitudeLongitude = allRows.map(row => {
+                const [id, postcode, latitude, longitude] = row.split(',').map(cell => cell.trim());
+                return { ID: id, PostalCode: postcode, Latitude: parseFloat(latitude), Longitude: parseFloat(longitude) };
+            });
+
+            if(postCodeLatitudeLongitude.length > 0) {
+                isPostCodeDataLoaded = true;
+            }
+            console.log('Postcode data successfully loaded');
+            console.log('Postcode data:', postCodeLatitudeLongitude);
+        } catch (error) {
+            console.error('Error fetching postcode data:', error);
+            isPostCodeDataLoaded = false;
+        }
+    }
+
+    function postCodeKeyUpEvent() {
+        const carInfoContainer = document.getElementById('carInfoContainer');
+        let distanceMessageElement = document.getElementById('distanceMessage');
+        const postcodeInput = document.getElementById('postcode');
+        
+        if (videoHistory.length > 0) {
+            const userPostCode = postcodeInput.value; // The value inside the postcode input box
+            const lastViewedCarCID = videoHistory[videoHistory.length - 1]; // The last element of the videoHistory array
+            let distance = calculateDistanceFromUserToCar(userPostCode, lastViewedCarCID);
+
+            if (validPostcode) {
+                postcodeInput.style.borderColor = 'green';
+                distanceMessageElement.textContent = 'Distance: ' + Math.round(distance) + ' miles';
+                distanceMessageElement.style.color = 'green';
+                distanceMessageElement.style.fontSize = '16px';
+                distanceMessageElement.style.marginTop = '10px';
+            } else {
+                postcodeInput.style.borderColor = 'red';
+                distanceMessageElement.textContent = 'Please enter a valid postcode';
+                distanceMessageElement.style.color = 'red';
+            }
+        } else {
+            console.log("No cars have been viewed yet.");
+        }
+    }
+
+    function autoClickNextButton(interval) {
+        clearInterval(autoClickerInterval); // Stop any existing interval
+        autoClickerInterval = setInterval(() => {
+            document.getElementById("nextButton").click(); // Simulate next button click
+        }, interval);
+    }
+
+    function autoClickNextButtonRandomly() {
+        clearTimeout(autoClickerInterval); // Clear any existing timeout
+        const randomInterval = Math.floor(Math.random() * 15000) + 1; // New random delay between 1 to 15 seconds
+        autoClickerInterval = setTimeout(() => {
+            document.getElementById("nextButton").click(); // Simulate next button click
+            autoClickNextButtonRandomly(); // Recursively call to set next random timeout
+        }, randomInterval);
+    }
+
+    function updateButtonStyles(clickedButtonId) {
+        const buttonIds = ["AIButton", "threeSecButton", "fiveSecButton", "randomButton"];
+        buttonIds.forEach(id => {
+            const button = document.getElementById(id);
+            if (id === clickedButtonId) {
+                button.classList.add("clicked-style");
+                button.classList.remove("default-style");		
+            } else {
+                button.classList.add("default-style");
+                button.classList.remove("clicked-style");
+            }
+        });
+    }
+
+    function ensureVideoUnmuted() {
+        const videoPlayer = document.getElementById('videoPlayer');
+        if (videoPlayer) {
+            if (videoPlayer.ended || videoPlayer.paused || videoPlayer.currentTime >= videoPlayer.duration) {
+                document.getElementById("nextButton").click(); // Trigger next button click if video has ended, paused, or reached its duration
+            }
+            if (videoPlayer.muted) { // Check if video exists and is muted
+                videoPlayer.muted = false; // Unmute the video if it is muted
+            }
+        }
+    }
+
+    function calculateFinanceDetails() {
+        const totalLoanAmount = financeDetails.carPrice - financeDetails.deposit;
+        const monthlyRate = currentAPR / 1200;
+        const months = financeDetails.months;
+
+        // Calculate monthly payment using the formula for an annuity
+        const monthlyPayment = (monthlyRate === 0) ? totalLoanAmount / months :
+            (totalLoanAmount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -months));
+
+        // Update DOM elements with calculated values
+        document.getElementById('monthlyCost').textContent = `£${monthlyPayment.toFixed(2)} p/m`;
+    }
+
+    function updateAPRCalculation(apr) {
+        currentAPR = parseFloat(apr); // Update the global APR
+        console.log("Selected APR: ", currentAPR);
+        calculateFinanceDetails(); // Recalculate finance details whenever APR changes
+    }
+
+    function initializeCreditScoreButtons() {
+        const creditScoreButtons = document.querySelectorAll('.credit-score');
+
+        creditScoreButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                creditScoreButtons.forEach(btn => btn.classList.remove('selected'));
+                this.classList.add('selected');
+                updateAPRCalculation(this.dataset.apr);
+            });
+        });
+
+        const excellentButton = document.querySelector('.credit-score[data-apr="5.9"]');
+        if (excellentButton) {
+            excellentButton.classList.add('selected');
+            updateAPRCalculation(excellentButton.dataset.apr);
+        }
+    }
+
+    function handleMobileOrDesktopView() {
+        if (isMobile()) {
+            isMobileFlag = true;
+            document.body.querySelectorAll('.mainContainer, .websiteNavBtnContainer, footer').forEach(element => {
+                element.classList.add('hidden');
+            });
+            displayLogo();
+        } else {
+            const carPage = document.getElementById('carPage');
+            if (carPage) {
+                carPage.classList.remove('hidden');
+            }
+        }
+    }
+
+    function isMobile() {
+        return window.innerWidth < 768; // Adjust as necessary
+    }
+
+    function displayLogo() {
+        const logoContainer = document.createElement('div');
+        logoContainer.style.display = 'flex';
+        logoContainer.style.justifyContent = 'center'; // Center horizontally
+        logoContainer.style.alignItems = 'center'; // Center vertically
+        logoContainer.style.height = '100vh'; // Full height of the viewport
+        logoContainer.style.position = 'relative'; // Enable positioning for sliding effect
+
+        const logo = document.createElement('img');
+        logo.src = 'logo.png'; // Path to your logo file
+        logo.alt = 'Logo';
+        logo.style.maxWidth = '100%'; // Responsive width
+        logo.style.maxHeight = '100%'; // Responsive height
+        logo.classList.add('slide-logo'); // Add class for transition
+
+        logoContainer.appendChild(logo);
+        document.body.appendChild(logoContainer);
+
+        setTimeout(() => {
+            logo.classList.add('slide-left'); // Add slide-left class to start slide out
+
+            setTimeout(() => {
+                logoContainer.remove(); // Remove logo container
+                displayFINText();
+                displayCarSearchFilters();
+                slideNextPrevAIButtons();
+
+                setTimeout(() => {
+                    displayMobileVideoPlayer(); // Call to slide in the video player
+                    updateVideoContent(selectRandomCar)
+                }, 300);
+
+                setTimeout(() => {
+                    displayCarInfoContainer(); // Call to slide in the car info container
+                }, 200);
+            }, 500);
+        }, 800);
+    }
+
+    function displayFINText() {
+        const financeText = document.createElement('h2');
+        financeText.id = 'financeText'; // Set an ID for reference
+        financeText.innerText = 'FinanceItNOW!'; // Set the text content
+        financeText.style.position = 'absolute';
+        financeText.style.top = '1%'; // Position 1% from the top
+        financeText.style.left = '50%'; // Center horizontally
+        financeText.style.transform = 'translate(-50%, 0)'; // Adjust for centering
+        financeText.style.margin = '0 0 5px'; // Margin to match h2
+        financeText.style.border = '1px solid #4CAF50'; // Green border
+        financeText.style.color = '#4CAF50'; // Text color
+        financeText.style.fontWeight = 'bold'; // Bold text
+        financeText.style.fontSize = 'calc(1.5vw + 1.5vh)'; // Dynamic font size
+        financeText.style.textAlign = 'center'; // Center text
+        financeText.style.opacity = '0'; // Start invisible for fade effect
+        financeText.style.transition = 'opacity 0.8s ease'; // Fade-in transition
+        financeText.style.zIndex = '1000'; // Ensure it's above other elements
+        financeText.style.backgroundColor = 'white'; // Optional: background color
+        financeText.style.fontFamily = 'Arial, sans-serif'; // Set font family
+
+        document.body.appendChild(financeText);
+
+        setTimeout(() => {
+            financeText.style.opacity = '1'; // Fade in effect
+        }, 100); // Delay for effect
+    }
+
+    function displayCarSearchFilters() {
+        const carSearchFilters = document.createElement('div');
+        carSearchFilters.className = 'carSearchFilters';
+        carSearchFilters.style.position = 'absolute';
+        carSearchFilters.style.top = '6%'; // Position 3% from the top
+        carSearchFilters.style.left = '50%'; // Center horizontally
+        carSearchFilters.style.transform = 'translateX(-50%)'; // Adjust for centering
+        carSearchFilters.style.opacity = '0'; // Start invisible for fade effect
+        carSearchFilters.style.transition = 'opacity 0.8s ease'; // Fade-in transition
+        carSearchFilters.style.zIndex = '1000'; // Ensure it's above other elements
+
+        carSearchFilters.innerHTML = `
+            <div style="display: flex; width: 90%; justify-content: space-between;">
+                <select id="makeDropdownMobile">
+                    <option value="">Make (any)</option>
+                </select>
+                <select id="modelMobile">
+                    <option value="">Model (any)</option>
+                </select>
+                <select id="minPriceMobile">
+                    <option value="">Min price (any)</option>
+                </select>
+                <select id="maxPriceMobile">
+                    <option value="">Max price (any)</option>
+                </select>
+            </div>
+        `;
+
+        const makeDropdown = carSearchFilters.querySelector('#makeDropdownMobile');
+        for (const make in parsedMakeModels) {
+            const option = document.createElement('option');
+            option.value = make;
+            option.textContent = make;
+            makeDropdown.appendChild(option);
+        }
+
+        makeDropdown.addEventListener('change', function() {
+            const selectedMake = this.value;
+            const modelDropdown = 'modelMobile'; // Specify the ID for the mobile model dropdown
+            updateModelDropdown(selectedMake, modelDropdown);
+        });
+
+        document.body.appendChild(carSearchFilters);
+
+        setTimeout(() => {
+            carSearchFilters.style.opacity = '1'; // Fade in effect
+        }, 100); // Delay for effect
+    }
+
+    function slideNextPrevAIButtons() {
+    const nextButton = document.getElementById('nextButton');
+    const prevButton = document.getElementById('prevButton');
+    const aiFunctionBtnsContainer = document.querySelector('.aiFunctionBtns');
+
+    // Position and animate the next button
+    const nextButtonClone = nextButton.cloneNode(true);
+    nextButtonClone.style.position = 'absolute';
+    nextButtonClone.style.right = '-50px';
+    nextButtonClone.style.bottom = '10%';
+    nextButtonClone.style.transition = 'right 0.5s ease';
+
+    document.body.appendChild(nextButtonClone);
+    nextButtonClone.addEventListener('click', nextButtonClicked);
+
+    setTimeout(() => {
+        nextButtonClone.style.right = '5%'; // Slide to 5% from the right
+    }, 100);
+
+    // Position and animate the previous button
+    const prevButtonClone = prevButton.cloneNode(true);
+    prevButtonClone.style.position = 'absolute';
+    prevButtonClone.style.left = '-50px';
+    prevButtonClone.style.bottom = '10%';
+    prevButtonClone.style.transition = 'left 0.5s ease';
+
+    document.body.appendChild(prevButtonClone);
+    prevButtonClone.addEventListener('click', backButtonClicked);
+
+    setTimeout(() => {
+        prevButtonClone.style.left = '5%'; // Slide to 5% from the left
+    }, 100);
+
+    // Position the aiFunctionBtns container and set it to be responsive
+    aiFunctionBtnsContainer.style.position = 'absolute';
+    aiFunctionBtnsContainer.style.top = '62vh'; // Position at 60% of the viewport height
+    aiFunctionBtnsContainer.style.left = '50%'; // Center horizontally
+    aiFunctionBtnsContainer.style.transform = 'translateX(-50%)'; // Center align
+    aiFunctionBtnsContainer.style.width = '90vw'; // Set width of container
+    aiFunctionBtnsContainer.style.display = 'flex';
+    aiFunctionBtnsContainer.style.justifyContent = 'space-around'; // Space buttons evenly
+    aiFunctionBtnsContainer.style.opacity = '0';
+    aiFunctionBtnsContainer.style.transition = 'opacity 0.8s ease';
+
+    // Set button styles within the container
+    aiFunctionBtnsContainer.querySelectorAll('button').forEach(button => {
+        button.style.width = '20vw';
+        button.style.height = '5vh';
+        button.style.fontSize = 'calc(1vw + 0.8vh)'; // Responsive font size
+    });
+
+    // Append the container to the body and fade it in
+    document.body.appendChild(aiFunctionBtnsContainer);
+
+    setTimeout(() => {
+        aiFunctionBtnsContainer.style.opacity = '1'; // Fade in the container with buttons
+    }, 100);
+}
+
+
+
+
+
+    function displayCarInfoContainer() {
+        const carInfoContainer = document.getElementById('carInfoContainer');
+        carInfoContainer.classList.remove('hidden');
+        carInfoContainer.style.position = 'absolute';
+        carInfoContainer.style.bottom = '-100%'; // Start off-screen at the bottom
+        carInfoContainer.style.left = '25vw';
+        carInfoContainer.style.width = '50vw'; // Full width
+        carInfoContainer.style.height = '50vw'; // Half the viewport height
+        carInfoContainer.style.transition = 'bottom 0.3s ease'; // Transition for sliding
+        carInfoContainer.style.zIndex = '999'; // Ensure it appears above other elements
+        carInfoContainer.style.backgroundColor = 'white'; // Background color
+        carInfoContainer.style.borderTop = '2px solid #4CAF50'; // Green border for consistency
+        carInfoContainer.style.opacity = '1'; // Make sure it is fully opaque
+
+        document.body.appendChild(carInfoContainer);
+
+        setTimeout(() => {
+            carInfoContainer.style.bottom = '0'; // Move into view
+        }, 50);
+    }
+
+    function displayMobileVideoPlayer() {
+    // Get the original video player element
+    const originalVideoPlayer = document.getElementById('videoPlayer');
+    
+    if (!originalVideoPlayer) {
+        console.error("Original video player not found.");
+        return;
+    }
+
+    // Clone the original video player for mobile use
+    const videoPlayerClone = originalVideoPlayer.cloneNode(true);
+    videoPlayerClone.id = 'videoPlayer'; // Keep the ID consistent for easier access
+
+    // Remove the original video player from the DOM
+    originalVideoPlayer.remove();
+
+    // Style the cloned video player for mobile
+    videoPlayerClone.style.position = 'absolute';
+    videoPlayerClone.style.top = '15%';
+    videoPlayerClone.style.left = '0';
+    videoPlayerClone.style.width = '99vw';
+    videoPlayerClone.style.height = '45vh';
+    videoPlayerClone.style.border = '2px solid #4CAF50';
+
+    // Set preload attribute for smoother playback
+    videoPlayerClone.setAttribute('preload', 'auto');
+
+    // Append the cloned video player to the body
+    document.body.appendChild(videoPlayerClone);
+
+    // Update the global videoPlayer variable to reference the mobile clone
+    videoPlayer = videoPlayerClone;
+}
+
+
+    // Event listeners for buttons
+    document.getElementById("threeSecButton").addEventListener("click", function() {
+        ensureVideoUnmuted();
+        autoClickNextButton(4000); // Set interval to 3 seconds
+        updateButtonStyles("threeSecButton");
+    });
+
+    document.getElementById("fiveSecButton").addEventListener("click", function() {
+        ensureVideoUnmuted();
+        autoClickNextButton(6000); // Set interval to 5 seconds
+        updateButtonStyles("fiveSecButton");
+    });
+
+    document.getElementById("AIButton").addEventListener("click", function() {
+        ensureVideoUnmuted();
+        clearInterval(autoClickerInterval); // Stop automatic clicking
+        updateButtonStyles("AIButton");
+    });
+
+    document.getElementById("randomButton").addEventListener("click", function() {
+        ensureVideoUnmuted();
+        autoClickNextButtonRandomly(); // Start the recursive auto-click with random intervals
+        updateButtonStyles("randomButton");
+    });
+
+    document.getElementById('prevButton').addEventListener('click', backButtonClicked);
+    document.getElementById('nextButton').addEventListener('click', nextButtonClicked);
+    document.getElementById('makeDropdown').addEventListener('change', function(event) {
+        updateModelDropdown(event.target.value, 'model'); // Update models when a make is selected
+    });
+
+    document.getElementById('postcode').addEventListener('keyup', postCodeKeyUpEvent);
+
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchSheetData();
+        fetchMakeModels(); 
+        fetchPostCodesLatitudeLongitude();
+        initializeCreditScoreButtons();  
+        handleMobileOrDesktopView(); 
+          
+    });
+</script>
+
+</body>
+</html>
