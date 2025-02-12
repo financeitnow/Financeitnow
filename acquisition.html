@@ -8,9 +8,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Arial&display=swap" rel="stylesheet">
 
   <style>
-    /* Prevent horizontal scrolling */
+    /* Prevent scrolling */
     html, body {
-      overflow-x: hidden;
+      overflow: hidden; /* Remove vertical scrolling */
       width: 100vw;
       height: 100vh;
       margin: 0;
@@ -19,14 +19,16 @@
       flex-direction: column;
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
+      touch-action: manipulation; /* Prevent zooming & accidental scrolling */
     }
 
-    /* Ensure the container-wrapper pushes the login box to the center */
+    /* Ensure wrapper fills entire screen */
     .container-wrapper {
       flex-grow: 1;
       display: flex;
       justify-content: center;
       align-items: center;
+      min-height: 100vh; /* Ensures it takes up the full screen */
     }
 
     /* Ensure login container remains centered */
@@ -41,6 +43,7 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       text-align: center;
       transition: all 0.3s ease-in-out;
+      position: relative;
     }
 
     .login-container img {
@@ -146,7 +149,7 @@
       padding: 15px;
       width: 100%;
       font-size: 14px;
-      position: relative;
+      position: absolute;
       bottom: 0;
       left: 0;
       line-height: 1.4;
@@ -154,7 +157,8 @@
       white-space: normal;
       overflow: hidden;
       box-sizing: border-box;
-      margin-top: auto;
+      height: auto;
+      min-height: 50px;
     }
 
     footer p {
@@ -217,12 +221,11 @@
             const result = await response.json();
 
             if (result.found) {
-              const row = result.row || [];
-              document.getElementById("userTitle").textContent = row[3];
-              document.getElementById("userFirstName").textContent = row[4];
-              document.getElementById("userSurname").textContent = row[5];
-              document.getElementById("userPhone").textContent = row[22];
-              document.getElementById("userEmail").textContent = row[21];
+              document.getElementById("userTitle").textContent = result.row[3];
+              document.getElementById("userFirstName").textContent = result.row[4];
+              document.getElementById("userSurname").textContent = result.row[5];
+              document.getElementById("userPhone").textContent = result.row[22];
+              document.getElementById("userEmail").textContent = result.row[21];
 
               titleText.textContent = "Application Details";
               loginForm.style.display = "none";
@@ -230,19 +233,15 @@
             } else {
               alert("Application not found.");
             }
-          } catch (error) {
-            alert("An error occurred. Please try again.");
           } finally {
             spinner.style.display = "none";
           }
         });
       }
 
-      if (continueButton) {
-        continueButton.addEventListener("click", function () {
-          window.location.href = "https://paymentrequest.natwestpayit.com/reusable-links/e7ebe61c-1cec-403a-a110-318b266583bf";
-        });
-      }
+      continueButton.addEventListener("click", function () {
+        window.location.href = "https://paymentrequest.natwestpayit.com/reusable-links/e7ebe61c-1cec-403a-a110-318b266583bf";
+      });
     });
   </script>
 
