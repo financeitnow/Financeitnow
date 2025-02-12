@@ -5,11 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FinanceItNOW</title>
   <link rel="icon" type="image/png" href="netlifyicon.png">
+  
   <style>
+    /* Prevent horizontal scrolling */
+    html, body {
+      overflow-x: hidden;
+      width: 100vw;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
-      margin: 0;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -24,7 +32,7 @@
       padding: 20px;
       width: 90%;
       max-width: 400px;
-      min-height: 30vh; 
+      min-height: 30vh;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       text-align: center;
       transition: all 0.3s ease-in-out;
