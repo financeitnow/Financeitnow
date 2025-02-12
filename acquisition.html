@@ -5,26 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FinanceItNOW</title>
   <link rel="icon" type="image/png" href="netlifyicon.png">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Arial&display=swap" rel="stylesheet">
+
   <style>
     /* Prevent horizontal scrolling */
     html, body {
       overflow-x: hidden;
       width: 100vw;
+      height: 100vh;
       margin: 0;
       padding: 0;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+
+    /* Ensure the container-wrapper pushes the login box to the center */
+    .container-wrapper {
+      flex-grow: 1;
+      display: flex;
       justify-content: center;
       align-items: center;
     }
 
+    /* Ensure login container remains centered */
     .login-container {
       background-color: white;
       border: 2px solid #4CAF50;
@@ -133,6 +138,7 @@
       transform: scale(1.05);
     }
 
+    /* Ensure footer remains at the bottom */
     footer {
       background-color: #4CAF50;
       color: white;
@@ -140,55 +146,44 @@
       padding: 15px;
       width: 100%;
       font-size: 14px;
-      position: fixed;
+      position: relative;
       bottom: 0;
       left: 0;
       line-height: 1.4;
+      word-wrap: break-word;
+      white-space: normal;
+      overflow: hidden;
+      box-sizing: border-box;
+      margin-top: auto;
     }
 
     footer p {
-      margin: 3px 0;
-    }
-
-    @media screen and (max-width: 768px) {
-      .login-container {
-        width: 95%;
-      }
-
-      .login-container img {
-        width: 80px;
-      }
-
-      .title-text {
-        font-size: 1.2rem;
-      }
-
-      footer {
-        font-size: 0.8rem;
-        padding: 10px;
-      }
+      margin: 5px auto;
+      max-width: 90%;
     }
   </style>
 </head>
 <body>
 
-  <div class="login-container">
-    <img src="netlify.png" alt="Netlify Logo">
-    <h2 id="titleText" class="title-text">FinanceItNOWv2</h2>
-    
-    <form id="loginForm">
-      <input type="email" id="emailInput" placeholder="Enter your email" required>
-      <button type="submit">Login</button>
-      <div class="spinner" id="spinner"></div>
-    </form>
+  <div class="container-wrapper">
+    <div class="login-container">
+      <img src="netlify.png" alt="Netlify Logo">
+      <h2 id="titleText" class="title-text">FinanceItNOW</h2>
 
-    <div class="user-info" id="userInfo">
-      <p><strong>Title:</strong> <span id="userTitle"></span></p>
-      <p><strong>First Name:</strong> <span id="userFirstName"></span></p>
-      <p><strong>Surname:</strong> <span id="userSurname"></span></p>
-      <p><strong>Mobile Number:</strong> <span id="userPhone"></span></p>
-      <p><strong>Email:</strong> <span id="userEmail"></span></p>
-      <button class="continue-btn" id="continueButton">Continue</button>
+      <form id="loginForm">
+        <input type="email" id="emailInput" placeholder="Enter your email" required>
+        <button type="submit">Login</button>
+        <div class="spinner" id="spinner"></div>
+      </form>
+
+      <div class="user-info" id="userInfo">
+        <p><strong>Title:</strong> <span id="userTitle"></span></p>
+        <p><strong>First Name:</strong> <span id="userFirstName"></span></p>
+        <p><strong>Surname:</strong> <span id="userSurname"></span></p>
+        <p><strong>Mobile Number:</strong> <span id="userPhone"></span></p>
+        <p><strong>Email:</strong> <span id="userEmail"></span></p>
+        <button class="continue-btn" id="continueButton">Continue</button>
+      </div>
     </div>
   </div>
 
@@ -197,50 +192,57 @@
   </footer>
 
   <script>
-    document.getElementById('loginForm').addEventListener('submit', async function (e) {
-      e.preventDefault();
+    document.addEventListener("DOMContentLoaded", function () {
+      const loginForm = document.getElementById("loginForm");
+      const continueButton = document.getElementById("continueButton");
 
-      const email = document.getElementById('emailInput').value.trim();
-      const spinner = document.getElementById('spinner');
-      const loginForm = document.getElementById('loginForm');
-      const userInfo = document.getElementById('userInfo');
-      const titleText = document.getElementById('titleText');
+      if (loginForm) {
+        loginForm.addEventListener("submit", async function (e) {
+          e.preventDefault();
 
-      spinner.style.display = 'block'; 
+          const email = document.getElementById("emailInput").value.trim();
+          const spinner = document.getElementById("spinner");
+          const userInfo = document.getElementById("userInfo");
+          const titleText = document.getElementById("titleText");
 
-      try {
-        const response = await fetch('https://script.google.com/macros/s/AKfycbyoDeNEFoRzxQd-bCX4A822m2eNSMr4UM6-6vmZMXUDslORDTdbD798nQFWTgG77FCs/exec', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({ email }),
+          spinner.style.display = "block";
+
+          try {
+            const response = await fetch("https://script.google.com/macros/s/AKfycbyoDeNEFoRzxQd-bCX4A822m2eNSMr4UM6-6vmZMXUDslORDTdbD798nQFWTgG77FCs/exec", {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: new URLSearchParams({ email }),
+            });
+
+            const result = await response.json();
+
+            if (result.found) {
+              const row = result.row || [];
+              document.getElementById("userTitle").textContent = row[3];
+              document.getElementById("userFirstName").textContent = row[4];
+              document.getElementById("userSurname").textContent = row[5];
+              document.getElementById("userPhone").textContent = row[22];
+              document.getElementById("userEmail").textContent = row[21];
+
+              titleText.textContent = "Application Details";
+              loginForm.style.display = "none";
+              userInfo.style.display = "block";
+            } else {
+              alert("Application not found.");
+            }
+          } catch (error) {
+            alert("An error occurred. Please try again.");
+          } finally {
+            spinner.style.display = "none";
+          }
         });
-
-        const result = await response.json();
-
-        if (result.found) {
-          const row = result.row || [];
-
-          document.getElementById('userTitle').textContent = row[3];
-          document.getElementById('userFirstName').textContent = row[4];
-          document.getElementById('userSurname').textContent = row[5];
-          document.getElementById('userPhone').textContent = row[22];
-          document.getElementById('userEmail').textContent = row[21];
-
-          titleText.textContent = "Application Details";
-          loginForm.style.display = 'none';
-          userInfo.style.display = 'block';
-        } else {
-          alert('Application not found.');
-        }
-      } catch (error) {
-        alert('An error occurred. Please try again.');
-      } finally {
-        spinner.style.display = 'none';
       }
-    });
 
-    document.getElementById('continueButton').addEventListener('click', function () {
-      window.open("https://paymentrequest.natwestpayit.com/reusable-links/e7ebe61c-1cec-403a-a110-318b266583bf", "_blank");
+      if (continueButton) {
+        continueButton.addEventListener("click", function () {
+          window.location.href = "https://paymentrequest.natwestpayit.com/reusable-links/e7ebe61c-1cec-403a-a110-318b266583bf";
+        });
+      }
     });
   </script>
 
