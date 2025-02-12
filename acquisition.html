@@ -8,27 +8,27 @@
   <link href="https://fonts.googleapis.com/css2?family=Arial&display=swap" rel="stylesheet">
 
   <style>
-    /* Prevent scrolling */
+    /* Fix for Mobile Devices: Use 100dvh for reliable height */
     html, body {
-      overflow: hidden; /* Remove vertical scrolling */
+      overflow: hidden;
       width: 100vw;
-      height: 100vh;
+      height: 100dvh; /* Ensures full screen height on mobile */
       margin: 0;
       padding: 0;
       display: flex;
       flex-direction: column;
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
-      touch-action: manipulation; /* Prevent zooming & accidental scrolling */
+      touch-action: manipulation;
     }
 
-    /* Ensure wrapper fills entire screen */
+    /* Ensure wrapper is properly centered */
     .container-wrapper {
       flex-grow: 1;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh; /* Ensures it takes up the full screen */
+      min-height: 100dvh; /* Fix for iPhones */
     }
 
     /* Ensure login container remains centered */
@@ -39,7 +39,6 @@
       padding: 20px;
       width: 90%;
       max-width: 400px;
-      min-height: 30vh;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       text-align: center;
       transition: all 0.3s ease-in-out;
@@ -152,12 +151,10 @@
       position: absolute;
       bottom: 0;
       left: 0;
-      line-height: 1.4;
       word-wrap: break-word;
       white-space: normal;
       overflow: hidden;
       box-sizing: border-box;
-      height: auto;
       min-height: 50px;
     }
 
