@@ -7,7 +7,7 @@
   <title>FinanceItNOW Inquiry Form</title>
   <link rel="icon" type="image/png" href="netlifyicon.png">
 
-  <!-- Open Graph Meta Tags for WhatsApp Link Preview -->
+  <!-- ✅ Open Graph Meta Tags for WhatsApp / Social Sharing -->
   <meta property="og:title" content="FinanceItNOW - Acquire Your Next Vehicle Now!" />
   <meta property="og:description" content="Click Now to get a FREE quote - all details of your application will be processed instantly and sent via text and email." />
   <meta property="og:image" content="https://financeitnow.netlify.app/netlifyicon2.png" />
@@ -22,13 +22,14 @@
       width: 100vw;
       height: 100vh;
       background-color: #f4f4f4;
-      overflow: hidden; /* No scrolling */
+      overflow: hidden; /* Prevent scrolling */
     }
 
     .form-container {
       width: 100%;
       height: 100%;
       box-sizing: border-box;
+      padding-bottom: 60px; /* ✅ Space for the Submit button comfort */
     }
 
     iframe {
@@ -36,6 +37,13 @@
       height: 100%;
       border: none;
       display: block;
+    }
+
+    /* Optional: Extra space for smaller screens */
+    @media (max-width: 768px) {
+      .form-container {
+        padding-bottom: 80px;
+      }
     }
   </style>
 </head>
