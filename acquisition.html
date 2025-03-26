@@ -166,10 +166,35 @@
       box-sizing: border-box;
       min-height: 50px;
     }
-
+  
     footer p {
       margin: 5px auto;
       max-width: 90%;
+    }
+  
+    /* Desktop Footer Override */
+    @media (min-width: 768px) {
+      footer {
+        background-color: #4CAF50;
+        color: white;
+        text-align: center;
+        padding: 0.8vw;
+        width: 100%;
+        font-size: 14px;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        word-wrap: break-word;
+        white-space: normal;
+        overflow: hidden;
+        box-sizing: border-box;
+        min-height: 50px; 
+      }
+  
+      footer p {
+        max-width: 100%;
+        margin: 0;
+      }
     }
   </style>
 </head>
