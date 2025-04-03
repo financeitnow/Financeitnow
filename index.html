@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controlled Slide Effect Form Transition</title>
+    <title>FinanceItNOW</title>
+    <link rel="icon" type="image/png" href="netlifyicon.png">
     <!-- Desktop Stylesheet (applies when viewport width is 768px and up) -->
     <link rel="stylesheet" href="desktop.css" media="(min-width: 768px)">
     <link rel="stylesheet" href="mobile.css" media="(max-width: 767px)">
+
+    
     <script src="https://cdn.jsdelivr.net/npm/geolib@3.3.4/lib/index.min.js"></script>
 </head>
 <body>
@@ -16,9 +19,12 @@
         
         <button onclick="showForm('form2')">Products</button>
     </div>
-    
+
+
 
 <div id="carPage" class="mainContainer slide-in-from-left">
+
+    
     <div class="carSearchFilters">
         <input type="text" id="postcode" placeholder="Postcode" required>
         <select id="makeDropdown">
@@ -49,15 +55,13 @@
         <div class="videoLeftRightbtnWrapper" id="videoNavigationWrapper">
             <div class="videoLeftRightbtnDIV">
                 <button id="prevButton" class="LeftRightFunctionsBtns">&lt;</button>
-                <div id="videoContainer" class="video-container">
-                    <video id="videoPlayer" controls autoplay muted preload="auto">
-                        <source src="" type="video/mp4">
-                        Your browser does not support HTML5 video.
-                    </video>
+                <div class="video-container">
+                    <img id="slideshowImage" src="" alt="Car Image">
                 </div>
                 <button id="nextButton" class="LeftRightFunctionsBtns">&gt;</button>
             </div>
         </div>
+        
         
         <div id="financeInfoContainer" class="finance-info-container">
             <h2 class="finance-title">FinanceItNOW!</h2>
@@ -101,11 +105,18 @@
 </div>
 
 <footer>
-    <p>FinanceItNow is registered in England and Wales under company number: 11846021. 3 Free Trade House, Stanmore, Middlesex, HA7 1EP</p>
+    <p>FinanceItNOW is registered in England and Wales under company number 11846021. Registered office: 3 Free Trade House, Stanmore, Middlesex, HA7 1EP.
 
-</footer>
+FinanceItNOW provides administrative support services only. We are not a lender, not a credit broker, and do not provide financial advice. We do not arrange or negotiate finance, nor do we receive commissions, referral fees, or payments from lenders, brokers, or third parties. Our services are strictly limited to assisting customers in completing finance inquiry forms based on their instructions.
+
+FinanceItNOW is not regulated by the Financial Conduct Authority (FCA) as our services do not constitute regulated financial activity.
+
+We are registered with the Information Commissioner’s Office (ICO), Registration Number ZB879014. All personal data is processed securely and in full compliance with the UK General Data Protection Regulation (UK GDPR) our <a href="privacy.html" style="color: white; text-decoration: underline; font-weight: bold;">Privacy Policy</a> and 
+<a href="terms.html" style="color: white; text-decoration: underline; font-weight: bold;">Terms & Conditions</a></p>
+  </footer>
 
 <script>
+    let CarURLs = [];
     var parsedData = [];  // This will hold the parsed data globally
     var videoHistory = [];
     var parsedMakeModels = {}; // This will store your make-models relationship
@@ -127,6 +138,14 @@
     let isNextClicked = true;
     let nextVideoSrc = '';
     let videoPlayer;
+
+    const baseUrl = 'http://localhost:3000';
+
+
+    let currentImageIndex = 0; // Track the current image index
+    let slideshowInterval;
+
+
 
     function showForm(formId) {
         const forms = document.querySelectorAll('.mainContainer');
@@ -229,48 +248,54 @@
     }
 
 
-    function updateVideoAndInfoContainers(CID) {
+async function updateVideoAndInfoContainers(CID) {
     const carData = parsedData.find(car => car.CID === CID);
-    const videoSrc = CID + '.mp4'; // Construct the video filename
-    const videoPlayer = document.getElementById('videoPlayer');
+    const carInfoContainer = document.getElementById('carInfoContainer');
 
-    if (isMobileFlag) {
-        // Set the source to videoPlayerClone if on mobile
-        if (videoPlayer) {
-            videoPlayer.src = videoSrc;
-            videoPlayer.load(); // Load the video to apply the source
-            console.log('Video Source Set To (Mobile): ' + videoSrc);
-        } else {
-            console.error('Mobile video player clone not found');
-        }
-    } else if (videoPlayer) {
-        // Set the source to videoPlayer if not on mobile
-        nextVideoSrc = videoSrc;
-        videoPlayer.src = nextVideoSrc;
-        videoPlayer.load(); // Load the video immediately
-        console.log('Video Source Set (Desktop): ' + videoSrc);
-    } else {
-        console.error('Video player element not found');
+    // Instead of setting a video source, we now dynamically load images from the folder named by CID
+    const imageUrls = [];
+    let index = 1;
+
+    while (true) {
+        const imagePath = `images/${CID}/${index}.jpg`;
+        const img = new Image();
+        img.src = imagePath;
+        
+
+        const loaded = await new Promise(resolve => {
+            img.onload = () => resolve(true);
+            img.onerror = () => resolve(false);
+        });
+
+        if (!loaded) break;
+        imageUrls.push(imagePath);
+        index++;
     }
 
-    const carInfoContainer = document.getElementById('carInfoContainer');
+    if (imageUrls.length > 0) {
+        currentImageIndex = 0;
+        carImages = imageUrls;
+
+        startSlideshow(carImages);
+    } else {
+        console.error(`No images found for CID ${CID}`);
+        return;
+    }
 
     if (carInfoContainer) {
         if (carData) {
-
-            const make = carData.Make;
-            const model = carData.Model;
-            const mileage = carData.Mileage;
-            const gearbox = carData.Gearbox;
-            const engine = carData.Engine;
-            const fuelType = carData.FuelType;
-            const registration = carData.Registration;
-            const price = carData.Price;
+            const make = carData.Make || "N/A";
+            const model = carData.Model || "N/A";
+            const mileage = carData.Mileage || "N/A";
+            const gearbox = carData.Gearbox || "N/A";
+            const engine = carData.Engine || "N/A";
+            const fuelType = carData.FuelType || "N/A";
+            const registration = carData.Registration || "N/A";
+            const price = carData.Price || "0";
 
             let carInfoHTML = '';
 
             if (isMobileFlag) {
-                // Mobile specific styling
                 carInfoHTML = `
                     <div style="display: flex; flex-direction: column; align-items: center;">
                         <div style="color: green; font-size: 3.4vw; margin-bottom: 0.6em; text-align: center;"><strong>${make}</strong></div>
@@ -282,10 +307,6 @@
                         <div style="color: green; font-size: 2.8vw; margin-bottom: 0.2em; text-align: center;">${registration}</div>
                         <div style="color: green; font-size: 2.8vw; text-align: center;">£${price}</div>
                     </div>
-                `;
-
-                // Mobile specific ContactNow styling with adjusted left positioning
-                carInfoHTML += `
                     <div style="display: flex; justify-content: flex-start; align-items: center; width: 100%; padding-left: 7vw;">
                         <a href="https://wa.me/+447506301308" target="_blank" style="display: flex; align-items: center; text-align: center;">
                             <img src="whatsapp.png" alt="Contact us on WhatsApp" style="width: 10vw; height: auto; margin-right: 0.1vw;">
@@ -294,7 +315,6 @@
                     </div>
                 `;
             } else {
-                // Desktop specific styling
                 carInfoHTML = `
                     <div style="display: flex; flex-direction: column; align-items: center;">
                         <div style="color: green; font-size: 1.4vw; margin-bottom: 0.4em; text-align: center;"><strong>${make}</strong></div>
@@ -306,11 +326,7 @@
                         <div style="color: green; font-size: 0.8vw; margin-bottom: 0.2em; text-align: center;">${registration}</div>
                         <div style="color: green; font-size: 0.8vw; margin-bottom: 0.2em; text-align: center;">£${price}</div>
                     </div>
-                `;
-
-                // Desktop specific ContactNow styling
-                carInfoHTML += `
-                    <div style="display: flex; justify-content: center; align-items: center; width: 100%; ">
+                    <div style="display: flex; justify-content: center; align-items: center; width: 100%;">
                         <a href="https://wa.me/+447506301308" target="_blank" style="display: flex; align-items: center; justify-content: center; text-align: center;">
                             <img src="whatsapp.png" alt="Contact us on WhatsApp" style="width: 2.8vw; height: auto; margin-right: 0.1vw;">
                             <span style="font-size: 1.4vw; color: purple; font-weight: bold;">ContactNow!</span>
@@ -321,13 +337,13 @@
 
             carInfoContainer.innerHTML = carInfoHTML;
 
-            financeDetails.carPrice = parseFloat(carData.Price); // Update car price globally
+            financeDetails.carPrice = parseFloat(price);
             calculateFinanceDetails();
 
             if (validPostcode) {
                 const userPostcode = document.getElementById('postcode').value;
-                const lastCarCID = videoHistory[videoHistory.length - 1]; // Get the last CID from video history
-                let distance = calculateDistanceFromUserToCar(userPostcode, lastCarCID); // Execute the distance calculation
+                const lastCarCID = videoHistory[videoHistory.length - 1];
+                let distance = calculateDistanceFromUserToCar(userPostcode, lastCarCID);
                 carInfoContainer.innerHTML += `<div id="distanceMessage" style="color: green; font-size: ${isMobileFlag ? '2.5vw' : '1.2vw'}; text-align: center;">Distance: ${Math.round(distance)} miles</div>`;
             } else {
                 carInfoContainer.innerHTML += `<div id="distanceMessage" style="color: red; font-size: ${isMobileFlag ? '2.5vw' : '1.2vw'}; text-align: center;">Please enter a valid postcode</div>`;
@@ -335,7 +351,7 @@
 
             const priceInput = document.getElementById('price');
             if (priceInput) {
-                priceInput.value = carData.Price; // Set the price input to the new car's price
+                priceInput.value = price;
             }
 
             carInfoContainer.classList.remove('hidden');
@@ -347,14 +363,12 @@
         }
     }
 
-    // Update finance info container, if necessary
     const financeInfoContainer = document.getElementById('financeInfoContainer');
     if (financeInfoContainer) {
         financeInfoContainer.classList.remove('hidden');
         financeInfoContainer.classList.add('slide-inRIGHT');
     }
 
-    // Record the CID in video history to avoid duplicates
     if (!videoHistory.includes(CID)) {
         videoHistory.push(CID);
         console.log('Video History: ' + videoHistory);
@@ -362,8 +376,32 @@
 }
 
 
+function startSlideshow(images) {
+    const slideshowImage = document.getElementById('slideshowImage');
+    
+    
+    if (!images || images.length === 0) return;
 
+    let fadeDuration = 300; // must match the CSS transition time
 
+    slideshowImage.src = images[0];
+    slideshowImage.style.opacity = 1;
+
+    clearInterval(slideshowInterval);
+    slideshowInterval = setInterval(() => {
+        // Fade out
+        slideshowImage.style.opacity = 0;
+
+        setTimeout(() => {
+            // Change image once faded out
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+            slideshowImage.src = images[currentImageIndex];
+            
+            // Fade in
+            slideshowImage.style.opacity = 1;
+        }, fadeDuration);
+    }, 1200);
+}
 
 
 
@@ -434,11 +472,6 @@ function calculateDistanceFromUserToCar(userPostCode, carCID) {
 
 
 
-
-
-
-
-
     // A shared function to handle animations and updating the video
     function updateVideoContent(updateFunction) {
         const videoNavigationWrapper = document.getElementById('videoNavigationWrapper');
@@ -492,26 +525,23 @@ function calculateDistanceFromUserToCar(userPostCode, carCID) {
     }
 
     function backButtonClicked() {
-        isNextClicked = false;
-        clearInterval(autoClickerInterval); // Clear any existing auto-click interval
-        updateButtonStyles("AIButton");
-	
-        // Ensure there's a history to go back to
-        if (videoHistory.length > 1) {
-            videoHistory.pop(); // Remove the current video from history
-            const previousVideoCID = videoHistory[videoHistory.length - 1]; // Get the previous CID
+    isNextClicked = false;
+    clearInterval(autoClickerInterval);
+    updateButtonStyles("AIButton");
+
+    if (videoHistory.length > 1) {
+        videoHistory.pop(); // Remove the current
+        const previousVideoCID = videoHistory[videoHistory.length - 1];
+
+        // Call updateVideoAndInfoContainers inside updateVideoContent
+        updateVideoContent(() => {
             updateVideoAndInfoContainers(previousVideoCID);
-            updateVideoContent(() => {
-                const videoPlayer = document.getElementById('videoPlayer');
-                if (videoPlayer) {
-                    videoPlayer.src = previousVideoCID + '.mp4';
-                }
-            });
-        } else {
-            console.warn("No more video history to go back to.");
-            updateVideoContent(selectRandomCar);
-        }
+        });
+    } else {
+        updateVideoContent(selectRandomCar);
     }
+}
+
 
     function populateMakeDropdown(makes) {
         const makeDropdown = document.getElementById('makeDropdown');
@@ -917,39 +947,38 @@ function calculateDistanceFromUserToCar(userPostCode, carCID) {
         }, 50);
     }
 
-    function displayMobileVideoPlayer() {
-    // Get the original video player element
-    const originalVideoPlayer = document.getElementById('videoPlayer');
-    
-    if (!originalVideoPlayer) {
-        console.error("Original video player not found.");
-        return;
+function displayMobileVideoPlayer() {
+    // Remove existing slideshowImage if present
+    const existingImage = document.getElementById('slideshowImage');
+    if (existingImage) {
+        existingImage.remove();
     }
 
-    // Clone the original video player for mobile use
-    const videoPlayerClone = originalVideoPlayer.cloneNode(true);
-    videoPlayerClone.id = 'videoPlayer'; // Keep the ID consistent for easier access
+    // Create a container
+    const slideshowContainer = document.createElement('div');
+    slideshowContainer.className = 'video-container';
+    slideshowContainer.style.position = 'absolute';
+    slideshowContainer.style.top = '15%';
+    slideshowContainer.style.left = '0';
+    slideshowContainer.style.width = '100%';
+    slideshowContainer.style.height = '45vh';
+    slideshowContainer.style.border = '2px solid #4CAF50';
+    slideshowContainer.style.backgroundColor = '#000';
+    slideshowContainer.style.zIndex = '999';
 
-    // Remove the original video player from the DOM
-    originalVideoPlayer.remove();
+    // Create the image element for the slideshow
+    const slideshowImage = document.createElement('img');
+    slideshowImage.id = 'slideshowImage';
+    slideshowImage.style.width = '100%';
+    slideshowImage.style.height = '100%';
+    slideshowImage.style.objectFit = 'cover';
+    slideshowImage.style.transition = 'opacity 0.3s ease-in-out';
+    slideshowImage.style.opacity = '1';
 
-    // Style the cloned video player for mobile
-    videoPlayerClone.style.position = 'absolute';
-    videoPlayerClone.style.top = '15%';
-    videoPlayerClone.style.left = '0';
-    videoPlayerClone.style.width = '99vw';
-    videoPlayerClone.style.height = '45vh';
-    videoPlayerClone.style.border = '2px solid #4CAF50';
-
-    // Set preload attribute for smoother playback
-    videoPlayerClone.setAttribute('preload', 'auto');
-
-    // Append the cloned video player to the body
-    document.body.appendChild(videoPlayerClone);
-
-    // Update the global videoPlayer variable to reference the mobile clone
-    videoPlayer = videoPlayerClone;
+    slideshowContainer.appendChild(slideshowImage);
+    document.body.appendChild(slideshowContainer);
 }
+
 
 
     // Event listeners for buttons
@@ -991,6 +1020,7 @@ function calculateDistanceFromUserToCar(userPostCode, carCID) {
         fetchPostCodesLatitudeLongitude();
         initializeCreditScoreButtons();  
         handleMobileOrDesktopView(); 
+        //loadCarURLs();
           
     });
 </script>
