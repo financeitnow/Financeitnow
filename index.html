@@ -252,25 +252,15 @@ async function updateVideoAndInfoContainers(CID) {
     const carData = parsedData.find(car => car.CID === CID);
     const carInfoContainer = document.getElementById('carInfoContainer');
 
-    // Instead of setting a video source, we now dynamically load images from the folder named by CID
     const imageUrls = [];
-    let index = 1;
-
-    while (true) {
+    for (let index = 1; index <= 13; index++) {
         const imagePath = `images/${CID}/${index}.jpg`;
-        const img = new Image();
-        img.src = imagePath;
-        
-
-        const loaded = await new Promise(resolve => {
-            img.onload = () => resolve(true);
-            img.onerror = () => resolve(false);
-        });
-
-        if (!loaded) break;
         imageUrls.push(imagePath);
-        index++;
     }
+
+
+
+
 
     if (imageUrls.length > 0) {
         currentImageIndex = 0;
