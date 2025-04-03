@@ -378,11 +378,11 @@ function startSlideshow(images) {
     if (isMobileFlag) {
         // Mobile animation: longer fade, slower interval
         fadeDuration = 150;
-        slideshowIntervalTime = 1200;
+        slideshowIntervalTime = 800;
     } else {
         // Desktop animation: faster fade, quicker interval
         fadeDuration = 280;
-        slideshowIntervalTime = 1200;
+        slideshowIntervalTime = 800;
     }
 
     currentImageIndex = 0;
@@ -399,6 +399,7 @@ function startSlideshow(images) {
         }, fadeDuration);
     }, slideshowIntervalTime);
 }
+
 
 
 
