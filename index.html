@@ -372,7 +372,7 @@ function startSlideshow(images) {
     
     if (!images || images.length === 0) return;
 
-    let fadeDuration = 200; // must match the CSS transition time
+    let fadeDuration = 300; // must match the CSS transition time
 
     slideshowImage.src = images[0];
     slideshowImage.style.opacity = 1;
@@ -380,7 +380,7 @@ function startSlideshow(images) {
     clearInterval(slideshowInterval);
     slideshowInterval = setInterval(() => {
         // Fade out
-        slideshowImage.style.opacity = 0.4;
+        slideshowImage.style.opacity = 0;
 
         setTimeout(() => {
             // Change image once faded out
@@ -392,6 +392,7 @@ function startSlideshow(images) {
         }, fadeDuration);
     }, 1200);
 }
+
 
 
 
