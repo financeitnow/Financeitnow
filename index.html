@@ -368,30 +368,38 @@ async function updateVideoAndInfoContainers(CID) {
 
 function startSlideshow(images) {
     const slideshowImage = document.getElementById('slideshowImage');
-    
-    
     if (!images || images.length === 0) return;
 
-    let fadeDuration = 300; // must match the CSS transition time
+    clearInterval(slideshowInterval);
 
+    // Apply different animations for mobile vs desktop
+    let fadeDuration, slideshowIntervalTime;
+
+    if (isMobileFlag) {
+        // Mobile animation: longer fade, slower interval
+        fadeDuration = 200;
+        slideshowIntervalTime = 1200;
+    } else {
+        // Desktop animation: faster fade, quicker interval
+        fadeDuration = 300;
+        slideshowIntervalTime = 1200;
+    }
+
+    currentImageIndex = 0;
     slideshowImage.src = images[0];
     slideshowImage.style.opacity = 1;
 
-    clearInterval(slideshowInterval);
     slideshowInterval = setInterval(() => {
-        // Fade out
         slideshowImage.style.opacity = 0;
 
         setTimeout(() => {
-            // Change image once faded out
             currentImageIndex = (currentImageIndex + 1) % images.length;
             slideshowImage.src = images[currentImageIndex];
-            
-            // Fade in
             slideshowImage.style.opacity = 1;
         }, fadeDuration);
-    }, 1200);
+    }, slideshowIntervalTime);
 }
+
 
 
 
