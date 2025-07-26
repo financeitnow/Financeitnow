@@ -122,12 +122,12 @@
       const formContainer = document.querySelector('.form-container');
 
       function scrollToBottomIfNeeded() {
-        // If user is near the bottom, scroll so the footer and submit are visible
+        // If user is within 20% of the bottom of the page, scroll to bottom
         const scrollY = window.scrollY || window.pageYOffset;
         const viewportHeight = window.innerHeight;
         const docHeight = document.body.scrollHeight;
-        // If within 120px of bottom, scroll to bottom
-        if (docHeight - (scrollY + viewportHeight) < 120) {
+        const remaining = docHeight - (scrollY + viewportHeight);
+        if (remaining < 0.2 * viewportHeight) {
           window.scrollTo({ top: docHeight, behavior: 'smooth' });
         }
       }
