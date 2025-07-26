@@ -72,17 +72,30 @@
     }
 
     @media (max-width: 768px) {
+      html, body {
+        height: auto;
+        min-height: 100vh;
+        overflow: auto;
+      }
       .form-container {
-        height: 90vh;
+        height: auto;
+        min-height: 100vh;
+        padding-bottom: 0;
       }
       iframe {
-        min-height: 200px;
-        height: 90vh;
+        min-height: 400px;
+        height: auto;
+        min-height: 100vh;
+        display: block;
       }
       footer {
+        position: static;
+        width: 100vw;
+        height: auto;
         font-size: min(2vw, 2vh, 12px);
-        padding: 0 2px;
+        padding: 8px 2px;
         line-height: 1.03;
+        display: block;
       }
     }
   </style>
