@@ -127,7 +127,7 @@
         const viewportHeight = window.innerHeight;
         const docHeight = document.body.scrollHeight;
         const remaining = docHeight - (scrollY + viewportHeight);
-        if (remaining < 0.2 * viewportHeight) {
+        if (remaining < 0.4 * viewportHeight) {
           window.scrollTo({ top: docHeight, behavior: 'smooth' });
         }
       }
