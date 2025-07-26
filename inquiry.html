@@ -114,6 +114,43 @@
     </div>
   </footer>
 
+  <script>
+    // Only run on mobile
+    if (window.innerWidth <= 768) {
+      const iframe = document.querySelector('.form-container iframe');
+      const footer = document.querySelector('footer');
+      const formContainer = document.querySelector('.form-container');
+
+      function scrollToBottomIfNeeded() {
+        // If user is near the bottom, scroll so the footer and submit are visible
+        const scrollY = window.scrollY || window.pageYOffset;
+        const viewportHeight = window.innerHeight;
+        const docHeight = document.body.scrollHeight;
+        // If within 120px of bottom, scroll to bottom
+        if (docHeight - (scrollY + viewportHeight) < 120) {
+          window.scrollTo({ top: docHeight, behavior: 'smooth' });
+        }
+      }
+
+      // Make iframe taller on focus/scroll near bottom
+      function adjustIframeHeight() {
+        // Set iframe to fill available space
+        iframe.style.height = 'auto';
+        iframe.style.minHeight = '100vh';
+      }
+
+      // Listen for scroll events
+      window.addEventListener('scroll', function() {
+        scrollToBottomIfNeeded();
+      });
+
+      // Optionally, listen for focus on the iframe (when user taps into form fields)
+      iframe.addEventListener('focus', function() {
+        adjustIframeHeight();
+      });
+    }
+  </script>
+
 </body>
 
 </html>
