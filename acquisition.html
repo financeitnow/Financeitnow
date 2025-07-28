@@ -249,7 +249,9 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
           spinner.style.display = "block";
 
           try {
-            const response = await fetch("https://script.google.com/macros/s/AKfycbyoDeNEFoRzxQd-bCX4A822m2eNSMr4UM6-6vmZMXUDslORDTdbD798nQFWTgG77FCs/exec", {
+
+            const response = await fetch("https://script.google.com/macros/s/AKfycbzHudtGSrjVhr6UlVO04A5Uq21ee4UqmHcIlNwTQfSHhswJFcCe_FZ3FS0lkRwRte8-/exec", {
+            //const response = await fetch("https://script.google.com/macros/s/AKfycbyoDeNEFoRzxQd-bCX4A822m2eNSMr4UM6-6vmZMXUDslORDTdbD798nQFWTgG77FCs/exec", {
               method: "POST",
               headers: { "Content-Type": "application/x-www-form-urlencoded" },
               body: new URLSearchParams({ email }),
