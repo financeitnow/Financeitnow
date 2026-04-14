@@ -1344,7 +1344,7 @@ function getCurrentYear() {
 }
 
 async function loadCarsData() {
-    const response = await fetch('../data/cars.json?v=' + new Date().getTime());
+    const response = await fetch('data/cars.json?v=' + new Date().getTime());
     parsedData = await response.json();
     console.log("Loaded cars:", parsedData.length); 
 
