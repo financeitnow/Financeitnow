@@ -1,4 +1,4 @@
-# Python
+# Python / scraper files (local only)
 __pycache__/
 *.pyc
 *.pyo
@@ -6,6 +6,21 @@ __pycache__/
 .Python
 env/
 venv/
+src/*.py
+src/python
+src/__init__.py
+
+# Old web app assets (not needed on live site)
+src/images/
+src/1.mp4
+src/2.mp4
+src/3.mp4
+src/4.mp4
+src/5.mp4
+src/6.mp4
+src/7.mp4
+src/8.mp4
+src/specialistFunding.html
 
 # Dev/test files
 src/full_stock_page.html
