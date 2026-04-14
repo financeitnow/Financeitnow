@@ -1,0 +1,14 @@
+[build]
+  publish = "src"
+  edge_functions = "netlify/edge-functions"
+
+[[edge_functions]]
+  path = "/car/*"
+  function = "car-preview"
+
+# Fallback: if edge function is not active, redirect /car/:id to the app
+[[redirects]]
+  from = "/car/:id"
+  to   = "/index.html?car=:id"
+  status = 200
+  force = false

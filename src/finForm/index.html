@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinanceItNow! - Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 400px; /* Set your desired fixed width */
+            max-width: 100%; /* Ensure it doesn't exceed the viewport width */
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            display: grid;
+            gap: 15px;
+        }
+
+        button {
+            width: 40%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            color: #333;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            margin: 0 auto;
+        }
+
+        button.selected {
+            background-color: #4caf50 !important;
+            color: #fff !important;
+        }
+
+        button:hover:not(.selected) {
+            background-color: #ddd;
+        }
+
+        button:active:not(.selected) {
+            background-color: #4caf50;
+            color: #fff;
+        }
+
+        button:focus {
+            outline: none;
+        }
+
+        button.green-border {
+            border: 2px solid #4caf50;
+            border-radius: 4px;
+            margin-top: 5px;
+            cursor: pointer;
+        }
+
+        /* Rounded edges and green borders for getStarted buttons */
+        #getStarted button,
+        #drivingLicenseNextButton,
+        #drivingLicenseBackButton,
+		#maritalStatusNextButton,
+		#maritalStatusBackButton,
+		#aboutYouNextButton,
+		#aboutYouBackButton
+		{
+            border-radius: 20px;
+            border: 2px solid #4caf50;
+        }
+
+        /* New button styles */
+        #getStartedButton,
+        #drivingLicenseNextButton,
+        #drivingLicenseBackButton,
+		#maritalStatusNextButton,
+		#maritalStatusBackButton,
+		#aboutYouNextButton,
+		#aboutYouBackButton
+		
+		{
+            width: 30%;
+            background-color: #4caf50;
+            color: #fff;
+            margin: 20px auto 0; /* Centered margin */
+            transition: background-color 0.3s, color 0.3s;
+            display: block; /* Ensure the button is a block element */
+        }
+		
+		#getStartedButton
+        {
+
+            margin: 0px auto 0; /* Centered margin */
+
+        }
+
+        #getStartedButton:hover,
+        #drivingLicenseNextButton:hover,
+        #drivingLicenseBackButton:hover,
+		#maritalStatusNextButton:hover,
+		#maritalStatusBackButton:hover,
+		#aboutYouNextButton:hover,
+		#aboutYouBackButton:hover
+		{
+            background-color: lightgrey;
+            color: #000;
+        }
+                             
+		#drivingLicenseNextButton,
+		#maritalStatusNextButton,
+		#aboutYouNextButton	
+		{
+		   float: right; /* Align to the right */
+		}
+
+		#drivingLicenseBackButton,
+		#maritalStatusBackButton,
+		#aboutYouBackButton
+		{
+		   float: left; /* Align to the left */
+		}
+
+		#getStartedButton {
+		   width: 60%; /* Width for Get Started button */
+		}
+
+        .centered {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .tick-box,
+        .additional-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .tick-box img,
+        .additional-info img {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
+
+        .tick-box p,
+        .additional-info p {
+            margin: 0;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .label {
+            text-align: center;
+            margin-top: 10px;
+            color: #333;
+        }
+
+        .slider-container {
+            width: 100%;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        input[type="range"] {
+            width: 100%;
+        }
+
+        .slider-value {
+            text-align: center;
+            margin-top: 5px;
+            border: 2px solid #4caf50;
+            padding: 8px;
+            width: 100px;
+            border-radius: 4px;
+            cursor: pointer;
+            user-select: none;
+            display: inline-block;
+        }
+
+        .error-label {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: red;
+            font-size: 12px;
+        }
+
+        .selected-option-error-label {
+            text-align: center;
+            margin-top: -15px;
+            color: red;
+            font-size: 12px;
+        }
+                                
+		.license-error-label {
+			position: absolute;
+			text-align: center;
+			margin-top: -15px; /* Adjust the margin as needed */
+			left: 50%;
+			transform: translateX(-50%);
+			color: red;
+			font-size: 12px;
+			white-space: nowrap; /* Prevent wrapping */
+			width: 100%; /* Ensure the full width of the container */
+			display: block;
+		}
+
+
+
+        #minusSign,
+        #plusSign {
+            width: 30px;
+        }
+
+        #plusSign {
+            margin-left: 10px;
+        }
+
+        #minusSign {
+            margin-right: 10px;
+        }
+
+        /* New styles for the Driving License section */
+        #drivingLicenseSection,
+        #maritalStatusSection,
+		#aboutYouSection
+		{
+            display: none;
+            margin-top: 20px;
+            border-top: 2px solid #ccc;
+            padding-top: 20px;
+                                                
+        }
+
+        #drivingLicenseSection,
+		#maritalStatusSection,
+		#aboutYouSection h3 
+		{
+            text-align: center;
+        }
+		
+		#nationalityDropdown {
+		  width: 300px; /* Adjust the width as needed */
+		  height: 40px; /* Adjust the height as needed */
+		  font-size: 16px; /* Adjust the font size as needed */
+		  border: 2px solid #4caf50; /* Green border as requested */
+		  border-radius: 10px; /* Slight border radius for a rounded appearance */
+		  margin: 0 auto; /* Center horizontally */
+		  display: block;
+		  text-align: center;
+		}
+
+		/* Hover effect */
+		#nationalityDropdown:hover {
+		  outline: none; /* Remove default outline */
+		  box-shadow: 0 0 10px rgba(0, 255, 0, 0.5); /* Green glow effect */
+		}
+
+		/* Style for the dropdown menu */
+		#nationalityDropdown select {
+		  width: 100%; /* Make the dropdown menu fill the container width */
+		  height: 100%;
+		  font-size: 16px; /* Adjust the font size as needed */
+		  background-color: #fff; /* Background color of the dropdown menu */
+		  color: #333; /* Text color of the dropdown menu */
+		  border: 2px solid green; /* Green border for the dropdown menu */  
+		  outline: 2px solid green; /* Remove default outline */
+		  
+		}
+
+		/* Keep the green border when the dropdown is focused */
+		#nationalityDropdown select:focus {
+		  border: 2px solid green; /* Green border on focus */
+		}
+		
+
+
+		
+		
+		
+				
+		
+                                
+                                
+                                
+                                
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>FinanceItNow!</h2>
+
+        <div id="introduction" class="centered">
+            <div class="tick-box">
+                <img src="path/to/tick-box-image.png" alt="Tick Box">
+                <p>No impact on your credit score - see if you'll be accepted before you choose to proceed</p>
+            </div>
+
+            <div class="additional-info">
+                <img src="path/to/clock-image.png" alt="Clock">
+                <p>Questions take less than 2 mins</p>
+            </div>
+
+            <div class="subtitle">Let's get started</div>
+            <div class="label">How much would you like to borrow?</div>
+
+            <div class="slider-container">
+                <button class="green-border" onclick="decrementSlider()" id="minusSign">-</button>
+                <div class="slider-value" id="sliderValue" contenteditable="plaintext-only" onkeyup="updateBorrowAmount()" onclick="resetSlider()">3000</div>
+                <button class="green-border" onclick="incrementSlider()" id="plusSign">+</button>
+                <div class="error-label" id="sliderErrorLabel"></div>
+            </div>
+
+            <div class="slider-container">
+                <input type="range" id="borrowAmount" name="borrowAmount" min="0" max="50000" value="3000" oninput="updateSliderValue(this.value)">
+            </div>
+        </div>
+
+        <!-- Updated ID for the form section -->
+        <form id="getStarted">
+            <button type="button" onclick="selectOption('Car')" id="carButton">Car</button>
+            <button type="button" onclick="selectOption('Taxi')" id="taxiButton">Taxi</button>
+            <button type="button" onclick="selectOption('Van')" id="vanButton">Van</button>
+            <button type="button" onclick="selectOption('Caravan')" id="caravanButton">Caravan</button>
+            <button type="button" onclick="selectOption('Motorbike')" id="motorbikeButton">Motorbike</button>
+                                                
+                                                
+
+            <div class="selected-option-error-label" id="selectedOptionErrorLabel"></div>
+
+            <button type="button" id="getStartedButton" onclick="getStarted()">Get Started Now</button>
+
+            <input type="hidden" id="financingOption" name="financingOption" value="">
+        </form>
+
+        <!-- Driving License section -->
+		<form id="drivingLicenseSection">
+
+						<h3>Driving License</h3>
+
+						<p class="label">What kind do you have?</p>
+						<!-- Error label under the options -->
+						<div class="license-error-label" id="licenseErrorLabel"></div>
+						
+						<div style="display: flex; justify-content: space-between; margin-top: 20px; margin-bottom: 20px;">
+										<button type="button" onclick="selectLicenseOption('Full UK')" id="fullukButton" style="margin-right: 5px; margin-left: 5px;">Full UK</button>
+										<button type="button" onclick="selectLicenseOption('Provisional UK')" id="provisionalukButton" style="margin-right: 5px;">Provisional UK</button>
+										<button type="button" onclick="selectLicenseOption('European')" id="europeanButton" style="margin-right: 5px;">European</button>
+										<button type="button" onclick="selectLicenseOption('International')" id="internationalButton" style="margin-right: 5px;">International</button>
+										
+										
+						</div>
+
+
+
+						<!-- New Next button -->
+						<button type="button" id="drivingLicenseNextButton" onclick="nextSection()">Next</button>
+
+						<!-- New Back button -->
+						<button type="button" id="drivingLicenseBackButton" onclick="goBack()">Back</button>
+
+		</form>
+		
+		<form id="maritalStatusSection" >
+
+						<h3>Marital Status</h3>
+
+						<p class="label">Are you...</p>
+						<!-- Error label under the options -->
+						<div class="license-error-label" id="maritalStatusErrorLabel"></div>
+
+					<div style="display: flex; flex-wrap: wrap; justify-content: space-between; margin-top: 20px; margin-bottom: 20px;">
+						<button type="button" onclick="selectMaritalStatus('Single')" id="singleButton" style="margin-right: 5px; margin-bottom: 5px;">Single</button>
+						<button type="button" onclick="selectMaritalStatus('Married')" id="marriedButton" style="margin-right: 5px; margin-bottom: 5px;">Married</button>
+						<button type="button" onclick="selectMaritalStatus('Cohabiting')" id="cohabitingButton" style="margin-right: 5px; margin-bottom: 5px;">Cohabiting</button>
+						<button type="button" onclick="selectMaritalStatus('Separated')" id="separatedButton" style="margin-right: 5px; margin-bottom: 5px;">Separated</button>
+						<button type="button" onclick="selectMaritalStatus('Widowed')" id="widowedButton" style="margin-right: 5px; margin-bottom: 5px;">Widowed</button>
+						<button type="button" onclick="selectMaritalStatus('Civil Partnership')" id="civilpartnershipButton" style="margin-right: 5px; margin-bottom: 5px;">Civil Partnership</button>
+
+						<button type="button" onclick="selectMaritalStatus('Engaged')" id="engagedButton" style="margin-right: 5px; margin-bottom: 5px;">Engaged</button>
+						<button type="button" onclick="selectMaritalStatus('Divorced')" id="divorcedButton" style="margin-right: 5px; margin-bottom: 5px;">Divorced</button>
+					</div>
+
+
+
+					<!-- Error label under the options -->
+					<div class="license-error-label" id="maritalStatusErrorLabel"></div>
+
+
+						<!-- New Next button for Marital Status Section -->
+						<button type="button" id="maritalStatusNextButton" onclick="nextMaritalStatusSection()">Next</button>
+
+						<!-- New Back button for Marital Status Section -->
+						<button type="button" id="maritalStatusBackButton" onclick="goBackToDrivingLicense()">Back</button>
+
+		</form>
+		
+				<!-- About You section -->
+		<form id="aboutYouSection">
+			<h3>About You</h3>
+			<p class="label">Let us know your nationality</p>
+			
+
+			<!-- Dropdown menu for nationalities -->
+			<select id="nationalityDropdown" onchange="updateBorderColor()" style="margin-bottom: 20px; ">
+				<!-- Add options for all nationalities, with British as the default -->
+				<option value="british" selected>British</option>
+				    <option value="Irish">Irish</option>
+					<option value="Welsh">Welsh</option>
+					<option value="Scottish">Scottish</option>
+					<option value="Northern Irish">Northern Irish</option>
+					<!-- Add other nationality options here -->
+					
+					<option value="afghan">Afghan</option>
+				  <option value="albanian">Albanian</option>
+				  <option value="algerian">Algerian</option>
+				  <option value="american">American</option>
+				  <option value="andorran">Andorran</option>
+				  <option value="angolan">Angolan</option>
+				  <option value="antiguans">Antiguans</option>
+				  <option value="argentinean">Argentinean</option>
+				  <option value="armenian">Armenian</option>
+				  <option value="australian">Australian</option>
+				  <option value="austrian">Austrian</option>
+				  <option value="azerbaijani">Azerbaijani</option>
+				  <option value="bahamian">Bahamian</option>
+				  <option value="bahraini">Bahraini</option>
+				  <option value="bangladeshi">Bangladeshi</option>
+				  <option value="barbadian">Barbadian</option>
+				  <option value="barbudans">Barbudans</option>
+				  <option value="batswana">Batswana</option>
+				  <option value="belarusian">Belarusian</option>
+				  <option value="belgian">Belgian</option>
+				  <option value="belizean">Belizean</option>
+				  <option value="beninese">Beninese</option>
+				  <option value="bhutanese">Bhutanese</option>
+				  <option value="bolivian">Bolivian</option>
+				  <option value="bosnian">Bosnian</option>
+				  <option value="brazilian">Brazilian</option>
+				  <option value="british">British</option>
+				  <option value="bruneian">Bruneian</option>
+				  <option value="bulgarian">Bulgarian</option>
+				  <option value="burkinabe">Burkinabe</option>
+				  <option value="burmese">Burmese</option>
+				  <option value="burundian">Burundian</option>
+				  <option value="cambodian">Cambodian</option>
+				  <option value="cameroonian">Cameroonian</option>
+				  <option value="canadian">Canadian</option>
+				  <option value="cape verdean">Cape Verdean</option>
+				  <option value="central african">Central African</option>
+				  <option value="chadian">Chadian</option>
+				  <option value="chilean">Chilean</option>
+				  <option value="chinese">Chinese</option>
+				  <option value="colombian">Colombian</option>
+				  <option value="comoran">Comoran</option>
+				  <option value="congolese">Congolese</option>
+				  <option value="costa rican">Costa Rican</option>
+				  <option value="croatian">Croatian</option>
+				  <option value="cuban">Cuban</option>
+				  <option value="cypriot">Cypriot</option>
+				  <option value="czech">Czech</option>
+				  <option value="danish">Danish</option>
+				  <option value="djibouti">Djibouti</option>
+				  <option value="dominican">Dominican</option>
+				  <option value="dutch">Dutch</option>
+				  <option value="east timorese">East Timorese</option>
+				  <option value="ecuadorean">Ecuadorean</option>
+				  <option value="egyptian">Egyptian</option>
+				  <option value="emirian">Emirian</option>
+				  <option value="equatorial guinean">Equatorial Guinean</option>
+				  <option value="eritrean">Eritrean</option>
+				  <option value="estonian">Estonian</option>
+				  <option value="ethiopian">Ethiopian</option>
+				  <option value="fijian">Fijian</option>
+				  <option value="filipino">Filipino</option>
+				  <option value="finnish">Finnish</option>
+				  <option value="french">French</option>
+				  <option value="gabonese">Gabonese</option>
+				  <option value="gambian">Gambian</option>
+				  <option value="georgian">Georgian</option>
+				  <option value="german">German</option>
+				  <option value="ghanaian">Ghanaian</option>
+				  <option value="greek">Greek</option>
+				  <option value="grenadian">Grenadian</option>
+				  <option value="guatemalan">Guatemalan</option>
+				  <option value="guinea-bissauan">Guinea-Bissauan</option>
+				  <option value="guinean">Guinean</option>
+				  <option value="guyanese">Guyanese</option>
+				  <option value="haitian">Haitian</option>
+				  <option value="herzegovinian">Herzegovinian</option>
+				  <option value="honduran">Honduran</option>
+				  <option value="hungarian">Hungarian</option>
+				  <option value="icelander">Icelander</option>
+				  <option value="indian">Indian</option>
+				  <option value="indonesian">Indonesian</option>
+				  <option value="iranian">Iranian</option>
+				  <option value="iraqi">Iraqi</option>
+				  <option value="irish">Irish</option>
+				  <option value="israeli">Israeli</option>
+				  <option value="italian">Italian</option>
+				  <option value="ivorian">Ivorian</option>
+				  <option value="jamaican">Jamaican</option>
+				  <option value="japanese">Japanese</option>
+				  <option value="jordanian">Jordanian</option>
+				  <option value="kazakhstani">Kazakhstani</option>
+				  <option value="kenyan">Kenyan</option>
+				  <option value="kittian and nevisian">Kittian and Nevisian</option>
+				  <option value="kuwaiti">Kuwaiti</option>
+				  <option value="kyrgyz">Kyrgyz</option>
+				  <option value="laotian">Laotian</option>
+				  <option value="latvian">Latvian</option>
+				  <option value="lebanese">Lebanese</option>
+				  <option value="liberian">Liberian</option>
+				  <option value="libyan">Libyan</option>
+				  <option value="liechtensteiner">Liechtensteiner</option>
+				  <option value="lithuanian">Lithuanian</option>
+				  <option value="luxembourger">Luxembourger</option>
+				  <option value="macedonian">Macedonian</option>
+				  <option value="malagasy">Malagasy</option>
+				  <option value="malawian">Malawian</option>
+				  <option value="malaysian">Malaysian</option>
+				  <option value="maldivan">Maldivan</option>
+				  <option value="malian">Malian</option>
+				  <option value="maltese">Maltese</option>
+				  <option value="marshallese">Marshallese</option>
+				  <option value="mauritanian">Mauritanian</option>
+				  <option value="mauritian">Mauritian</option>
+				  <option value="mexican">Mexican</option>
+				  <option value="micronesian">Micronesian</option>
+				  <option value="moldovan">Moldovan</option>
+				  <option value="monacan">Monacan</option>
+				  <option value="mongolian">Mongolian</option>
+				  <option value="moroccan">Moroccan</option>
+				  <option value="mosotho">Mosotho</option>
+				  <option value="motswana">Motswana</option>
+				  <option value="mozambican">Mozambican</option>
+				  <option value="namibian">Namibian</option>
+				  <option value="nauruan">Nauruan</option>
+				  <option value="nepalese">Nepalese</option>
+				  <option value="new zealander">New Zealander</option>
+				  <option value="ni-vanuatu">Ni-Vanuatu</option>
+				  <option value="nicaraguan">Nicaraguan</option>
+				  <option value="nigerien">Nigerien</option>
+				  <option value="north korean">North Korean</option>
+	
+				  <option value="norwegian">Norwegian</option>
+				  <option value="omani">Omani</option>
+				  <option value="pakistani">Pakistani</option>
+				  <option value="palauan">Palauan</option>
+				  <option value="panamanian">Panamanian</option>
+				  <option value="papua new guinean">Papua New Guinean</option>
+				  <option value="paraguayan">Paraguayan</option>
+				  <option value="peruvian">Peruvian</option>
+				  <option value="polish">Polish</option>
+				  <option value="portuguese">Portuguese</option>
+				  <option value="qatari">Qatari</option>
+				  <option value="romanian">Romanian</option>
+				  <option value="russian">Russian</option>
+				  <option value="rwandan">Rwandan</option>
+				  <option value="saint lucian">Saint Lucian</option>
+				  <option value="salvadoran">Salvadoran</option>
+				  <option value="samoan">Samoan</option>
+				  <option value="san marinese">San Marinese</option>
+				  <option value="sao tomean">Sao Tomean</option>
+				  <option value="saudi">Saudi</option>
+				  <option value="scottish">Scottish</option>
+				  <option value="senegalese">Senegalese</option>
+				  <option value="serbian">Serbian</option>
+				  <option value="seychellois">Seychellois</option>
+				  <option value="sierra leonean">Sierra Leonean</option>
+				  <option value="singaporean">Singaporean</option>
+				  <option value="slovakian">Slovakian</option>
+				  <option value="slovenian">Slovenian</option>
+				  <option value="solomon islander">Solomon Islander</option>
+				  <option value="somali">Somali</option>
+				  <option value="south african">South African</option>
+				  <option value="south korean">South Korean</option>
+				  <option value="spanish">Spanish</option>
+				  <option value="sri lankan">Sri Lankan</option>
+				  <option value="sudanese">Sudanese</option>
+				  <option value="surinamer">Surinamer</option>
+				  <option value="swazi">Swazi</option>
+				  <option value="swedish">Swedish</option>
+				  <option value="swiss">Swiss</option>
+				  <option value="syrian">Syrian</option>
+				  <option value="taiwanese">Taiwanese</option>
+				  <option value="tajik">Tajik</option>
+				  <option value="tanzanian">Tanzanian</option>
+				  <option value="thai">Thai</option>
+				  <option value="togolese">Togolese</option>
+				  <option value="tongan">Tongan</option>
+				  <option value="trinidadian or tobagonian">Trinidadian or Tobagonian</option>
+				  <option value="tunisian">Tunisian</option>
+				  <option value="turkish">Turkish</option>
+				  <option value="tuvaluan">Tuvaluan</option>
+				  <option value="ugandan">Ugandan</option>
+				  <option value="ukrainian">Ukrainian</option>
+				  <option value="uruguayan">Uruguayan</option>
+				  <option value="uzbekistani">Uzbekistani</option>
+				  <option value="venezuelan">Venezuelan</option>
+				  <option value="vietnamese">Vietnamese</option>
+				  <option value="welsh">Welsh</option>
+				  <option value="yemenite">Yemenite</option>
+				  <option value="zambian">Zambian</option>
+				  <option value="zimbabwean">Zimbabwean</option>
+
+			</select>
+
+			<!-- Error label under the options -->
+			<div class="license-error-label" id="nationalityErrorLabel"></div>
+
+			<!-- New Next button for About You Section -->
+			<button type="button" id="aboutYouNextButton" onclick="nextAboutYouSection()">Next</button>
+
+			<!-- New Back button for About You Section -->
+			<button type="button" id="aboutYouBackButton" onclick="goBackToMaritalStatus()">Back</button>
+		</form>
+		
+		  <div id="DOBSection">
+			<h3>Are you eligible?</h3>
+			<p>What is your date of birth?</p>
+			<!-- Date of birth input -->
+			<input type="text" id="dob" placeholder="DD/MM/YYYY" maxlength="10" oninput="formatDate(this)">
+
+			<!-- Next button for the next section -->
+			<button onclick="submitForm()">Next</button>
+		  </div>
+
+
+    <script>
+        function handleSliderKeyPress(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                document.getElementById('sliderValue').blur();
+                document.getElementById('sliderValue').style.borderColor = '#4caf50';
+                updateBorrowAmount();
+            }
+        }
+
+        function updateBorrowAmount() {
+            let value = parseInt(document.getElementById('sliderValue').innerText, 10);
+            const sliderErrorLabel = document.getElementById('sliderErrorLabel');
+
+            if (!isNaN(value)) {
+                value = Math.min(50000, Math.max(0, value));
+                document.getElementById('borrowAmount').value = value;
+                sliderErrorLabel.textContent = '';
+            } else {
+                document.getElementById('borrowAmount').value = 0;
+                sliderErrorLabel.textContent = 'Please enter a value';
+            }
+        }
+
+        function selectOption(option) {
+            const financingOption = document.getElementById('financingOption');
+            const selectedOptionErrorLabelElement = document.getElementById('selectedOptionErrorLabel');
+            const financingButtons = document.querySelectorAll('#carButton, #taxiButton, #vanButton, #caravanButton, #motorbikeButton');
+
+            financingOption.value = option;
+
+            financingButtons.forEach(btn => btn.classList.remove('selected'));
+            document.getElementById(`${option.toLowerCase()}Button`).classList.add('selected');
+
+            financingButtons.forEach(btn => {
+                btn.style.borderColor = '#ccc';
+            });
+
+            selectedOptionErrorLabelElement.textContent = '';
+        }
+
+        function updateSliderValue(value) {
+            document.getElementById('sliderValue').innerText = value;
+            document.getElementById('borrowAmount').value = value;
+        }
+
+        function resetSlider() {
+            document.getElementById('sliderValue').innerText = '';
+            updateBorrowAmount();
+        }
+
+        function decrementSlider() {
+            let currentValue = parseInt(document.getElementById('sliderValue').innerText, 10);
+            if (!isNaN(currentValue) && currentValue > 0) {
+                currentValue -= 500;
+                document.getElementById('sliderValue').innerText = currentValue;
+                updateBorrowAmount();
+            }
+        }
+
+        function incrementSlider() {
+            let currentValue = parseInt(document.getElementById('sliderValue').innerText, 10);
+
+            if (isNaN(currentValue)) {
+                currentValue = 500;
+            } else if (currentValue < 50000) {
+                currentValue += 500;
+            }
+
+            document.getElementById('sliderValue').innerText = currentValue;
+            updateBorrowAmount();
+        }
+
+        document.getElementById('sliderValue').addEventListener('keypress', handleSliderKeyPress);
+
+		function getStarted() {
+						const sliderValue = parseInt(document.getElementById('sliderValue').innerText, 10);
+						const sliderErrorLabel = document.getElementById('sliderErrorLabel');
+						const financingOption = document.getElementById('financingOption').value;
+						const selectedOptionErrorLabel = 'You must select an option from above';
+						const selectedOptionErrorLabelElement = document.getElementById('selectedOptionErrorLabel');
+						const financingButtons = document.querySelectorAll('#carButton, #taxiButton, #vanButton, #caravanButton, #motorbikeButton');
+
+						if (!financingOption) {
+										financingButtons.forEach(btn => {
+														btn.style.borderColor = 'red';
+										});
+
+										selectedOptionErrorLabelElement.textContent = selectedOptionErrorLabel;
+										sliderErrorLabel.textContent = '';
+						} else if (isNaN(sliderValue) || sliderValue === 0) {
+										sliderErrorLabel.textContent = 'Please enter a value';
+										selectedOptionErrorLabelElement.textContent = '';
+										document.getElementById('sliderValue').style.borderColor = 'red';
+						} else {
+										financingButtons.forEach(btn => {
+														btn.style.borderColor = '#ccc';
+										});
+										sliderErrorLabel.textContent = '';
+										selectedOptionErrorLabelElement.textContent = '';
+										document.getElementById('sliderValue').style.borderColor = '#4caf50';
+
+										document.getElementById('introduction').style.display = 'none';
+										document.getElementById('plusSign').style.display = 'none';
+										document.getElementById('minusSign').style.display = 'none';
+										document.getElementById('sliderValue').style.display = 'none';
+										document.getElementById('borrowAmount').style.display = 'none';
+										document.getElementById('getStarted').style.display = 'none';
+
+										// Show the Driving License section
+										document.getElementById('drivingLicenseSection').style.display = 'block';
+						}
+		}
+
+		function selectLicenseOption(option) {
+						const licenseButtons = document.querySelectorAll('#fullukButton, #provisionalukButton, #europeanButton, #internationalButton');
+						const selectedLicense = document.getElementById(`${option.replace(/\s/g, '').toLowerCase()}Button`);
+
+						licenseButtons.forEach(btn => {
+										btn.classList.remove('selected');
+										btn.style.borderColor = '';
+										btn.style.backgroundColor = '';
+										btn.style.color = '';
+						});
+
+						if (selectedLicense) {
+										selectedLicense.classList.add('selected');
+										selectedLicense.style.backgroundColor = '#4caf50';
+										selectedLicense.style.color = '#fff';
+
+										// If the user selects an option, remove the red borders
+										licenseButtons.forEach(btn => {
+														btn.style.borderColor = '';
+										});
+
+										// Hide the error label when a driving license option is selected
+										document.getElementById('licenseErrorLabel').style.visibility = 'hidden';
+						} else {
+										alert(`No button found with ID: ${buttonId}`);
+						}
+		}
+
+
+		function nextSection() {
+						const licenseButtons = document.querySelectorAll('#fullukButton, #provisionalukButton, #europeanButton, #internationalButton');
+						const selectedLicense = Array.from(licenseButtons).find(btn => btn.classList.contains('selected'));
+						const licenseErrorLabel = document.getElementById('licenseErrorLabel');
+
+						if (!selectedLicense) {
+										// If no option is selected, set red borders
+										licenseButtons.forEach(btn => {
+														btn.style.borderColor = 'red';
+										});
+
+										// Display error label
+										licenseErrorLabel.textContent = 'Please select a driving license option.';
+										licenseErrorLabel.style.visibility = 'visible';
+						} else {
+										// If an option is selected, proceed to the next section and clear red borders
+										// Hide the Driving License section
+										document.getElementById('drivingLicenseSection').style.display = 'none';
+
+										// Show the Marital Status section
+										document.getElementById('maritalStatusSection').style.display = 'block';
+
+										// Clear red borders and error label
+										licenseButtons.forEach(btn => {
+														btn.style.borderColor = '';
+										});
+										licenseErrorLabel.textContent = '';
+						}
+		}
+
+		// Function for the new Back button
+		function goBack() {
+						// Hide the Driving License section
+						document.getElementById('drivingLicenseSection').style.display = 'none';
+
+						// Show the Introduction section
+						document.getElementById('introduction').style.display = 'flex';
+
+						// Show the relevant elements of the Introduction section
+						document.getElementById('plusSign').style.display = 'inline-block';
+						document.getElementById('minusSign').style.display = 'inline-block';
+						document.getElementById('sliderValue').style.display = 'inline-block';
+						document.getElementById('borrowAmount').style.display = 'block';
+						document.getElementById('getStarted').style.display = 'grid';
+		}
+
+		function selectMaritalStatus(status) {
+			const sanitizedStatus = status.replace(/\s+/g, ''); // Remove spaces
+			const maritalStatusButtons = document.querySelectorAll('#singleButton, #marriedButton, #cohabitingButton, #separatedButton, #widowedButton, #civilpartnershipButton, #engagedButton, #divorcedButton');
+			const selectedButton = document.getElementById(`${sanitizedStatus.toLowerCase()}Button`);
+			
+			const maritalStatusErrorLabel = document.getElementById('maritalStatusErrorLabel');
+
+			maritalStatusButtons.forEach(btn => {
+				btn.classList.remove('selected');
+				btn.style.borderColor = '';
+				btn.style.backgroundColor = '';
+				btn.style.color = '';
+			});
+
+			if (selectedButton) {
+				selectedButton.classList.add('selected');
+				selectedButton.style.backgroundColor = '#4caf50';
+				selectedButton.style.color = '#fff';
+
+				// If the user selects an option, remove the red borders
+				maritalStatusButtons.forEach(btn => {
+					btn.style.borderColor = '';
+				});
+
+				// Hide the error label when a Marital Status option is selected
+				maritalStatusErrorLabel.style.visibility = 'hidden';
+			} else {
+				alert(`No button found with ID: ${buttonId}`);
+			}
+		}
+
+		function nextMaritalStatusSection() {
+			const maritalStatusButtons = document.querySelectorAll('#singleButton, #marriedButton, #cohabitingButton, #separatedButton, #widowedButton, #civilpartnershipButton, #engagedButton, #divorcedButton');
+			const selectedMaritalStatus = Array.from(maritalStatusButtons).find(btn => btn.classList.contains('selected'));
+			const maritalStatusErrorLabel = document.getElementById('maritalStatusErrorLabel');
+
+			if (!selectedMaritalStatus) {
+				// If no option is selected, set red borders
+				maritalStatusButtons.forEach(btn => {
+					btn.style.borderColor = 'red';
+				});
+
+				// Display error label
+				maritalStatusErrorLabel.textContent = 'Please select a marital status.';
+				maritalStatusErrorLabel.style.visibility = 'visible';
+			} else {
+				// If an option is selected, proceed to the next section and clear red borders
+				// You can add logic here to handle the next steps or perform other actions
+
+				// Clear red borders and error label
+				maritalStatusButtons.forEach(btn => {
+					btn.style.borderColor = '';
+				});
+				maritalStatusErrorLabel.textContent = '';
+
+				// For now, let's just show a message
+				//alert(`Selected Marital Status: ${selectedMaritalStatus.textContent}`);
+
+				// Hide the Marital Status section
+				document.getElementById('maritalStatusSection').style.display = 'none';
+
+				// Show the About You section
+				document.getElementById('aboutYouSection').style.display = 'block';
+
+				// You can continue with your logic for the next section
+			}
+		}
+
+
+
+		
+										// Function to go back to the Driving License Section
+		function goBackToDrivingLicense() {
+						// Hide the Marital Status section
+						document.getElementById('maritalStatusSection').style.display = 'none';
+
+						// Show the Driving License section
+						document.getElementById('drivingLicenseSection').style.display = 'block';
+		}
+		
+		function goBackToMaritalStatus() {
+			// Hide the About You section
+			document.getElementById('aboutYouSection').style.display = 'none';
+
+			// Show the Marital Status section
+			document.getElementById('maritalStatusSection').style.display = 'block';
+		}
+		    function nextAboutYouSection() {
+			  // Hide the current section
+			  document.getElementById('aboutYouSection').style.display = 'none';
+
+			  // Show the next section
+			  document.getElementById('DOBSection').style.display = 'block';
+			}
+						
+		
+		    function formatDate(input) {
+      // Allow only digits and "/"
+      input.value = input.value.replace(/[^0-9/]/g, '');
+
+      // Format the date as DD/MM/YYYY
+      if (input.value.length > 2 && input.value.charAt(2) !== '/') {
+        input.value = input.value.substring(0, 2) + '/' + input.value.substring(2);
+      }
+      if (input.value.length > 5 && input.value.charAt(5) !== '/') {
+        input.value = input.value.substring(0, 5) + '/' + input.value.substring(5);
+      }
+    }
+
+		
+		
+		
+		
+		
+
+
+    </script>
+
+</body>
+
+</html>

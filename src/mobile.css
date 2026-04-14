@@ -1,0 +1,2159 @@
+/* Mobile Dynamic Scaling Variables */
+:root {
+    --mobile-base-scale: 1;
+    --device-width-scale: 1;
+    --device-height-scale: 1;
+    --combined-scale: 1;
+}
+
+/* Single-car back banner (shown when a shared car link is opened on mobile) */
+@media (max-width: 767px) {
+    .single-car-back-banner {
+        display: flex;
+        align-items: center;
+        padding: 10px 14px;
+        background: #25D366;
+        border-bottom: 1px solid #1ebe5a;
+    }
+    .single-car-back-btn {
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 0.95rem;
+        font-weight: 700;
+        cursor: pointer;
+        padding: 0;
+        letter-spacing: 0.01em;
+    }
+    .single-car-back-btn:active { opacity: 0.75; }
+}
+
+/* Postcode Gate Overlay (mobile) */
+@media (max-width: 767px) {
+    /* Screen reader only - visually hidden but accessible */
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+    }
+    
+    .postcode-gate-overlay { position: fixed; inset: 0; z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(6px); background: rgba(0,0,0,0.35); }
+    .postcode-gate-overlay.show { display: flex; }
+    .postcode-gate-card { width: calc(100% - 32px); max-width: 520px; background: #fff; border-radius: 16px; padding: 18px 16px 14px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); text-align: center; }
+    .postcode-gate-header h3 { margin: 0 0 6px; font-size: 1.1rem; font-weight: 700; color: #111; }
+    /* Finance button: same size as nav buttons, orange background, white icon, above the next button */
+    #financeButton { 
+        display:flex !important; position:fixed !important; 
+        right:10px; 
+        bottom: calc(env(safe-area-inset-bottom, 12px) + 38px + 54px); /* 54px above nextButton */
+        width:46px; height:46px; align-items:center; justify-content:center; 
+        background:#FF8C00; color:#fff; border:2px solid #FF8C00; border-radius:6px; 
+        box-shadow:0 2px 8px rgba(0,0,0,0.18); z-index:1401;
+    }
+    #financeButton svg { display:block; color:#fff; width:24px; height:24px; }
+    #financeButton:active { transform:scale(.95); }
+    .postcode-gate-sub { margin: 0 0 12px; font-size: 0.9rem; color: #444; }
+    #postcodeGateInput { width: 100%; font-size: 1rem; padding: 10px 12px; border: 2px solid #2ecc40; border-radius: 10px; outline: none; }
+    #postcodeGateInput:focus { box-shadow: 0 0 0 3px rgba(46,204,64,0.2); }
+    .postcode-gate-hint { margin-top: 10px; font-size: 0.82rem; color: #666; }
+}
+body {
+    padding-top: 16vh; /* Space for banner + buttons stack */
+}
+
+/* Prevent iOS pull-to-refresh and page drag scroll on mobile */
+@media (max-width: 767px) {
+    html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+    /* iOS Safari specific hint */
+    body { touch-action: none; }
+}
+
+    html, body {
+        overflow-x: hidden;
+        max-width: 100vw;
+        box-sizing: border-box;
+    }
+
+    *, *::before, *::after {
+        box-sizing: inherit;
+    }
+
+    img, video {
+        max-width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    .mainContainer, .carSearchFilters, .video-container, .car-info-container, .finance-info-container {
+        max-width: 100vw;
+        width: 100%;
+        overflow-x: hidden;
+  
+        /* Full-screen sheet style when overlay is shown (mobile UX) */
+    }
+
+    /* Hide the inline distance row on mobile - distance is handled in More Filters sheet */
+    /* Hide desktop-only elements on mobile */
+    #desktopCarModal,
+    .desktop-car-modal,
+    .desktop-car-modal-overlay,
+    #carBrowseContainer,
+    .car-browse-container,
+    .car-cards-wrapper {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+
+    /* Mobile View Toggle Button */
+    .mobile-view-toggle {
+        display: none !important;
+        position: fixed !important;
+        top: calc(env(safe-area-inset-top, 12px) + 12px);
+        left: 10px;
+        width: calc(44px * var(--combined-scale));
+        height: calc(44px * var(--combined-scale));
+        background: #4CAF50;
+        color: white;
+        border: 2px solid #4CAF50;
+        border-radius: 50%;
+        z-index: 1500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+    }
+    .mobile-view-toggle:active {
+        transform: scale(0.95);
+    }
+    @media (max-width: 767px) {
+        .mobile-view-toggle {
+            display: flex !important;
+        }
+    }
+
+    /* Mobile Wishlist Button — fixed below the Make & Model box */
+    .mobile-wishlist-btn {
+        display: none !important;
+        position: fixed !important;
+        top: calc(1.5% + 3.9rem + 0.2rem + 2.0rem + 4px);
+        left: 2%;
+        width: 12%;
+        max-width: 90px;
+        height: auto;
+        padding: 0.15em 0.3em;
+        background: white;
+        color: #ff4081;
+        border: 1px solid #ff4081;
+        border-radius: 8px;
+        z-index: 1080;
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+        font-family: 'Poppins', Arial, sans-serif;
+        box-sizing: border-box;
+    }
+    .mobile-wishlist-btn.has-items {
+        background: #ff4081;
+        color: white;
+    }
+    .mobile-wishlist-btn.active-view {
+        background: #c2185b;
+        border-color: #c2185b;
+        color: white;
+        box-shadow: 0 2px 8px rgba(194,24,91,0.4);
+    }
+    .mobile-wishlist-btn:active { transform: scale(0.95); }
+    .mobile-wishlist-heart { font-size: 0.7rem; line-height: 1; }
+    .mobile-wishlist-count { font-size: 0.55rem; font-weight: 700; line-height: 1; }
+    @media (max-width: 767px) {
+        .mobile-wishlist-btn { display: flex !important; }
+    }
+
+    /* Mobile Clear Wishlist Button — appears to the right of wishlist btn */
+    .mobile-clear-wishlist-btn {
+        position: fixed !important;
+        top: calc(1.5% + 3.9rem + 0.2rem + 2.0rem + 4px);
+        left: calc(2% + 12% + 4px);
+        padding: 0.15em 0.3em;
+        background: #ff4081;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        font-family: 'Poppins', Arial, sans-serif;
+        z-index: 1080;
+        cursor: pointer;
+        box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+        white-space: nowrap;
+        height: auto;
+    }
+    .mobile-clear-wishlist-btn:active { transform: scale(0.95); }
+
+    /* Mobile Card Scroll Container */
+    .mobile-card-scroll-container {
+        position: fixed;
+        top: calc(1.5% + 3.9rem + 0.2rem + 3rem + 0.5rem); /* Below logo + AI buttons + Make&Model + gap */
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: auto;
+        overflow-y: scroll !important;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        background: #f5f5f5;
+        z-index: 1000;
+        padding: 10px;
+        padding-bottom: calc(env(safe-area-inset-bottom, 12px) + 20px);
+    }
+
+    .mobile-cards-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        max-width: 100%;
+    }
+
+    /* Mobile Car Card */
+    .mobile-car-card {
+        position: relative;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .mobile-car-card:active {
+        transform: scale(0.98);
+    }
+
+    /* Cancel press animation when the active touch is on the image container */
+    .mobile-car-card:has(.mobile-card-image-container:active) {
+        transform: none !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+    }
+
+    /* Mobile Card Image Container */
+    .mobile-card-image-container {
+        position: relative;
+        width: 100%;
+        padding-top: 66.67%; /* 3:2 aspect ratio */
+        background: #000;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .mobile-card-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .mobile-card-dots {
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 6px;
+        z-index: 10;
+    }
+
+    .mobile-card-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.5);
+        transition: background 0.3s;
+    }
+
+    .mobile-card-dot.active {
+        background: white;
+        width: 20px;
+        border-radius: 3px;
+    }
+
+    .mobile-card-image-count {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .mobile-card-prev,
+    .mobile-card-next {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0,0,0,0.45);
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        font-size: 1.3rem;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 12;
+        transition: background 0.2s;
+        padding: 0;
+    }
+    .mobile-card-prev { left: 8px; }
+    .mobile-card-next { right: 8px; }
+    .mobile-card-prev:active,
+    .mobile-card-next:active { background: rgba(0,0,0,0.75); }
+
+    .mobile-card-favorite {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        background: rgba(255,255,255,0.95);
+        border: 2px solid #e0e0e0;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .mobile-card-favorite.favorited {
+        color: #f44336;
+        border-color: #f44336;
+        background: #ffebee;
+    }
+
+    /* Mobile Card Content */
+    .mobile-card-content {
+        padding: 12px;
+        position: relative;
+        font-family: 'Poppins', Arial, sans-serif;
+    }
+
+    .mobile-card-status {
+        margin-bottom: 6px;
+    }
+
+    /* Status badges for cards - same styling as carInfoContainer */
+    .mobile-card-content .car-status-box {
+        display: inline-block;
+        padding: 0.28em 0.9em;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: calc(var(--combined-scale) * clamp(0.58rem, 2.6vw, 0.75rem));
+        letter-spacing: 0.5px;
+        margin: 0.2em 0 0.45em;
+        line-height: 1.05;
+    }
+
+    .mobile-card-content .car-status-blue {
+        background: #1976D2;
+        border: 2px solid #1976D2;
+        color: #fff;
+    }
+
+    .mobile-card-content .car-status-yellow {
+        background: #FFD600;
+        border: 2px solid #FFD600;
+        color: #222;
+    }
+
+    .mobile-card-make {
+        color: #0f7d1f;
+        font-size: calc(var(--combined-scale) * clamp(1.15rem, 5.1vw, 1.55rem));
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        margin: 0 0 4px 0;
+        font-family: 'Poppins', Arial, sans-serif;
+        line-height: 1.2;
+    }
+
+    .mobile-card-model {
+        color: #0f7d1f;
+        font-size: calc(var(--combined-scale) * clamp(0.82rem, 3.5vw, 1rem));
+        font-weight: 600;
+        margin: 0 0 4px 0;
+        line-height: 1.2;
+    }
+
+    .mobile-card-detail {
+        color: #0f7d1f;
+        font-size: calc(var(--combined-scale) * clamp(0.75rem, 3.2vw, 0.95rem));
+        font-weight: 500;
+        margin: 2px 0;
+        line-height: 1.2;
+    }
+
+    .mobile-card-price {
+        color: #0f7d1f;
+        font-size: calc(var(--combined-scale) * clamp(0.9rem, 3.7vw, 1.1rem));
+        font-weight: 700;
+        margin: 8px 0;
+        line-height: 1.2;
+    }
+
+    .mobile-card-monthly {
+        font-size: calc(clamp(0.8rem, 3.2vw, 0.9rem) * var(--combined-scale));
+        color: #FF8C00;
+    }
+
+    .mobile-card-distance {
+        font-size: calc(clamp(0.72rem, 3vw, 0.88rem) * var(--combined-scale));
+        color: #1976D2;
+        font-weight: 600;
+        margin: 4px 0 6px;
+        line-height: 1.2;
+    }
+
+    .mobile-card-gallery-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 10px;
+        right: 58px;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        background: #1976D2;
+        color: #fff;
+        border: 2px solid #1976D2;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+        cursor: pointer;
+        transition: background 0.2s;
+        z-index: 2;
+    }
+    .mobile-card-gallery-btn svg { display: block; color: #fff; width: 22px; height: 22px; }
+    .mobile-card-gallery-btn:active { background: #1256a0; transform: scale(0.95); }
+
+    .mobile-card-finance-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        background: #FF8C00;
+        color: #fff;
+        border: 2px solid #FF8C00;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+        cursor: pointer;
+        transition: background 0.2s;
+        z-index: 2;
+    }
+    .mobile-card-finance-btn svg { display: block; color: #fff; width: 22px; height: 22px; }
+    .mobile-card-finance-btn:active { background: #cc7000; transform: scale(0.95); }
+
+    .mobile-card-whatsapp {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .mobile-card-whatsapp img {
+        width: 24px;
+        height: 24px;
+    }
+
+    .mobile-card-whatsapp span {
+        font-size: calc(clamp(0.9rem, 3.5vw, 1rem) * var(--combined-scale));
+        color: #800080;
+        font-weight: 700;
+    }
+
+    /* ── Card Chat Overlay ─────────────────────────────────── */
+    .card-chat-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    .card-chat-overlay.open {
+        pointer-events: all;
+        opacity: 1;
+    }
+    .card-chat-backdrop {
+        flex: 1;
+        background: rgba(0,0,0,0.28);
+        backdrop-filter: blur(2px);
+    }
+    .card-chat-box {
+        background: #fff;
+        display: flex;
+        flex-direction: column;
+        transform: translateY(100%);
+        transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+        border-radius: 12px 12px 0 0;
+    }
+    .card-chat-overlay.open .card-chat-box {
+        transform: translateY(0);
+    }
+    .card-chat-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        background: #075E54;
+        border-radius: 12px 12px 0 0;
+        flex-shrink: 0;
+    }
+    .card-chat-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #25D366;
+        color: #fff;
+        font-weight: 700;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-family: 'Poppins', Arial, sans-serif;
+    }
+    .card-chat-agent-info {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        min-width: 0;
+    }
+    .card-chat-agent-name {
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: #fff;
+        font-family: 'Poppins', Arial, sans-serif;
+    }
+    .card-chat-agent-status {
+        font-size: 0.68rem;
+        color: rgba(255,255,255,0.75);
+    }
+    .card-chat-close {
+        margin-left: auto;
+        background: none;
+        border: none;
+        color: rgba(255,255,255,0.85);
+        font-size: 1.1rem;
+        cursor: pointer;
+        padding: 4px 6px;
+        line-height: 1;
+        flex-shrink: 0;
+        touch-action: manipulation;
+    }
+    .card-chat-messages {
+        overflow-y: auto;
+        padding: 10px 10px 6px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        background: #ECE5DD;
+        min-height: 72px;
+        max-height: 160px;
+        flex-shrink: 0;
+    }
+    .card-chat-bubble {
+        max-width: 88%;
+        padding: 7px 10px;
+        font-size: 0.78rem;
+        line-height: 1.45;
+        word-break: break-word;
+        box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        font-family: 'Poppins', Arial, sans-serif;
+    }
+    .card-chat-bubble.dealer {
+        background: #fff;
+        color: #111;
+        align-self: flex-start;
+        border-radius: 0 8px 8px 8px;
+    }
+    .card-chat-bubble.customer {
+        background: #DCF8C6;
+        color: #111;
+        align-self: flex-end;
+        border-radius: 8px 0 8px 8px;
+    }
+    .card-chat-typing {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 9px 12px;
+        background: #fff;
+        border-radius: 0 8px 8px 8px;
+        align-self: flex-start;
+        box-shadow: 0 1px 1px rgba(0,0,0,0.08);
+    }
+    .card-chat-typing span {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #aaa;
+        animation: chatDot 1s infinite ease-in-out;
+    }
+    .card-chat-typing span:nth-child(2) { animation-delay: 0.15s; }
+    .card-chat-typing span:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes chatDot {
+        0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+        30% { transform: translateY(-5px); opacity: 1; }
+    }
+    .card-chat-input-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        background: #f0f0f0;
+        border-top: 1px solid #ddd;
+        flex-shrink: 0;
+    }
+    .card-chat-input {
+        flex: 1;
+        border: none;
+        border-radius: 20px;
+        padding: 8px 14px;
+        font-size: 16px !important;
+        background: #fff;
+        outline: none;
+        font-family: 'Poppins', Arial, sans-serif;
+        touch-action: auto;
+        min-width: 0;
+    }
+    .card-chat-send {
+        background: #25D366;
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        flex-shrink: 0;
+        touch-action: manipulation;
+    }
+    .card-chat-send:active { background: #1da851; transform: scale(0.93); }
+
+    /* Hide desktop header filters on mobile but keep the logo */
+    .desktop-header-bar .header-buttons-left > *:not(#logoBanner),
+    .desktop-header-bar .header-buttons-right,
+    .desktop-header-bar .right-side-column {
+        display: none !important;
+    }
+    
+    .desktop-header-bar .header-buttons-left {
+        display: flex !important;
+        justify-content: center;
+    }
+
+    /* Show mobile filters */
+    .carSearchFilters {
+        display: block !important;
+    }
+
+
+
+/* === Mobile Logo Banner (Refactored similar to desktop) === */
+#logoBanner {
+    position: fixed;
+    top: 0.5%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    display: inline-block;
+    font-family: 'Poppins', Arial, sans-serif;
+    font-weight: 600;
+    font-size: calc(clamp(1.25rem, 5.4vw, 2.05rem) * var(--combined-scale)) !important;
+    color: #4CAF50;
+    background: #fff;
+    border: 2px solid #ffffff;
+    border-radius: calc(12px * var(--combined-scale));
+    letter-spacing: 0.045em;
+    white-space: nowrap;
+    line-height: 1;
+    /*box-shadow: 0 3px 12px rgba(0,0,0,0.12);*/
+    max-width: calc(100vw - 8vw);
+    box-sizing: border-box;
+    user-select: none;
+    pointer-events: none; /* banner itself non-interactive; FAB remains clickable */
+}
+
+#logoBanner .n-icon {
+    display: inline-block;
+    height: 2.6em;         /* Similar style as desktop scaling */
+    width: auto;
+    vertical-align: -0.95em; /* Mirror desktop offset */
+    line-height: 1;
+}
+#logoBanner .n-icon img {
+    height: 100%;
+    width: auto;
+    object-fit: contain;
+    display: block;
+}
+
+/* === AI Function Buttons (Mobile Variant) === */
+.aiFunctionBtns {
+    position: fixed;
+    top: calc(1.5% + 3.9rem); /* Below banner */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: auto;
+    max-width: calc(100vw - 1.5rem);
+    padding: 0.35em 0.6em; /* Compact padding around group */
+    box-sizing: border-box;
+    z-index: 1100;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(6px);
+    border: none; /* Removed visible border */
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+}
+
+/* === Make & Model Row (Mobile) placed under AI buttons === */
+.makeModelPriceRow {
+    position: fixed;
+    top: calc(1.5% + 3.9rem + 0.2rem); /* reduced from 0.5rem to 0.2rem - tighter spacing */
+    left: 2%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15em;
+    padding: 0.2em 0.5em 0.2em 0.5em;
+    background: #ffffffF2; /* slight translucency */
+    backdrop-filter: blur(6px);
+    border: 1px solid #2ecc40;
+    border-radius: 8px;
+    box-shadow: 0 1px 5px rgba(44,204,64,0.05);
+    width: 24%; /* Narrower for Make & Model */
+    max-width: 180px;
+    box-sizing: border-box;
+    z-index: 1080;
+}
+
+/* Distance row positioned to the right of Make & Model */
+.distanceRow {
+    position: fixed;
+    top: calc(1.5% + 3.9rem + 0.2rem);
+    right: 2%;
+    width: 72%; /* Wider for distance controls */
+    max-width: 450px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15em;
+    padding: 0.2em 0.5em 0.2em 0.5em;
+    background: #ffffffF2;
+    backdrop-filter: blur(6px);
+    border: 1px solid #2ecc40;
+    border-radius: 8px;
+    box-shadow: 0 1px 5px rgba(44,204,64,0.05);
+    box-sizing: border-box;
+    z-index: 1080;
+}
+
+.distanceTitle {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: #2ecc40;
+    text-align: center;
+    line-height: 1;
+}
+
+.distanceInputs {
+    display: flex;
+    gap: 0.4em;
+    width: 100%;
+}
+
+.distanceInputs input,
+.distanceInputs select {
+    flex: 1;
+    padding: 0.2em 0.3em;
+    border: 1px solid #2ecc40;
+    border-radius: 4px;
+    font-size: 0.62rem !important;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.distanceInputs input {
+    max-width: 85px;
+}
+
+.distanceInputs select {
+    max-width: 110px;
+    padding-right: 1.4em; /* room for native dropdown arrow */
+    text-overflow: ellipsis;
+}
+
+/* Collapsible filter animation */
+@keyframes filterSlide { from { opacity:0; transform:translateY(-4px);} to { opacity:1; transform:translateY(0);} }
+
+/* Make & Model as details wrapper (ensure <details> element styled identically) */
+details.makeModelPriceRow { padding:0.2em 0.5em 0.2em 0.5em; }
+details.makeModelPriceRow summary { list-style:none; cursor:pointer; position:relative; padding-right:1.4em; font-size:0.65rem !important; line-height:1; }
+details.makeModelPriceRow summary::-webkit-details-marker { display:none; }
+details.makeModelPriceRow summary:after { content:"+"; position:absolute; right:0.15em; top:50%; transform:translateY(-50%); font-weight:700; color:#2ecc40; transition:transform 0.25s; }
+details.makeModelPriceRow[open] summary:after { content:"−"; }
+details.makeModelPriceRow .collapsible-content { animation: filterSlide 0.35s ease; }
+
+/* Year Range block styled same as Make & Model */
+details.yearRangeRow { 
+    position: fixed; 
+    top: calc(1.5% + 3.9rem + 4.0rem + 2.35rem + 0.15rem); /* sits below split row */
+    left:50%; transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:0.45em;
+    width: calc(100vw - 2.8rem); max-width:520px;
+    background:#fafafa; /* match desktop */
+    backdrop-filter:blur(6px);
+    border:1.5px solid #2ecc40; border-radius:8px;
+    box-shadow:0 2px 8px rgba(44,204,64,0.07);
+    padding:0.55em 0.9em 0.5em 0.9em; box-sizing:border-box; z-index:1070;
+}
+details.yearRangeRow summary { list-style:none; cursor:pointer; position:relative; padding-right:1.4em; font-family:'Poppins',Arial,sans-serif; font-size:0.8rem; font-weight:600; color:#2ecc40; letter-spacing:0.015em; }
+details.yearRangeRow summary::-webkit-details-marker { display:none; }
+details.yearRangeRow summary:after { content:"+"; position:absolute; right:0.15em; top:50%; transform:translateY(-50%); font-weight:700; color:#2ecc40; }
+details.yearRangeRow[open] summary:after { content:"−"; }
+details.yearRangeRow .yearRangeInputs { display:flex; flex-direction:row; flex-wrap:nowrap; gap:0.6em; justify-content:center; margin-top:0.1em; width:100%; }
+/* Unified select styling for Year & Mileage ranges */
+details.yearRangeRow .yearRangeInputs select,
+details.mileageRangeRow .mileageRangeInputs select {
+    flex:1 1 48%;
+    min-width:110px;
+    font-size:0.72rem;
+    line-height:1.2;
+    border:2px solid #2ecc40;
+    border-radius:6px;
+    padding:0.25em 0.5em 0.25em 0.45em;
+    background:#fff;
+    color:#222;
+    font-family:'Poppins',Arial,sans-serif;
+    box-shadow:0 1px 4px rgba(44,204,64,0.06);
+    box-sizing:border-box;
+    transition:border-color 0.2s, box-shadow 0.2s;
+}
+details.yearRangeRow .yearRangeInputs select:focus { outline:none; }
+details.yearRangeRow[open] .yearRangeInputs { animation: filterSlide 0.35s ease; }
+
+@media (max-width:430px){
+    details.yearRangeRow { top: calc(1.5% + 3.6rem + 3.8rem + 2.2rem + 0.4rem); width: calc(100vw - 1.8rem); }
+    details.yearRangeRow .yearRangeInputs { gap:0.5em; }
+    details.yearRangeRow .yearRangeInputs select { flex:1 1 calc(50% - 0.5em); min-width:0; }
+}
+@media (max-width:350px){
+    details.yearRangeRow { top: calc(1.5% + 3.4rem + 3.6rem + 2.05rem + 0.4rem); }
+    details.yearRangeRow .yearRangeInputs { flex-wrap:wrap; }
+    details.yearRangeRow .yearRangeInputs select { flex:1 1 100%; }
+}
+
+/* Mileage Range block (positioned under Year Range) */
+details.mileageRangeRow {
+    position: fixed;
+    top: calc(1.5% + 3.9rem + 4.0rem + 2.35rem + 0.15rem + 2.35rem + 0.15rem); /* base + (filterH + gap)*2 using 2.35rem & 0.15rem */
+    left:50%; transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:0.4em;
+    width:calc(100vw - 2.8rem); max-width:520px;
+    background:#ffffffF2; backdrop-filter:blur(6px);
+    border:1px solid #2ecc40; border-radius:8px;
+    box-shadow:0 1px 5px rgba(44,204,64,0.05);
+    padding:0.34em 0.7em 0.34em 0.7em; box-sizing:border-box; z-index:1060;
+}
+details.mileageRangeRow summary { list-style:none; cursor:pointer; position:relative; padding-right:1.4em; font-family:'Poppins',Arial,sans-serif; font-size:0.8rem; font-weight:600; color:#2ecc40; letter-spacing:0.015em; margin:0; line-height:1.1; }
+details.mileageRangeRow summary::-webkit-details-marker { display:none; }
+details.mileageRangeRow summary:after { content:"+"; position:absolute; right:0.15em; top:50%; transform:translateY(-50%); font-weight:700; color:#2ecc40; }
+details.mileageRangeRow[open] summary:after { content:"−"; }
+details.mileageRangeRow .mileageRangeInputs { display:flex; gap:0.45em; justify-content:center; margin-top:0.35em; width:100%; }
+details.mileageRangeRow .mileageRangeInputs select { flex:1 1 0; min-width:0; font-size:0.7rem; border:1.5px solid #2ecc40; border-radius:5px; padding:0.22em 0.35em; background:#fff; color:#222; font-family:'Poppins',Arial,sans-serif; box-shadow:0 1px 3px rgba(44,204,64,0.04); }
+details.mileageRangeRow .mileageRangeInputs select:focus { outline:none; }
+details.mileageRangeRow[open] .mileageRangeInputs { animation: filterSlide 0.35s ease; }
+
+/* === Enforced identical select dimensions for Year & Mileage === */
+details.yearRangeRow .yearRangeInputs select,
+details.mileageRangeRow .mileageRangeInputs select {
+    flex:1 1 0 !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    font-size:0.7rem !important;
+    line-height:1.1 !important;
+    padding:0.24em 0.45em !important; /* unified */
+    padding-right:1.8em !important;
+    border:1.5px solid #2ecc40 !important;
+    border-radius:5px !important;
+    height:2.0em !important; /* lock visual height */
+    background:#fff !important;
+    color:#222 !important;
+    font-family:'Poppins',Arial,sans-serif !important;
+    box-shadow:0 1px 3px rgba(44,204,64,0.04) !important;
+    box-sizing:border-box !important;
+    -webkit-appearance:none !important;
+    appearance:none !important;
+    background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232ecc40' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+    background-repeat:no-repeat !important;
+    background-position:right 0.3em center !important;
+    background-size:1.2em 1.2em !important;
+}
+details.yearRangeRow .yearRangeInputs select.dropdown-selected,
+details.mileageRangeRow .mileageRangeInputs select.dropdown-selected {
+    background-color:purple !important;
+    color:white !important;
+    font-weight:bold !important;
+    border-color:purple !important;
+    background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+}
+details.yearRangeRow .yearRangeInputs select:focus,
+details.mileageRangeRow .mileageRangeInputs select:focus {
+    outline:none !important;
+}
+details.yearRangeRow .yearRangeInputs,
+details.mileageRangeRow .mileageRangeInputs { gap:0.45em !important; }
+
+@media (max-width:430px){
+    details.mileageRangeRow { top: calc(1.5% + 3.6rem + 3.8rem + 2.2rem + 0.12rem + 2.2rem + 0.12rem); width:calc(100vw - 1.8rem); }
+}
+@media (max-width:350px){
+    details.mileageRangeRow { top: calc(1.5% + 3.4rem + 3.6rem + 2.05rem + 0.12rem + 2.05rem + 0.12rem); }
+}
+
+.makeModelPriceTitle {
+    font-family: 'Poppins', Arial, sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #2ecc40;
+    margin: 0; /* remove extra bottom margin causing more space below */
+    letter-spacing: 0.015em;
+    text-align: center;
+    line-height:1.1; /* tighten to help visual centering */
+}
+
+/* Reuse same visual style for Year Range summary */
+.yearRangeTitle { 
+    font-family: 'Poppins', Arial, sans-serif; 
+    font-size: 0.8rem; font-weight:600; color:#2ecc40; letter-spacing:0.015em; margin:0; text-align:center; line-height:1.1;
+}
+
+.makeModelPriceInputs { 
+    display: flex; 
+    width: 100%;
+    gap: 0.45em; 
+    justify-content: center; 
+}
+.makeModelPriceInputs select { 
+    flex: 1 1 0; 
+    min-width: 0; 
+    font-size: 0.7rem; 
+    border-radius: 5px; 
+    border: 1.5px solid #2ecc40; 
+    padding: 0.22em 0.35em; 
+    padding-right: 1.8em;
+    background: #fff; 
+    color: #222; 
+    font-family: 'Poppins', Arial, sans-serif; 
+    box-shadow: 0 1px 3px rgba(44,204,64,0.04);
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232ecc40' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.3em center;
+    background-size: 1.2em 1.2em;
+}
+.makeModelPriceInputs select.dropdown-selected {
+    background-color: purple;
+    color: white;
+    font-weight: bold;
+    border-color: purple;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+.makeModelPriceInputs select:focus { 
+    outline: none; 
+    border-color: #a020f0; 
+    box-shadow: 0 0 0 2px #a020f033; 
+}
+
+/* Adjust stacking for small screens */
+@media (max-width: 430px) {
+    .makeModelPriceRow { width: 26%; }
+    .distanceRow { width: 68%; }
+  .makeModelPriceInputs { flex-wrap: wrap; }
+  .makeModelPriceInputs select { flex: 1 1 calc(50% - 0.5em); }
+}
+
+@media (max-width: 350px) {
+    .makeModelPriceRow { top: calc(1.5% + 3.4rem + 3.6rem); }
+    .mobile-wishlist-btn, .mobile-clear-wishlist-btn { top: calc(1.5% + 3.4rem + 3.6rem + 2.0rem + 4px); }
+  .makeModelPriceInputs select { flex: 1 1 100%; }
+}
+
+.aiFunctionBtns .LeftRightFunctionsBtns,
+.aiFunctionBtns button.LeftRightFunctionsBtns,
+.aiFunctionBtns button#AIButton,
+.aiFunctionBtns button#threeSecButton,
+.aiFunctionBtns button#fiveSecButton,
+.aiFunctionBtns button#randomButton {
+    background: #4CAF50;
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    font-family: 'Poppins', Arial, sans-serif;
+    font-size: calc(clamp(0.65rem, 2.6vw, 0.95rem) * var(--combined-scale));
+    padding: calc(0.55em * var(--combined-scale)) calc(0.85em * var(--combined-scale));
+    border-radius: calc(7px * var(--combined-scale));
+    cursor: pointer;
+    line-height: 1.05;
+    letter-spacing: 0.5px;
+    transition: background 0.25s, color 0.25s;
+    box-shadow: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: unset;
+    white-space: nowrap;
+}
+
+.aiFunctionBtns .LeftRightFunctionsBtns:hover,
+.aiFunctionBtns button#AIButton:hover,
+.aiFunctionBtns button#threeSecButton:hover,
+.aiFunctionBtns button#fiveSecButton:hover,
+.aiFunctionBtns button#randomButton:hover {
+    background: #fff;
+    color: #4CAF50;
+    box-shadow: none;
+}
+
+/* Active / selected state (e.g., AI ON) */
+.aiFunctionBtns .LeftRightFunctionsBtns.active,
+.aiFunctionBtns button.active {
+    background: #2e7d32;
+    color: #fff;
+}
+
+/* Reset / More Filters buttons inside same bar on mobile */
+.aiFunctionBtns .more-filters-btn {
+    background: #1976D2;
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    font-size: calc(clamp(0.65rem, 2.6vw, 0.95rem) * var(--combined-scale));
+    padding: calc(0.55em * var(--combined-scale)) calc(0.9em * var(--combined-scale));
+    border-radius: calc(7px * var(--combined-scale));
+    cursor: pointer;
+    box-shadow: none;
+    transition: background 0.25s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.aiFunctionBtns .more-filters-btn:hover { background: #155a8a; }
+
+.aiFunctionBtns .reset-btn, .aiFunctionBtns #resetFiltersBtn {
+    background: #d32f2f !important;
+    color: #fff !important;
+    border: none !important;
+    font-weight: 600;
+    font-size: calc(clamp(0.65rem, 2.6vw, 0.95rem) * var(--combined-scale));
+    padding: calc(0.55em * var(--combined-scale)) calc(0.9em * var(--combined-scale));
+    border-radius: calc(7px * var(--combined-scale));
+    cursor: pointer;
+    box-shadow: none;
+    transition: background 0.25s, border-color 0.25s;
+}
+.aiFunctionBtns .reset-btn:hover, .aiFunctionBtns #resetFiltersBtn:hover {
+    background: #b71c1c !important;
+    border-color: #b71c1c !important;
+}
+
+/* Slightly tighter layout on very small screens */
+@media (max-width: 430px) {
+    .aiFunctionBtns { gap: 4px; padding: 0.3em 0.55em; top: calc(1.5% + 3.6rem); }
+    .aiFunctionBtns .LeftRightFunctionsBtns,
+    .aiFunctionBtns button#AIButton,
+    .aiFunctionBtns button#threeSecButton,
+    .aiFunctionBtns button#fiveSecButton,
+    .aiFunctionBtns button#randomButton,
+    .aiFunctionBtns .more-filters-btn,
+    .aiFunctionBtns .reset-btn, .aiFunctionBtns #resetFiltersBtn {
+        font-size: calc(clamp(0.6rem, 2.9vw, 0.9rem) * var(--combined-scale));
+        padding: calc(0.5em * var(--combined-scale)) calc(0.7em * var(--combined-scale));
+        border-radius: calc(6px * var(--combined-scale));
+    }
+}
+
+@media (max-width: 350px) {
+    .aiFunctionBtns { flex-wrap: wrap; justify-content: center; top: calc(1.5% + 3.4rem); }
+}
+
+/* === Mobile slideshow: position container after Mileage filter; keep View Gallery button visible === */
+@media (max-width:767px){
+    /* Hide Year & Mileage filters on main page (they still exist in More Filters modal) */
+    #yearRangeFilter, #mileageRangeFilter { display:none !important; }
+    /* Hide only nav arrows */
+    #prevButton, #nextButton { display:none !important; }
+    /* TEST: hide AI function buttons on mobile */
+    .aiFunctionBtns { display:none !important; }
+    /* With AI buttons hidden, pull Make/Model row up directly under logoBanner */
+    .makeModelPriceRow { top: calc(1.5% + 3.9rem + 0.05rem); }
+    .distanceRow { top: calc(1.5% + 3.9rem + 0.05rem); }
+    .mobile-wishlist-btn, .mobile-clear-wishlist-btn { top: calc(1.5% + 3.9rem + 0.05rem + 2.0rem + 4px); }
+    /* Recompute slideshow top: moved up by reducing spacing */
+    .video-container { top: calc(1.5% + 3.9rem + 0.05rem + (2.35rem + 0.15rem)*1 + 0.05rem) !important; }
+    /* Make container fixed so gallery button (absolute) overlays correctly */
+    .video-container {
+        position: fixed !important;
+    /* Adjusted: previously accounted for 3 stacked collapsible filters (Make/Model/Price, Year, Mileage). Year & Mileage hidden => *1 */
+    top: calc(1.5% + 3.9rem + 4.0rem + (2.35rem + 0.15rem)*1 + 0.25rem);
+        left:0;
+        right:0;
+        transform:none;
+        width:100vw;
+        max-width:none;
+    /* Fixed height so slideshow does NOT resize per image */
+    height: 35vh; /* reduced from 44vh per request */
+    max-height: 35vh;
+    background:#000;
+    border:1px solid #2ecc40;
+        border-radius:0; /* remove rounded edges */
+    box-shadow:0 2px 8px rgba(0,0,0,0.12);
+    overflow:hidden;
+    z-index:1040;
+    }
+    #slideshowImage {
+    position: static !important;
+    width:100%;
+    height:100% !important; /* fill fixed container */
+    object-fit:cover; /* crop as needed */
+    display:block;
+    }
+    /* Slight tweak for gallery button if injected inline */
+    #viewGalleryBtn { bottom:12px !important; right:12px !important; padding:8px 18px !important; font-size:0.85rem !important; }
+}
+
+/* === Mobile Bottom Car Info & Navigation Arrows === */
+@media (max-width:767px){
+    #carInfoContainer {
+        position:fixed !important;
+        bottom: env(safe-area-inset-bottom, 12px);
+        left:50%;
+        transform:translateX(-50%);
+        width:64vw; /* reduced from 78vw to clear nav arrows */
+        max-width:480px;
+        background:#fff;
+        border:1px solid #2ecc40;
+        border-radius:4px;
+        padding:8px 10px 12px 10px;
+        box-shadow:0 4px 14px rgba(0,0,0,0.14);
+        font-family:'Poppins', Arial, sans-serif;
+        text-align:center;
+        z-index:1400; /* above slideshow (1040) but below filter sheet (9999) */
+    /* Adaptive: Removed fixed 40vh. JS will compute precise max-height below slideshow; fallback uses dynamic viewport */
+    height:auto;
+    max-height:min(65dvh, calc(100vh - 180px)); /* Reduced from 75dvh and 120px to account for top address bar */
+    overflow-y:auto;
+    --ci-font-scale:1; /* dynamic text scaling factor (adjusted via JS) */
+    }
+    #carInfoContainer hr { border:none; border-top:2px solid #2ecc40; width:52%; margin:2px auto 6px auto; }
+    #carInfoContainer h3, #carInfoContainer h4, #carInfoContainer p { margin:2px 0; line-height:1.05; }
+    #carInfoContainer .price { font-weight:600; color:#222; }
+    /* Desktop-like hierarchy & badges for mobile */
+    #carInfoContainer .car-make { font-size: calc(var(--ci-font-scale) * clamp(1.15rem, 5.2vw, 1.55rem)); font-weight:700; color:#0f7d1f; margin:0.15em 0 0.25em; }
+    #carInfoContainer .car-line { font-size: calc(var(--ci-font-scale) * clamp(0.72rem, 3.3vw, 0.95rem)); font-weight:500; color:#0b5c16; margin:0.18em 0; }
+    #carInfoContainer .car-price { font-size: calc(var(--ci-font-scale) * clamp(0.9rem, 3.8vw, 1.15rem)); font-weight:700; color:#0b5c16; margin:0.35em 0 0.15em; }
+    #carInfoContainer .car-status-box { display:inline-block; padding:0.28em 0.9em; border-radius:10px; font-weight:700; font-size:calc(var(--ci-font-scale) * clamp(0.58rem, 2.6vw, 0.75rem)); letter-spacing:.5px; margin:0.2em 0 0.45em; line-height:1.05; }
+    #carInfoContainer .car-status-blue { background:#1976D2; border:2px solid #1976D2; color:#fff; }
+    #carInfoContainer .car-status-yellow { background:#FFD600; border:2px solid #FFD600; color:#222; }
+    #carInfoContainer .whatsapp-row-mobile { justify-content:center; padding-left:0; margin-top:0.05em; margin-bottom:0; }
+    #carInfoContainer .whatsapp-img-mobile { width: clamp(28px, 8vw, 38px); height:auto; margin-right:6px; vertical-align:middle; }
+    #carInfoContainer .whatsapp-text-mobile { font-size: clamp(0.85rem, 4vw, 1.05rem); }
+    /* Harmonize mobile fonts with desktop proportions */
+    #carInfoContainer .car-info-mobile .car-info-make-mobile { color:#0f7d1f; font-size:calc(var(--ci-font-scale) * clamp(1.15rem,5.1vw,1.55rem)); font-weight:700; letter-spacing:.3px; }
+    #carInfoContainer .car-info-mobile .car-info-model-mobile { color:#0f7d1f; font-size:calc(var(--ci-font-scale) * clamp(0.82rem,3.5vw,1rem)); font-weight:600; }
+    #carInfoContainer .car-info-mobile .car-info-detail-mobile { color:#0f7d1f; font-size:calc(var(--ci-font-scale) * clamp(0.75rem,3.2vw,0.95rem)); font-weight:500; }
+    #carInfoContainer .car-info-mobile .car-info-price-mobile { color:#0f7d1f; font-size:calc(var(--ci-font-scale) * clamp(0.9rem,3.7vw,1.1rem)); font-weight:700; }
+    #carInfoContainer .car-info-mobile .whatsapp-text-mobile { font-weight:700; letter-spacing:.3px; }
+    /* Re-enable nav arrows and place them flanking the info card */
+    #prevButton, #nextButton { display:flex !important; position:fixed !important; bottom: calc(env(safe-area-inset-bottom, 12px) + 38px); width:46px; height:46px; align-items:center; justify-content:center; background:#4CAF50; color:#fff; border:2px solid #4CAF50; border-radius:6px; font-size:1.4rem; font-weight:600; box-shadow:0 2px 8px rgba(0,0,0,0.18); z-index:1401; }
+    #prevButton { left:10px; }
+    #nextButton { right:10px; }
+    #prevButton:active, #nextButton:active { transform:scale(.95); }
+    
+    /* Mobile Share Button */
+    .mobile-share-btn { display:none !important; position:fixed !important; bottom: calc(env(safe-area-inset-bottom, 12px) + 92px); left:10px; width:46px; height:46px; align-items:center; justify-content:center; background:#4FC3F7; color:#fff; border:2px solid #4FC3F7; border-radius:6px; font-size:1.4rem; font-weight:600; box-shadow:0 2px 8px rgba(0,0,0,0.18); z-index:1401; cursor:pointer; }
+    .mobile-share-btn:active { transform:scale(.95); }
+    
+    /* Copied Link Feedback */
+    .mobile-copied-feedback { display:none; position:fixed; bottom: calc(env(safe-area-inset-bottom, 12px) + 92px); left:64px; background:rgba(0,0,0,0.9); color:#fff; padding:12px 20px; border-radius:8px; font-size:calc(1rem * var(--combined-scale)); font-weight:700; z-index:9999; opacity:0; pointer-events:none; white-space:nowrap; box-shadow:0 4px 12px rgba(0,0,0,0.4); }
+    .mobile-copied-feedback.show { display:block !important; animation:quickFadeOut 0.8s ease-out forwards; }
+    
+    @keyframes quickFadeOut {
+        0% { opacity:1; }
+        40% { opacity:1; }
+        100% { opacity:0; }
+    }
+    /* Ensure they don't overlap bottom sheet when it is open */
+    #moreFiltersOverlay.active #prevButton,
+    #moreFiltersOverlay.active #nextButton,
+    #moreFiltersOverlay.active .mobile-share-btn { z-index:998; opacity:0.25; pointer-events:none; }
+    
+    /* Show mobile share button only on mobile */
+    @media (max-width:767px) {
+        .mobile-share-btn { display:flex !important; }
+    }
+}
+@media (max-width:430px){
+    /* Adjust smaller width breakpoint (remove AI buttons space) */
+    .makeModelPriceRow { top: calc(1.5% + 3.6rem + 0.05rem); }
+    .distanceRow { top: calc(1.5% + 3.6rem + 0.05rem); }
+    .mobile-wishlist-btn, .mobile-clear-wishlist-btn { top: calc(1.5% + 3.6rem + 0.05rem + 2.0rem + 4px); }
+    .video-container { top: calc(1.5% + 3.6rem + 0.05rem + (2.2rem + 0.12rem)*1 + 0.05rem); width:100vw; }
+    #viewGalleryBtn { font-size:0.8rem !important; }
+}
+@media (max-width:350px){
+    .makeModelPriceRow { top: calc(1.5% + 3.4rem + 0.05rem); }
+    .distanceRow { top: calc(1.5% + 3.4rem + 0.05rem); }
+    .mobile-wishlist-btn, .mobile-clear-wishlist-btn { top: calc(1.5% + 3.4rem + 0.05rem + 2.0rem + 4px); }
+    .video-container { top: calc(1.5% + 3.4rem + 0.05rem + (2.05rem + 0.12rem)*1 + 0.05rem); width:100vw; }
+    #viewGalleryBtn { font-size:0.75rem !important; padding:7px 14px !important; }
+    
+    /* Fix carInfoContainer for very small screens (iPhone 5, SE 2016: 320px) */
+    #carInfoContainer {
+        width:calc(100vw - 100px) !important; /* Leave space for nav buttons on sides */
+        max-width:none !important; /* Remove max-width constraint */
+        min-width:200px !important; /* Ensure minimum readable width */
+        padding:6px 8px 10px 8px !important;
+    }
+}
+
+/* Fix for iPhone 5/SE and similar small screens (320px-360px width) */
+@media (max-width:360px){
+    #carInfoContainer {
+        width:calc(100vw - 90px) !important; /* Leave space for nav buttons */
+        max-width:280px !important;
+    }
+}
+
+/* Fix for devices with short viewport height (address bar at top) */
+@media (max-height:700px) and (max-width:767px){
+    #carInfoContainer {
+        max-height:min(60dvh, calc(100vh - 200px)) !important;
+        padding:6px 8px 10px 8px !important;
+    }
+}
+
+@media (max-height:600px) and (max-width:767px){
+    #carInfoContainer {
+        max-height:min(55dvh, calc(100vh - 160px)) !important;
+        padding:5px 7px 8px 7px !important;
+    }
+}
+
+/* (Removed old Mobile More Filters overlay block using .active and z-index:9999; unified with new sheet styles below) */
+    /* Scroll only the inner content, and reserve space on the right so it never sits under the close button */
+    #moreFiltersModal .modal-inner-content { position: relative; flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; min-height: 0; padding-right: 0; }
+
+    /* --- More Filters: collapsible filter blocks styled like primary filters --- */
+    #moreFiltersModal .filter-dropdown { 
+        border:1px solid #2ecc40; 
+        background:#ffffffF2; 
+        backdrop-filter:blur(6px);
+        border-radius:8px; 
+        padding:0.34em 0.7em 0.34em 0.7em; 
+        box-shadow:0 1px 5px rgba(44,204,64,0.05); 
+        margin:0 0 0.55em 0; 
+        position:relative; 
+        animation: filterSlide 0.35s ease; 
+    }
+    #moreFiltersModal .filter-dropdown:last-of-type { margin-bottom:0.9em; }
+    #moreFiltersModal .filter-dropdown-label { 
+        width:100%; 
+        display:block; 
+        background:transparent; 
+        border:none; 
+        text-align:center; 
+        font-family:'Poppins',Arial,sans-serif; 
+        font-size:0.8rem; 
+        font-weight:600; 
+        color:#2ecc40; 
+        letter-spacing:0.015em; 
+        padding:0.2em 1.4em 0.2em 0.2em; 
+        cursor:pointer; 
+        position:relative; 
+        line-height:1.1; 
+    }
+    #moreFiltersModal .filter-dropdown-label:after { 
+        content:"+"; 
+        position:absolute; 
+        right:0.2em; 
+        top:50%; 
+        transform:translateY(-50%); 
+        font-weight:700; 
+        color:#2ecc40; 
+        transition:transform 0.25s; 
+    }
+    #moreFiltersModal .filter-dropdown.open .filter-dropdown-label:after { content:"−"; }
+    #moreFiltersModal .filter-dropdown-content { 
+        display:none; 
+        margin-top:0.4em; 
+        animation: filterSlide 0.35s ease; 
+        font-size:0.7rem; 
+        text-align:left; 
+        line-height:1.2; 
+    }
+    #moreFiltersModal .filter-dropdown.open .filter-dropdown-content { display:block; }
+    /* Grid layout for checkboxes - better use of horizontal space */
+    #moreFiltersModal .filter-dropdown.open .filter-dropdown-content:has(label input[type="checkbox"]) { 
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 0.4em 0.6em;
+    }
+    #moreFiltersModal .filter-dropdown-content label { 
+        display: flex;
+        align-items: center;
+        padding: 0.35em 0.4em;
+        font-weight: 500;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
+    #moreFiltersModal .filter-dropdown-content label:hover { 
+        background-color: rgba(46, 204, 64, 0.08);
+    }
+    #moreFiltersModal .filter-dropdown-content input[type="checkbox"] { 
+        margin-right: 0.45em;
+        accent-color: #2ecc40;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+    
+    /* Style select dropdowns in modal to prevent size changes and overflow */
+    #moreFiltersModal .filter-dropdown-content select {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        flex: 0 0 calc(50% - 0.25em) !important;
+        font-size: 0.85rem !important;
+        line-height: 1.2 !important;
+        padding: 0.5em 0.4em !important;
+        height: 2.2em !important;
+        border: 1.5px solid #2ecc40 !important;
+        border-radius: 5px !important;
+        background-color: #fff;
+        color: #222;
+        font-family: 'Poppins', Arial, sans-serif !important;
+        box-sizing: border-box !important;
+        -webkit-appearance: none !important;
+        appearance: none !important;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232ecc40' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.3em center !important;
+        background-size: 1.2em 1.2em !important;
+        padding-right: 1.8em !important;
+        transition: all 0.2s;
+    }
+    
+    #moreFiltersModal .filter-dropdown-content select.dropdown-selected {
+        background-color: purple !important;
+        color: white !important;
+        font-weight: bold !important;
+        border-color: purple !important;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+    }
+    
+    /* Scroll behavior inside content if very long */
+    #moreFiltersModal .filter-dropdown-content.long { max-height: 40vh; overflow-y: auto; }
+    /* Active state highlight */
+    #moreFiltersModal .filter-dropdown.open { border-color: #28b838; }
+    #moreFiltersModal .filter-dropdown.open .filter-dropdown-label { color: #28b838; }
+    
+    /* Purple background when filter has active selections */
+    #moreFiltersModal .filter-dropdown-label.filter-selected {
+        background: #800080 !important; /* Purple */
+        color: #fff !important;
+    }
+    
+    /* Distance filter: Red by default, Green when valid postcode */
+    #distanceFilterBlock .filter-dropdown-label {
+        background: #dc3545 !important; /* Red */
+        color: #fff !important;
+    }
+    
+    #distanceFilterBlock .filter-dropdown-label.filter-valid-postcode {
+        background: #4CAF50 !important; /* Green */
+        color: #fff !important;
+    }
+    
+    /* For filters with only 2-3 items, use single column for cleaner look */
+    #moreFiltersModal .filter-dropdown-content.single-column { 
+        grid-template-columns: 1fr;
+    }
+
+    /* Floating Filters button (FAB) */
+    .filters-fab { 
+        position:fixed; left:0.6rem; top:0.45rem; z-index:1120; 
+        width:3.0rem; height:3.0rem; border-radius:999px; 
+        background:#1976D2; color:#fff; border:none; 
+        display:flex; align-items:center; justify-content:center; 
+        box-shadow:0 6px 18px rgba(0,0,0,0.25); 
+        transition:transform 0.15s ease, box-shadow 0.2s ease, opacity 0.15s; 
+    }
+    .filters-fab:hover { box-shadow:0 8px 22px rgba(0,0,0,0.3); transform:translateY(-1px); }
+    .filters-fab:active { transform:translateY(0); }
+    .filters-fab.hidden { opacity:0; pointer-events:none; }
+    .filters-fab svg { display:block; }
+    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+
+/* Hide the FAB on desktop */
+@media (min-width:768px){ .filters-fab { display:none !important; } }
+    /* WhatsApp FAB styles (mobile) */
+    @media (max-width:767px){
+        .whatsapp-fab {
+                position:fixed; right:0.6rem; top:0.45rem; z-index:1120;
+                width:3.0rem; height:3.0rem; border-radius:999px;
+                background:#25D366; color:#fff; border:none;
+                display:flex; align-items:center; justify-content:center;
+                box-shadow:0 6px 18px rgba(0,0,0,0.25);
+                transition:transform 0.15s ease, box-shadow 0.2s ease, opacity 0.15s;
+                text-decoration:none;
+        }
+        .whatsapp-fab:hover { box-shadow:0 8px 22px rgba(0,0,0,0.3); transform:translateY(-1px); }
+        .whatsapp-fab:active { transform:translateY(0); }
+        .whatsapp-fab.hidden { opacity:0; pointer-events:none; }
+    }
+    @media (min-width:768px){ .whatsapp-fab { display:none !important; } }
+    /* --- Harmonize Year Range & Mileage selects with desktop look inside modal --- */
+    #yearRangeFilterPanel .yearRangeInputs,
+    #mileageRangeFilterPanel .mileageRangeInputs,
+    #makeModelFilterPanel .makeModelPriceInputs,
+    #distanceFilterPanel .distanceInputs { width:100%; justify-content:center; }
+    #yearRangeFilterPanel .yearRangeInputs select,
+    #mileageRangeFilterPanel .mileageRangeInputs select,
+    #makeModelFilterPanel .makeModelPriceInputs select,
+    #distanceFilterPanel .distanceInputs select { 
+        font-size:0.72rem; 
+        border:2px solid #2ecc40; 
+        border-radius:6px;
+        padding:0.25em 0.55em 0.25em 0.45em; 
+        background:#fff; 
+        color:#222; 
+        font-family:'Poppins',Arial,sans-serif; 
+        box-shadow:0 1px 4px rgba(44,204,64,0.06); 
+        transition:border-color 0.2s, box-shadow 0.2s; 
+        min-width:70px; 
+        max-width:100%;
+        box-sizing:border-box;
+    }
+    #distanceFilterPanel .distanceInputs input[type="text"] { 
+        font-size:0.72rem; 
+        border:2px solid red; 
+        border-radius:6px; 
+        padding:0.25em 0.55em 0.25em 0.45em; 
+        background:#fff; 
+        color:#222; 
+        font-family:'Poppins',Arial,sans-serif; 
+        box-shadow:0 1px 4px rgba(44,204,64,0.06); 
+        transition:border-color 0.2s, box-shadow 0.2s; 
+        min-width:70px; 
+        max-width:100%;
+        box-sizing:border-box;
+    }
+    #yearRangeFilterPanel .yearRangeInputs select:focus,
+    #mileageRangeFilterPanel .mileageRangeInputs select:focus,
+    #makeModelFilterPanel .makeModelPriceInputs select:focus { outline:none; }
+    #financeSheet .finance-modal-body-wrapper { padding: 10px 12px; }
+    #financeSheet .finance-modal-body-wrapper { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+    #financeSheet .finance-modal-heading { display:none; }
+    #financeSheet .finance-form { display: flex; flex-direction: column; gap: 8px; }
+    #financeSheet .finance-PriceDeposit { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    #financeSheet .finance-PriceDeposit-div label { font-size: 0.82rem; margin-bottom: 3px; }
+    #financeSheet .finance-input { height: 40px; font-size: 0.95rem; padding: 8px 10px; }
+    #financeSheet .finance-Months { position: relative; margin-top: 2px; }
+    #financeSheet .finance-Months > label { display: block; font-size: 0.82rem; margin-bottom: 4px; }
+    #financeSheet .finance-range-wrap { margin-bottom: 2px; }
+    #financeSheet .finance-range { margin: 0; }
+    #financeSheet .finance-range-ticks { height: 20px; margin-top: 2px; }
+    #financeSheet .finance-range-ticks .tick label { font-size: 0.68rem; }
+    #financeSheet .term-value { top: 0; right: 0.4rem; font-size: 0.8rem; }
+    #financeSheet .credit-score-label { margin-top: 6px; margin-bottom: 6px; font-size: 0.86rem; }
+    #financeSheet .credit-scores { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    #financeSheet .credit-score { padding: 8px 6px; font-size: 0.82rem; line-height: 1; }
+    #financeSheet .finance-label { margin-top: 4px; }
+    #financeSheet #monthlyCostSheet { font-size: 1.05rem; font-weight: 700; }
+    #financeSheet .get-quote { margin-top: 6px; height: 40px; font-size: 0.95rem; }
+
+    /* Ensure panel respects 75vh and avoids inner scrollbars */
+    #financeSheet .sheet-body { max-height: 75vh; overflow: hidden; }
+
+    /* Adaptive compact modes applied via JS if overflow is detected */
+    #financeSheet.fs-compact .finance-modal-heading { font-size: 0.98rem; margin: 2px 0 6px; }
+    #financeSheet.fs-compact .finance-input { height: 36px; font-size: 0.9rem; padding: 6px 8px; }
+    #financeSheet.fs-compact .finance-PriceDeposit { gap: 6px; }
+    #financeSheet.fs-compact .finance-PriceDeposit-div label { font-size: 0.78rem; margin-bottom: 2px; }
+    #financeSheet.fs-compact .finance-Months > label { font-size: 0.78rem; margin-bottom: 3px; }
+    #financeSheet.fs-compact .finance-range-ticks { height: 18px; }
+    #financeSheet.fs-compact .finance-range-ticks .tick label { font-size: 0.62rem; }
+    #financeSheet.fs-compact .term-value { font-size: 0.74rem; right: 0.35rem; }
+    #financeSheet.fs-compact .credit-score-label { margin: 4px 0; font-size: 0.82rem; }
+    #financeSheet.fs-compact .credit-scores { gap: 5px; }
+    #financeSheet.fs-compact .credit-score { padding: 6px 5px; font-size: 0.8rem; }
+    #financeSheet.fs-compact #monthlyCostSheet { font-size: 1rem; }
+    #financeSheet.fs-compact .get-quote { height: 36px; font-size: 0.92rem; }
+
+    #financeSheet.fs-ultra .finance-range-ticks { height: 12px; }
+    #financeSheet.fs-ultra .finance-range-ticks .tick label { display: none; }
+    #financeSheet.fs-ultra .credit-scores { grid-template-columns: repeat(2, 1fr); }
+    #financeSheet.fs-ultra .finance-input { height: 34px; }
+    #financeSheet.fs-ultra .get-quote { height: 34px; font-size: 0.88rem; }
+    #distanceFilterPanel .distanceInputs select:focus,
+    #distanceFilterPanel .distanceInputs input[type="text"]:focus { outline:none; border-color:#a020f0; box-shadow:0 0 0 2px #a020f033; }
+    
+    #distanceFilterPanel .distanceInputs select.dropdown-selected {
+        background-color: purple !important;
+        color: white !important;
+        font-weight: bold !important;
+        border-color: purple !important;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.3em center !important;
+        background-size: 1.2em 1.2em !important;
+    }
+
+    /* Extra small screens: reduce gap and min-widths further */
+    @media (max-width: 380px) {
+        #distanceFilterPanel .distanceInputs {
+            gap: 0.35em !important;
+        }
+        
+        #distanceFilterPanel .distanceInputs select,
+        #distanceFilterPanel .distanceInputs input[type="text"] {
+            min-width: 60px !important;
+            padding-left: 0.4em !important;
+            padding-right: 0.4em !important;
+        }
+    }
+
+    /* --- Gearbox filter (modal) styled similar to desktop --- */
+    #gearboxFilter { 
+        display:flex; flex-wrap:wrap; gap:0.6em 0.9em; align-items:center; justify-content:flex-start; 
+        border:none; border-radius:0; background:transparent; padding:0.4em 0.15em 0.3em; 
+        box-shadow:none; box-sizing:border-box; 
+    }
+    #gearboxFilter label { 
+    font-family:'Poppins',Arial,sans-serif; font-size:0.78rem; font-weight:500; color:#222; 
+    display:flex; align-items:center; gap:0.45em; margin:0; cursor:pointer; line-height:1; 
+        transition:color 0.2s, transform 0.2s; 
+        position:relative; padding:0.15em 0.35em; border-radius:4px; 
+    }
+    #gearboxFilter input[type="checkbox"] { 
+        appearance:none; -webkit-appearance:none; width:1.05rem; height:1.05rem; border:2px solid #2ecc40; border-radius:6px; background:#fff; display:inline-flex; align-items:center; justify-content:center; position:relative; cursor:pointer; 
+        transition:background 0.25s, border-color 0.25s, box-shadow 0.25s; line-height:1; 
+    }
+    #gearboxFilter input[type="checkbox"]:focus { outline:none; box-shadow:0 0 0 2px #a020f033; }
+    #gearboxFilter input[type="checkbox"]:checked { background:#800080; border-color:#2ecc40; }
+    #gearboxFilter input[type="checkbox"]:checked::after { content:""; position:absolute; left:0.30rem; top:0.05rem; width:0.30rem; height:0.60rem; border:solid #fff; border-width:0 0.18rem 0.18rem 0; transform:rotate(45deg); }
+    #gearboxFilter label:has(input[type="checkbox"]:checked),
+    #gearboxFilter input[type="checkbox"]:checked + label,
+    #gearboxFilter input[type="checkbox"]:checked + span { color:#800080 !important; font-weight:600; }
+    /* Slight hover/active feedback */
+    #gearboxFilter label:hover { color:#28b838; }
+    #gearboxFilter label:active { transform:scale(0.95); }
+    /* Tighten spacing for just two options */
+    #gearboxFilter { gap:0.45em 0.75em; }
+    /* Title style if used */
+    #gearboxFilter .gearbox-title { flex:1 1 100%; font-size:0.82rem; font-weight:600; color:#2ecc40; letter-spacing:0.015em; text-align:center; margin:0 0 0.2em 0; }
+
+    /* --- Type filter (modal) styling aligned with Gearbox --- */
+    #typeFilter { 
+        display:flex; flex-wrap:wrap; gap:0.55em 0.85em; align-items:center; justify-content:flex-start; 
+        border:none; background:transparent; padding:0.4em 0.15em 0.3em; box-sizing:border-box; 
+    }
+    #typeFilter label { 
+    font-family:'Poppins',Arial,sans-serif; font-size:0.78rem; font-weight:500; color:#222; 
+    display:flex; align-items:center; gap:0.45em; margin:0; cursor:pointer; line-height:1; 
+        transition:color 0.2s, transform 0.2s; position:relative; padding:0.15em 0.35em; border-radius:4px; 
+    }
+    #typeFilter input[type="checkbox"] { 
+        appearance:none; -webkit-appearance:none; width:1.05rem; height:1.05rem; border:2px solid #2ecc40; border-radius:6px; background:#fff; display:inline-flex; align-items:center; justify-content:center; position:relative; cursor:pointer; transition:background 0.25s, border-color 0.25s, box-shadow 0.25s; line-height:1; 
+    }
+    #typeFilter input[type="checkbox"]:focus { outline:none; box-shadow:0 0 0 2px #a020f033; }
+    #typeFilter input[type="checkbox"]:checked { background:#800080; border-color:#2ecc40; }
+    #typeFilter input[type="checkbox"]:checked::after { content:""; position:absolute; left:0.30rem; top:0.05rem; width:0.30rem; height:0.60rem; border:solid #fff; border-width:0 0.18rem 0.18rem 0; transform:rotate(45deg); }
+    #typeFilter label:has(input[type="checkbox"]:checked),
+    #typeFilter input[type="checkbox"]:checked + label,
+    #typeFilter input[type="checkbox"]:checked + span { color:#800080 !important; font-weight:600; }
+    #typeFilter label:hover { color:#28b838; }
+    #typeFilter label:active { transform:scale(0.95); }
+
+    /* --- Fuel Type filter styling (modal) aligned with Gearbox/Type --- */
+    #fuelTypeFilter { 
+        display:flex; flex-wrap:wrap; gap:0.55em 0.85em; align-items:center; justify-content:flex-start; 
+        border:none; background:transparent; padding:0.4em 0.15em 0.3em; box-sizing:border-box; 
+    }
+    #fuelTypeFilter label { 
+        font-family:'Poppins',Arial,sans-serif; font-size:0.78rem; font-weight:500; color:#222; 
+        display:flex; align-items:center; gap:0.45em; margin:0; cursor:pointer; line-height:1; 
+        transition:color 0.2s, transform 0.2s; position:relative; padding:0.15em 0.35em; border-radius:4px; 
+    }
+    #fuelTypeFilter input[type="checkbox"] { 
+        appearance:none; -webkit-appearance:none; width:1.05rem; height:1.05rem; border:2px solid #2ecc40; border-radius:6px; background:#fff; display:inline-flex; align-items:center; justify-content:center; position:relative; cursor:pointer; transition:background 0.25s, border-color 0.25s, box-shadow 0.25s; line-height:1; 
+    }
+    #fuelTypeFilter input[type="checkbox"]:focus { outline:none; box-shadow:0 0 0 2px #a020f033; }
+    #fuelTypeFilter input[type="checkbox"]:checked { background:#800080; border-color:#2ecc40; }
+    #fuelTypeFilter input[type="checkbox"]:checked::after { content:""; position:absolute; left:0.30rem; top:0.05rem; width:0.30rem; height:0.60rem; border:solid #fff; border-width:0 0.18rem 0.18rem 0; transform:rotate(45deg); }
+    #fuelTypeFilter label:has(input[type="checkbox"]:checked),
+    #fuelTypeFilter input[type="checkbox"]:checked + label,
+    #fuelTypeFilter input[type="checkbox"]:checked + span { color:#800080 !important; font-weight:600; }
+    #fuelTypeFilter label:hover { color:#28b838; }
+    #fuelTypeFilter label:active { transform:scale(0.95); }
+
+    /* --- Body Type filter styling (modal) aligned with others --- */
+    #bodyTypeFilter { 
+        display:flex; flex-wrap:wrap; gap:0.55em 0.85em; align-items:center; justify-content:flex-start; 
+        border:none; background:transparent; padding:0.45em 0.15em 0.35em; box-sizing:border-box; 
+    }
+    #bodyTypeFilter label { 
+        font-family:'Poppins',Arial,sans-serif; font-size:0.78rem; font-weight:500; color:#222; 
+        display:flex; align-items:center; gap:0.45em; margin:0; cursor:pointer; line-height:1; 
+        transition:color 0.2s, transform 0.2s; position:relative; padding:0.15em 0.35em; border-radius:4px; 
+    }
+    #bodyTypeFilter input[type="checkbox"] { 
+        appearance:none; -webkit-appearance:none; width:1.05rem; height:1.05rem; border:2px solid #2ecc40; border-radius:6px; background:#fff; display:inline-flex; align-items:center; justify-content:center; position:relative; cursor:pointer; transition:background 0.25s, border-color 0.25s, box-shadow 0.25s; line-height:1; 
+    }
+    #bodyTypeFilter input[type="checkbox"]:focus { outline:none; box-shadow:0 0 0 2px #a020f033; }
+    #bodyTypeFilter input[type="checkbox"]:checked { background:#800080; border-color:#2ecc40; }
+    #bodyTypeFilter input[type="checkbox"]:checked::after { content:""; position:absolute; left:0.30rem; top:0.05rem; width:0.30rem; height:0.60rem; border:solid #fff; border-width:0 0.18rem 0.18rem 0; transform:rotate(45deg); }
+    #bodyTypeFilter label:has(input[type="checkbox"]:checked),
+    #bodyTypeFilter input[type="checkbox"]:checked + label,
+    #bodyTypeFilter input[type="checkbox"]:checked + span { color:#800080 !important; font-weight:600; }
+    #bodyTypeFilter label:hover { color:#28b838; }
+    #bodyTypeFilter label:active { transform:scale(0.95); }
+
+    /* --- Doors, Seats, Engine Size filters unified styling --- */
+    #doorsFilter, #seatsFilter, #engineSizeFilter { 
+        display:flex; flex-wrap:wrap; gap:0.55em 0.85em; align-items:center; justify-content:flex-start; 
+        border:none; background:transparent; padding:0.45em 0.15em 0.35em; box-sizing:border-box; 
+    }
+    #doorsFilter label, #seatsFilter label, #engineSizeFilter label { 
+        font-family:'Poppins',Arial,sans-serif; font-size:0.78rem; font-weight:500; color:#222; 
+        display:flex; align-items:center; gap:0.45em; margin:0; cursor:pointer; line-height:1; 
+        transition:color 0.2s, transform 0.2s; position:relative; padding:0.15em 0.35em; border-radius:4px; 
+    }
+    #doorsFilter input[type="checkbox"], #seatsFilter input[type="checkbox"], #engineSizeFilter input[type="checkbox"] { 
+        appearance:none; -webkit-appearance:none; width:1.05rem; height:1.05rem; border:2px solid #2ecc40; border-radius:6px; background:#fff; display:inline-flex; align-items:center; justify-content:center; position:relative; cursor:pointer; transition:background 0.25s, border-color 0.25s, box-shadow 0.25s; line-height:1; 
+    }
+    #doorsFilter input[type="checkbox"]:focus, #seatsFilter input[type="checkbox"]:focus, #engineSizeFilter input[type="checkbox"]:focus { outline:none; box-shadow:0 0 0 2px #a020f033; }
+    #doorsFilter input[type="checkbox"]:checked, #seatsFilter input[type="checkbox"]:checked, #engineSizeFilter input[type="checkbox"]:checked { background:#800080; border-color:#2ecc40; }
+    #doorsFilter input[type="checkbox"]:checked::after, #seatsFilter input[type="checkbox"]:checked::after, #engineSizeFilter input[type="checkbox"]:checked::after { content:""; position:absolute; left:0.30rem; top:0.05rem; width:0.30rem; height:0.60rem; border:solid #fff; border-width:0 0.18rem 0.18rem 0; transform:rotate(45deg); }
+    #doorsFilter label:has(input[type="checkbox"]:checked), #seatsFilter label:has(input[type="checkbox"]:checked), #engineSizeFilter label:has(input[type="checkbox"]:checked),
+    #doorsFilter input[type="checkbox"]:checked + label, #seatsFilter input[type="checkbox"]:checked + label, #engineSizeFilter input[type="checkbox"]:checked + label,
+    #doorsFilter input[type="checkbox"]:checked + span, #seatsFilter input[type="checkbox"]:checked + span, #engineSizeFilter input[type="checkbox"]:checked + span { color:#800080 !important; font-weight:600; }
+    #doorsFilter label:hover, #seatsFilter label:hover, #engineSizeFilter label:hover { color:#28b838; }
+    #doorsFilter label:active, #seatsFilter label:active, #engineSizeFilter label:active { transform:scale(0.95); }
+    
+    /* Seats: 3 items per row */
+    #moreFiltersModal .filter-dropdown.open #seatsFilter {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 0.4em 0.3em !important;
+    }
+    
+    /* Engine Size: 4 items per row - override grid layout */
+    #moreFiltersModal .filter-dropdown.open #engineSizeFilter {
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 0.4em 0.3em !important;
+    }
+    
+/* === Mobile Fullscreen Gallery Overrides === */
+@media (max-width:767px){
+    footer { display:none !important; }
+    .gallery-overlay { display:none; position:fixed; inset:0; width:100vw; height:100vh; background:rgba(0,0,0,0.9); z-index:12000; justify-content:center; align-items:center; }
+    .gallery-modal { width:100vw; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 0.4rem 0.9rem; box-sizing:border-box; }
+    .gallery-image { max-width:100vw; max-height:60vh; object-fit:contain; border-radius:12px; background:#111; box-shadow:0 4px 18px rgba(0,0,0,0.4); }
+    .gallery-counter { margin-top:0.5rem; font-size:0.85rem; color:#fff; font-weight:600; text-shadow:0 2px 6px #000; letter-spacing:.5px; }
+    .close-gallery-btn { 
+        position:absolute !important; top:1.25rem; left:50%; transform:translateX(-50%); 
+        z-index:12001; background:#d32f2f; color:#fff; border:none; 
+        padding:0.55rem 1.0rem; border-radius:8px; font-size:0.95rem; 
+        box-shadow:0 2px 6px rgba(0,0,0,0.25); width:clamp(56px, 40vw, 128px) !important; min-width:56px !important; height:auto; box-sizing:border-box; 
+        font-family:'Poppins', system-ui, Arial, sans-serif; font-weight:600; letter-spacing:0;
+        display:flex; align-items:center; justify-content:center; line-height:1; 
+        transition:background-color .15s ease, box-shadow .15s ease, transform .12s ease; 
+        -webkit-tap-highlight-color:transparent; touch-action:manipulation; user-select:none; 
+    }
+    .close-gallery-btn:hover { background:#d32f2f; filter:brightness(0.96); }
+    .close-gallery-btn:active { 
+        transform:translateX(-50%) scale(.96); 
+        box-shadow:0 1px 3px rgba(0,0,0,0.2); 
+    }
+    .close-gallery-btn:focus { outline:none; }
+    .close-gallery-btn:focus-visible { box-shadow:0 0 0 3px rgba(211,47,47,0.28), 0 2px 6px rgba(0,0,0,0.25); }
+    /* Fullscreen button */
+    .fullscreen-gallery-btn {
+        position:absolute !important; top:1.25rem; right:1rem;
+        z-index:12001; background:#1976D2; color:#fff; border:none;
+        padding:0.55rem 1.0rem; border-radius:8px; font-size:1.2rem;
+        box-shadow:0 2px 6px rgba(0,0,0,0.25); width:auto; min-width:48px; height:auto; box-sizing:border-box;
+        font-family:'Poppins', system-ui, Arial, sans-serif; font-weight:600; letter-spacing:0;
+        display:flex; align-items:center; justify-content:center; line-height:1;
+        transition:background-color .15s ease, box-shadow .15s ease, transform .12s ease;
+        -webkit-tap-highlight-color:transparent; touch-action:manipulation; user-select:none;
+    }
+    .fullscreen-gallery-btn:hover { background:#1565C0; filter:brightness(0.96); }
+    .fullscreen-gallery-btn:active {
+        transform:scale(.96);
+        box-shadow:0 1px 3px rgba(0,0,0,0.2);
+    }
+    .fullscreen-gallery-btn:focus { outline:none; }
+    .fullscreen-gallery-btn:focus-visible { box-shadow:0 0 0 3px rgba(25,118,210,0.28), 0 2px 6px rgba(0,0,0,0.25); }
+    /* New bottom bar for nav buttons */
+    .gallery-bottom-bar { margin-top:0.55rem; display:flex; gap:2.2rem; align-items:center; justify-content:center; }
+    .gallery-inline-btn { width:62px; height:54px; border:none; border-radius:14px; background:#1976D2; color:#fff; font-size:1.55rem; font-weight:700; box-shadow:0 4px 14px rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; }
+    .gallery-inline-btn:active { transform:scale(.94); }
+    /* Thumbnail navigation strip */
+    .gallery-thumbnails { display:flex; gap:8px; margin-top:12px; overflow-x:auto; overflow-y:hidden; max-width:100vw; padding:8px 12px; -webkit-overflow-scrolling:touch; scrollbar-width:thin; scrollbar-color:rgba(255,255,255,0.3) transparent; touch-action:pan-x; }
+    .gallery-thumbnails::-webkit-scrollbar { height:4px; }
+    .gallery-thumbnails::-webkit-scrollbar-track { background:transparent; }
+    .gallery-thumbnails::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.3); border-radius:2px; }
+    .gallery-thumbnail { flex-shrink:0; width:60px; height:60px; border-radius:8px; overflow:hidden; border:2px solid transparent; cursor:pointer; touch-action:pan-x; transition:all 0.2s ease; box-shadow:0 2px 6px rgba(0,0,0,0.3); -webkit-tap-highlight-color: rgba(76,175,80,0.3); }
+    .gallery-thumbnail.active { border-color:#4CAF50; box-shadow:0 0 12px rgba(76,175,80,0.6); transform:scale(1.05); }
+    .gallery-thumbnail img { width:100%; height:100%; object-fit:cover; pointer-events:none; display:block; }
+    /* Neutralize old absolute nav style if still present */
+    .gallery-nav-btn { display:none !important; }
+    /* Hide bottom car info & nav arrows while gallery open */
+    .gallery-overlay #carInfoContainer, .gallery-overlay #prevButton, .gallery-overlay #nextButton, .gallery-overlay .mobile-share-btn { display:none !important; }
+}
+
+
+
+    /* === Mobile dropdown + distance message fallbacks (ensure fit, no zoom, stable spacing) === */
+    @media (max-width: 767px) {
+        /* Postcode input font size - dynamic based on viewport */
+        #postcode,
+        #postcodeModal {
+            font-size: clamp(13px, 3.5vw, 15px) !important; /* scales between 13px-15px based on device width */
+        }
+        /* Reserve space for native arrow, prevent text clipping, and avoid iOS zoom */
+        #distanceDropdown,
+        #distanceDropdownModal,
+        #distanceDropdownInline {
+            font-size: clamp(13px, 3.5vw, 15px) !important; /* dynamic sizing to match postcode */
+            line-height: 1.4;
+            padding: 6px 24px 6px 8px; /* right padding for arrow */
+            min-width: 96px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        /* Standardize distance message sizing and spacing */
+        #distanceMessage {
+            font-size: 12px;
+            color: red;
+            line-height: 1;
+            margin-top: 0;
+            margin-bottom: 2px; /* tight spacing below distance message */
+        }
+    }
+
+
+
+
+/* ================= Finance Overlay (Dedicated Classes) ================= */
+.finance-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.52); backdrop-filter:blur(2px); display:none; align-items:flex-end; justify-content:center; z-index:2600; opacity:0; transition:opacity .25s ease; }
+.finance-overlay.fin-open { display:flex; opacity:1; }
+.finance-modal-shell { width:100%; max-width:640px; background:#fff; border-radius:18px 18px 0 0; box-shadow:0 8px 36px -6px rgba(0,0,0,0.35); position:relative; display:flex; flex-direction:column; font-family:system-ui,Poppins,Arial,sans-serif; animation:finSlideUp .35s cubic-bezier(.4,.8,.4,1) both; max-height:88vh; }
+@media (min-width:768px){ .finance-overlay { align-items:center; } .finance-modal-shell { border-radius:24px; animation:finPop .35s ease both; max-height:84vh; } }
+@keyframes finSlideUp { from { transform:translateY(25%); opacity:0; } to { transform:translateY(0); opacity:1; } }
+@keyframes finPop { from { transform:scale(.92); opacity:0; } to { transform:scale(1); opacity:1; } }
+.finance-close-btn { position:absolute; top:10px; right:12px; width:36px; height:36px; border:none; background:#f1f1f4; color:#444; border-radius:50%; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; transition:background .2s, transform .2s; }
+.finance-close-btn:hover { background:#e4e4e9; }
+.finance-close-btn:active { transform:scale(.9); }
+.finance-modal-body-wrapper { padding:1.4rem 1.55rem 1.9rem; overflow-y:auto; }
+.finance-modal-heading { margin:0 0 .85rem; font-size:1.35rem; font-weight:600; letter-spacing:.5px; color:#222; }
+.finance-modal-placeholder { padding:1.7rem 1rem 2.2rem; text-align:center; opacity:.55; font-size:.9rem; line-height:1.4; }
+.finance-modal-body-wrapper::-webkit-scrollbar { width:10px; }
+.finance-modal-body-wrapper::-webkit-scrollbar-track { background:#f4f4f7; border-radius:10px; }
+.finance-modal-body-wrapper::-webkit-scrollbar-thumb { background:linear-gradient(180deg,#7b2bbd,#b65cf0); border-radius:10px; }
+.finance-modal-body-wrapper::-webkit-scrollbar-thumb:hover { background:linear-gradient(180deg,#6d18b6,#a34de0); }
+@media (max-height:560px){ .finance-modal-shell { max-height:86vh; } .finance-modal-heading { font-size:1.15rem; } }
+@supports(padding:max(0px)){ .finance-modal-shell { padding-bottom:max(env(safe-area-inset-bottom),0px); } }
+
+/* Force fixed 45% viewport height for finance sheet on mobile */
+@media (max-width:767px){
+    .finance-modal-shell { height:75vh; max-height:75vh; }
+    .finance-modal-body-wrapper { flex:1 1 auto; }
+}
+
+
+/* ================= More Filters Overlay (Mobile bottom-sheet to match Finance) ================ */
+@media (max-width:767px){
+    /* Overlay mirrors .finance-overlay */
+    #moreFiltersOverlay { 
+        position: fixed; inset: 0; 
+        background: rgba(0,0,0,0.52); backdrop-filter: blur(2px); 
+        display: none; align-items: flex-end; justify-content: center; 
+        z-index: 2600; opacity: 0; transition: opacity .25s ease; 
+    }
+    #moreFiltersOverlay.sheet-open { display: flex; opacity: 1; }
+
+    /* Panel mirrors .finance-modal-shell slide-up */
+    #moreFiltersModal.sheet { 
+        width: 100%; max-width: 640px; background: #fff; 
+        border-radius: 18px 18px 0 0; 
+        box-shadow: 0 8px 36px -6px rgba(0,0,0,0.35); 
+        position: relative; display: flex; flex-direction: column; 
+        animation: finSlideUp .35s cubic-bezier(.4,.8,.4,1) both; 
+        /* Restore prior sizing and padding for Filters sheet */
+        height: 75vh; max-height: 75vh; 
+        padding: 1.1rem 1rem 2.2rem 1rem; 
+    }
+    /* Reserve safe area top for close button only */
+    #moreFiltersModal.sheet { padding-top: 3.6rem; }
+    /* Remove drag handle entirely */
+    #moreFiltersModal.sheet:before { display:none !important; }
+    #closeMoreFilters::after { display:none !important; }
+
+    #moreFiltersModal .modal-inner-content { overflow-y: auto; padding-top: 0.9rem; }
+    /* Scrollbar aesthetics */
+    #moreFiltersModal.sheet::-webkit-scrollbar { width:8px; }
+    #moreFiltersModal.sheet::-webkit-scrollbar-thumb { background:#2ecc4088; border-radius:20px; }
+    #moreFiltersModal.sheet::-webkit-scrollbar-track { background:transparent; }
+    @supports(padding:max(0px)){ #moreFiltersModal.sheet { padding-bottom:max(env(safe-area-inset-bottom),0px); } }
+    @media (max-width:430px){ #moreFiltersModal.sheet { padding: 1rem 0.85rem 2rem 0.85rem; height:75vh; padding-top: 3.4rem; } }
+    @media (max-width:350px){ #moreFiltersModal.sheet { padding: 0.9rem 0.7rem 1.8rem 0.7rem; height:75vh; padding-top: 3.2rem; } }
+
+                /* Original centered red X button style (applied to both menus) */
+                #closeMoreFilters { 
+                    position:absolute; top:1.25rem; left:50%; transform: translateX(-50%); 
+                    z-index:10001; background:#d32f2f; color:#fff; border:none; 
+                        padding:0.55rem 1.0rem; border-radius:8px; font-size:0.95rem; 
+                        box-shadow:0 2px 6px rgba(0,0,0,0.25); width:clamp(56px, 40vw, 128px) !important; min-width:56px !important; height:auto; box-sizing:border-box; 
+                        font-family: 'Poppins', system-ui, Arial, sans-serif; font-weight:600; letter-spacing:0;
+                        display:flex; align-items:center; justify-content:center; line-height:1; 
+                        transition: background-color .15s ease, box-shadow .15s ease, transform .12s ease; 
+                        -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; 
+                }
+                    #closeMoreFilters:hover { background:#d32f2f; filter:brightness(0.96); }
+                    #closeMoreFilters:active { 
+                        transform: translateX(-50%) scale(.96); 
+                        box-shadow:0 1px 3px rgba(0,0,0,0.2); 
+                    }
+                    #closeMoreFilters:focus { outline:none; }
+                    #closeMoreFilters:focus-visible { box-shadow:0 0 0 3px rgba(211,47,47,0.28), 0 2px 6px rgba(0,0,0,0.25); }
+                
+                /* Reset button in More Filters modal */
+                #resetMoreFiltersBtn {
+                    position:absolute; top:1.25rem; left:0.75rem; 
+                    z-index:10001; background:#2ecc40; color:#fff; border:none; 
+                    padding:0.55rem 1.0rem; border-radius:8px; font-size:0.9rem; 
+                    box-shadow:0 2px 6px rgba(0,0,0,0.25); width:auto; min-width:70px; height:auto; box-sizing:border-box; 
+                    font-family: 'Poppins', system-ui, Arial, sans-serif; font-weight:600; letter-spacing:0;
+                    display:flex; align-items:center; justify-content:center; line-height:1; 
+                    transition: background-color .15s ease, box-shadow .15s ease, transform .12s ease; 
+                    -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; 
+                    cursor:pointer;
+                }
+                #resetMoreFiltersBtn:hover { background:#28a83a; filter:brightness(0.96); }
+                #resetMoreFiltersBtn:active { 
+                    transform: scale(.96); 
+                    box-shadow:0 1px 3px rgba(0,0,0,0.2); 
+                }
+                #resetMoreFiltersBtn:focus { outline:none; }
+                #resetMoreFiltersBtn:focus-visible { box-shadow:0 0 0 3px rgba(46,204,64,0.28), 0 2px 6px rgba(0,0,0,0.25); }
+                
+                /* Finance sheet: match the same centered red X button */
+                .finance-close-btn { 
+                    position:absolute !important; top:1.25rem; left:50%; transform: translateX(-50%); 
+                        width:clamp(56px, 40vw, 128px) !important; min-width:56px !important; height:auto !important; border:none; background:#d32f2f; color:#fff; box-sizing:border-box; 
+                        border-radius:8px; cursor:pointer; font-size:0.95rem; display:flex; align-items:center; justify-content:center; 
+                        padding:0.55rem 1.0rem; line-height:1; box-shadow:0 2px 6px rgba(0,0,0,0.25);
+                        font-family: 'Poppins', system-ui, Arial, sans-serif; font-weight:600; letter-spacing:0;
+                        transition: background-color .15s ease, box-shadow .15s ease, transform .12s ease; 
+                        -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; 
+                }
+                .finance-close-btn:hover { background:#d32f2f; filter:brightness(0.96); }
+                    .finance-close-btn:active { 
+                        transform: translateX(-50%) scale(.96); 
+                        box-shadow:0 1px 3px rgba(0,0,0,0.2); 
+                    }
+                    .finance-close-btn:focus { outline:none; }
+                    .finance-close-btn:focus-visible { box-shadow:0 0 0 3px rgba(211,47,47,0.28), 0 2px 6px rgba(0,0,0,0.25); }
+                /* Reserve space at top of Finance sheet for centered button */
+                .finance-modal-shell { padding-top: 3.6rem; }
+}
+
+
+/* Ensure both mobile sheets use border-box so padding doesn't change perceived width */
+@media (max-width:767px){
+    .finance-modal-shell,
+    #moreFiltersModal.sheet { box-sizing: border-box; }
+}
+
+
+
+/* ================= Finance Calculator (Mobile, themed + professional) ================= */
+@media (max-width: 767px) {
+    /* Container + heading (compact) */
+    #financeSheet .finance-modal-body-wrapper { padding: 0.9rem 0.9rem 1rem; }
+        #financeSheet .finance-modal-heading { 
+            margin: 0.15rem auto 0.6rem; 
+            font-family: 'Poppins', Arial, sans-serif; 
+            font-weight: 700; 
+            font-size: 1.05rem; 
+            color: #4CAF50; 
+            text-align: center;
+            display: table; /* centers consistently with margin auto */
+            padding: 0.3rem 0.65rem; 
+            border: 2px solid #4CAF50; 
+            border-radius: 10px; 
+            background: #ffffff; 
+            box-shadow: 0 2px 10px rgba(76,175,80,0.08);
+        }
+
+    /* Form base */
+    #financeSheet .finance-form { 
+        display: grid; 
+        gap: 0.65rem; 
+        color: #111; 
+        font-family: 'Poppins', Arial, sans-serif; 
+    }
+
+    /* Price + Deposit cards */
+    #financeSheet .finance-PriceDeposit { 
+        display: grid; 
+        grid-template-columns: repeat(2, minmax(0, 1fr)); 
+        gap: 0.6rem; 
+    }
+    @media (max-width: 380px) { 
+        #financeSheet .finance-PriceDeposit { grid-template-columns: 1fr; }
+    }
+    #financeSheet .finance-PriceDeposit-div { 
+        background: #fff; 
+        border: 1.5px solid #e8e9ec; 
+        border-radius: 12px; 
+        padding: 0.6rem 0.6rem; 
+        box-shadow: 0 2px 10px rgba(0,0,0,0.04); 
+        display: flex; 
+        flex-direction: column; 
+        align-items: stretch; 
+        text-align: left; 
+    }
+    #financeSheet .finance-PriceDeposit-div label { 
+        font-size: 0.82rem; 
+        font-weight: 600; 
+        color: #2a2a2a; 
+        margin-bottom: 0.25rem; 
+    }
+    #financeSheet .finance-input { 
+        width: 100%; 
+        border: 2px solid #dfe1e6; 
+        border-radius: 10px; 
+        padding: 0.55rem 0.6rem; 
+        font-size: 0.95rem; 
+        line-height: 1.2; 
+        color: #111; 
+        background: #fafbfc; 
+        outline: none; 
+        transition: border-color .18s ease, box-shadow .18s ease, background .18s ease; 
+    }
+    #financeSheet .finance-input:focus { 
+        border-color: #2ecc40; 
+        background: #fff; 
+        box-shadow: 0 0 0 3px rgba(46,204,64,0.18); 
+    }
+
+    /* Term dropdown */
+    #financeSheet .finance-Months { 
+        background: #fff; 
+        border: 1.5px solid #e8e9ec; 
+        border-radius: 12px; 
+        padding: 0.6rem 0.6rem; 
+        box-shadow: 0 2px 10px rgba(0,0,0,0.04); 
+        display: grid; 
+        gap: 0.3rem; 
+        position: relative;
+    }
+    #financeSheet .finance-Months label { 
+        font-size: 0.84rem; 
+        font-weight: 600; 
+        color: #2a2a2a; 
+        margin: 0; 
+    }
+    #financeSheet .finance-select { 
+        width: 100%; 
+        border: 2px solid #dfe1e6; 
+        border-radius: 10px; 
+        padding: 0.6rem 0.7rem; 
+        font-size: 1rem; 
+        background: #fafbfc; 
+        color: #111; 
+        outline: none; 
+        transition: border-color .18s ease, box-shadow .18s ease, background .18s ease; 
+    }
+    #financeSheet .finance-select:focus { 
+        border-color: #2ecc40; 
+        background: #fff; 
+        box-shadow: 0 0 0 3px rgba(46,204,64,0.18); 
+    }
+
+        /* Range slider styling */
+        #financeSheet .finance-range {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            /* Make control as tall as thumb so thumb centers naturally */
+            height: 26px;
+            /* Center the 8px track vertically via background */
+            background: linear-gradient(90deg, #2ecc40 0%, #2ecc40 100%) no-repeat center/100% 8px, #e6e8ee;
+            border-radius: 999px;
+            outline: none;
+            border: none; /* avoid shifting thumb */
+            box-shadow: inset 0 0 0 2px #dfe1e6; /* visual border */
+            padding: 0; margin: 0.2rem 0 0.3rem;
+        }
+        /* Progress fill via CSS var updated in JS if needed later */
+        #financeSheet .finance-range::-webkit-slider-runnable-track { height: 8px; background: transparent; border-radius: 999px; }
+        #financeSheet .finance-range::-moz-range-track { height: 8px; background: transparent; border-radius: 999px; }
+        #financeSheet .finance-range::-ms-track { height: 10px; background: transparent; border-radius: 999px; border-color: transparent; color: transparent; }
+        #financeSheet .finance-range::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 26px; height: 26px; border-radius: 50%;
+            background: #fff; border: 2px solid #2ecc40;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+            /* Nudge up slightly to visually center on the 8px track in WebKit/iOS */
+            margin-top: -1px;
+            cursor: pointer;
+        }
+        #financeSheet .finance-range::-moz-range-thumb {
+            width: 26px; height: 26px; border-radius: 50%;
+            background: #fff; border: 2px solid #2ecc40; box-shadow: 0 2px 6px rgba(0,0,0,0.18); cursor: pointer;
+            /* Nudge up slightly for Firefox */
+            transform: translateY(-1px);
+        }
+        #financeSheet .term-value { font-size: 0.86rem; font-weight: 600; color: #2a2a2a; text-align: right; position: absolute; top: 0.6rem; right: 0.6rem; }
+
+    /* Discrete tick marks under the months slider */
+    #financeSheet .finance-range-ticks { position: relative; height: 24px; margin-top: 4px; }
+    #financeSheet .finance-range-ticks .tick { position: absolute; top: 0; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
+    #financeSheet .finance-range-ticks .tick .bar { width: 2px; height: 10px; background: #2ecc40; display: block; border-radius: 1px; }
+    #financeSheet .finance-range-ticks .tick label { display: block; text-align: center; font-size: 0.74rem; color: #2a2a2a; margin-top: 2px; }
+    #financeSheet .finance-range-wrap { position: relative; width: 100%; }
+    #financeSheet .finance-range-wrap .finance-range { width: 100%; display: block; }
+
+    /* Credit score pill buttons */
+    #financeSheet .credit-score-label { 
+        font-size: 0.86rem; 
+        font-weight: 600; 
+        color: #2a2a2a; 
+        margin: 0.15rem 0 0.2rem; 
+    }
+    #financeSheet .credit-scores { 
+        display: grid; 
+        grid-template-columns: repeat(4, minmax(0, 1fr)); 
+        gap: 0.45rem; 
+    }
+    #financeSheet .credit-score { 
+        appearance: none; 
+        border: 2px solid #2ecc40; 
+        background: #fff; 
+        color: #2a2a2a; 
+        border-radius: 999px; 
+        padding: 0.45rem 0.5rem; 
+        font-size: 0.9rem; 
+        font-weight: 600; 
+        text-align: center; 
+        cursor: pointer; 
+        transition: background .18s ease, color .18s ease, box-shadow .18s ease, transform .1s ease; 
+    }
+    #financeSheet .credit-score:hover { background: #f3fff6; }
+    #financeSheet .credit-score:active { transform: scale(.98); }
+    #financeSheet .credit-score.active { 
+        background: #2ecc40; 
+        color: #fff; 
+        box-shadow: 0 2px 10px rgba(46,204,64,0.22); 
+    }
+
+    /* Monthly cost highlight */
+    #financeSheet .finance-label { 
+        margin-top: 0.1rem; 
+        padding: 0.55rem 0.65rem; 
+        background: #ffffff; 
+        border: 1.5px solid #e8e9ec; 
+        border-radius: 12px; 
+        box-shadow: 0 2px 10px rgba(0,0,0,0.04); 
+        text-align: center; 
+    }
+    #financeSheet #monthlyCostSheet { 
+        display: inline-block; 
+        font-weight: 700; 
+        font-size: 1.15rem; 
+        color: #2ecc40; 
+        letter-spacing: 0.01em; 
+    }
+
+    /* Get Quote primary CTA */
+    #financeSheet .get-quote { 
+        width: 100%; 
+        background: #2ecc40; 
+        color: #fff; 
+        border: 2px solid #2ecc40; 
+        border-radius: 12px; 
+        padding: 0.6rem 0.85rem; 
+        font-size: 1rem; 
+        font-weight: 700; 
+        cursor: pointer; 
+        box-shadow: 0 6px 18px rgba(46,204,64,0.25); 
+        transition: background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .1s ease; 
+    }
+    #financeSheet .get-quote:hover { 
+        background: #29c63b; 
+        border-color: #29c63b; 
+        box-shadow: 0 8px 22px rgba(46,204,64,0.32); 
+    }
+    #financeSheet .get-quote:active { transform: translateY(1px); box-shadow: 0 4px 12px rgba(46,204,64,0.24); }
+}
+
+
+

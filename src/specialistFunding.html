@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Specialist Funding Approval</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 1000px; /* Wider layout */
+            max-width: 95%;
+        }
+
+        h1 {
+            margin-bottom: 15px;
+            font-size: 28px;
+            color: #2a2a2a;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .tagline {
+            font-size: 20px;
+            color: #6c757d;
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+
+        .proposal-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 20px;
+            margin: 20px 0;
+            color: #555;
+        }
+
+        .proposal-info p {
+            width: 48%;
+            font-weight: 500;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            white-space: nowrap; /* Prevents text wrapping */
+            overflow: hidden;
+            text-overflow: ellipsis; /* Adds "..." for long text */
+        }
+
+        #status-box {
+            padding: 25px;
+            margin-top: 30px;
+            border-radius: 10px;
+            font-size: 22px;
+            font-weight: bold;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .accepted {
+            background-color: #28a745;
+            color: #ffffff;
+            box-shadow: 0 6px 20px rgba(0, 128, 0, 0.2);
+        }
+
+        .accepted::before {
+            content: '✅ Approved';
+            display: block;
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        #funding-btn {
+            margin-top: 20px;
+            padding: 18px 35px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        #funding-btn:hover {
+            background-color: #0056b3;
+            box-shadow: 0 5px 20px rgba(0, 91, 187, 0.3);
+        }
+
+        .badge {
+            background-color: #ffc107;
+            color: #2a2a2a;
+            font-weight: bold;
+            font-size: 16px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: inline-block;
+            letter-spacing: 1px;
+        }
+
+        .buttons-container {
+            display: flex;
+            flex-direction: column; /* Set layout to vertical column */
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Add some animation when funding status is accepted */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #status-box {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        .highlight {
+            font-weight: bold;
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Specialist Funding Approved</h1>
+        <p class="tagline">POI: 3 Months Bankstatments OR 3 Months Payslips REQUIRED.</p>
+        <div class="proposal-info">
+            <p>Customer Name: <span id="customer-name" class="highlight">---</span></p>
+            <p>Proposal ID: <span id="proposal-id" class="highlight">---</span></p>
+        </div>
+        <div class="proposal-info">
+            <p>Vehicle Details: <span id="vehicle-details">---</span></p>
+            <p>Registration: <span id="registration">---</span></p>
+        </div>
+        <div id="status-box" class="accepted">
+            <p id="status-message">Specialist Funding Accepted</p>
+        </div>
+
+        <div class="buttons-container">
+            <div class="badge">Final steps needed for full approval</div>
+            <button id="funding-btn">Continue with Approval</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("funding-btn").addEventListener("click", function() {
+            let customerName = prompt("Enter the Customer Name:");
+            if (customerName) {
+                document.getElementById("customer-name").textContent = customerName;
+                document.getElementById("proposal-id").textContent = Math.floor(Math.random() * 1000000);
+                document.getElementById("status-message").textContent = "Specialist Funding Accepted";
+            }
+        });
+    </script>
+</body>
+</html>

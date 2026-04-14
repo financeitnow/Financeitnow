@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+
+# Dev/test files
+src/full_stock_page.html
+src/detail_page.html
+src/detail_page_rendered.html
+src/detail_gallery.html
+src/localhost.txt
+
+# OS
+.DS_Store
+Thumbs.db
