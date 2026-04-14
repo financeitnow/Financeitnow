@@ -1,4 +1,4 @@
-import tkinter as tk
+﻿import tkinter as tk
 from tkinter import messagebox
 from scraper import Scraper
 from extract_car_data import extract_car_data
@@ -33,7 +33,7 @@ def checkAdsBS():
     from bs4 import BeautifulSoup
     import time
     # Load cars
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    base_dir = os.path.dirname(os.path.abspath(__file__))
     cars_file = os.path.join(base_dir, "data", "cars.json")
     with open(cars_file, "r", encoding="utf-8") as f:
         cars = json.load(f)
@@ -77,7 +77,7 @@ def checkAdsBS():
 
 def save_dealer_to_json(dealer_info, dealers_file=None):
     if dealers_file is None:
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        base_dir = os.path.dirname(os.path.abspath(__file__))
         dealers_file = os.path.join(base_dir, "data", "dealers.json")
     os.makedirs(os.path.dirname(dealers_file), exist_ok=True)
     if os.path.exists(dealers_file):
@@ -139,7 +139,7 @@ def extract_cars():
         response = requests.get(stock_url)
         if response.status_code == 200:
             car_list = extract_car_data(response.text)
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            base_dir = os.path.dirname(os.path.abspath(__file__))
             cars_file = os.path.join(base_dir, "data", "cars.json")
             with open(cars_file, "w", encoding="utf-8") as f:
                 json.dump(car_list, f, ensure_ascii=False, indent=2)
@@ -151,10 +151,10 @@ def extract_cars():
         messagebox.showerror("Error", f"Failed to extract cars: {e}")
 
 def clean_price(price_str):
-    # Remove £ and commas, handle +VAT, Inc VAT, No VAT, then convert to int
+    # Remove Â£ and commas, handle +VAT, Inc VAT, No VAT, then convert to int
     if not price_str:
         return 0
-    price_str = price_str.replace('£', '').replace(',', '').strip()
+    price_str = price_str.replace('Â£', '').replace(',', '').strip()
     price_str_upper = price_str.upper()
     is_vat = False
     # Only multiply by 1.2 if +VAT is present and NOT Inc VAT or No VAT
@@ -228,7 +228,7 @@ def scrape_all():
                 except Exception:
                     car["price"] = 0
 
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        base_dir = os.path.dirname(os.path.abspath(__file__))
         cars_file = os.path.join(base_dir, "data", "cars.json")
         # Read existing cars if file exists
         if os.path.exists(cars_file):
@@ -421,7 +421,7 @@ def scrape_images_and_information_for_unscraped_cars(mode='both'):  # mode: 'bot
     from bs4 import BeautifulSoup
     from selenium_utils import accept_cookies
 
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    base_dir = os.path.dirname(os.path.abspath(__file__))
     cars_file = os.path.join(base_dir, "data", "cars.json")
     with open(cars_file, "r", encoding="utf-8") as f:
         all_cars = json.load(f)
@@ -583,7 +583,7 @@ def scrape_images_and_information_for_unscraped_cars(mode='both'):  # mode: 'bot
                 need_save = True
                 print(f"Found {len(new_images)} images.")
             else:
-                print(f"WARNING: No images found for {car.get('make','')} {car.get('model','')} — imageScraped left as False, will retry next run.")
+                print(f"WARNING: No images found for {car.get('make','')} {car.get('model','')} â€” imageScraped left as False, will retry next run.")
         # --- More natural random scrolling (max 60% of page height, similar to vehicle info) ---
         human_like_browsing(driver)
         # Always scroll to top before scraping images
@@ -616,14 +616,14 @@ def delete_sold_vehicles():
     def log(msg):
         output_text.insert(tk.END, msg)
 
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    base_dir = os.path.dirname(os.path.abspath(__file__))
     cars_file = os.path.join(base_dir, "data", "cars.json")
     with open(cars_file, "r", encoding="utf-8") as f:
         cars = json.load(f)
 
     driver = get_undetected_chrome_driver(log_output=log)
     cookies_accepted = False
-    sold_phrase = "The advert you are looking for is no longer available but we’ve found some similar vehicles for sale that match your search criteria"
+    sold_phrase = "The advert you are looking for is no longer available but weâ€™ve found some similar vehicles for sale that match your search criteria"
     deleted_count = 0
 
     # Clear the output_text box for new run
@@ -678,14 +678,14 @@ def check_ads():
     def log(msg):
         output_text.insert(tk.END, msg)
 
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    base_dir = os.path.dirname(os.path.abspath(__file__))
     cars_file = os.path.join(base_dir, "data", "cars.json")
     with open(cars_file, "r", encoding="utf-8") as f:
         cars = json.load(f)
 
     driver = get_undetected_chrome_driver(log_output=log)
     cookies_accepted = False
-    sold_phrase = "The advert you are looking for is no longer available but we’ve found some similar vehicles for sale that match your search criteria"
+    sold_phrase = "The advert you are looking for is no longer available but weâ€™ve found some similar vehicles for sale that match your search criteria"
     deleted_count = 0
 
 
@@ -804,7 +804,7 @@ def scrape_cars_for_selected_dealer_gui():
                     car["price"] = clean_price(car["price"])
                 except Exception:
                     car["price"] = 0
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        base_dir = os.path.dirname(os.path.abspath(__file__))
         cars_file = os.path.join(base_dir, "data", "cars.json")
         dealers_file = os.path.join(base_dir, "data", "dealers.json")
         if os.path.exists(cars_file):
@@ -869,7 +869,7 @@ def scrape_cars_for_selected_dealer_gui():
 DEFAULT_MANUAL_PROXY = ""
 
 # --- Load dealers for dropdown ---
-base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+base_dir = os.path.dirname(os.path.abspath(__file__))
 dealers_file = os.path.join(base_dir, "data", "dealers.json")
 cars_file = os.path.join(base_dir, "data", "cars.json")
 try:
@@ -1128,7 +1128,7 @@ if __name__ == "__main__":
 
     # --- Update Dealer Stock Count ---
     def update_dealer_stock_count():
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        base_dir = os.path.dirname(os.path.abspath(__file__))
         dealers_file = os.path.join(base_dir, "data", "dealers.json")
         cars_file = os.path.join(base_dir, "data", "cars.json")
         try:
@@ -1172,7 +1172,7 @@ if __name__ == "__main__":
         confirm = messagebox.askyesno("Confirm Delete", f"Are you sure you want to delete dealer '{dealer.get('dealer_name','')}' and all their cars?")
         if not confirm:
             return
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        base_dir = os.path.dirname(os.path.abspath(__file__))
         dealers_file = os.path.join(base_dir, "data", "dealers.json")
         cars_file = os.path.join(base_dir, "data", "cars.json")
         # Remove dealer from dealers.json
@@ -1219,7 +1219,7 @@ if __name__ == "__main__":
         confirm = messagebox.askyesno("Confirm Delete", f"Are you sure you want to delete ALL cars for dealer '{dealer.get('dealer_name','')}'?")
         if not confirm:
             return
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        base_dir = os.path.dirname(os.path.abspath(__file__))
         cars_file = os.path.join(base_dir, "data", "cars.json")
         dealers_file = os.path.join(base_dir, "data", "dealers.json")
         # Remove cars from cars.json
@@ -1262,7 +1262,7 @@ if __name__ == "__main__":
     # --- Refresh GUI Data ---
     def refresh_programme():
         global dealers_list, cars_list
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        base_dir = os.path.dirname(os.path.abspath(__file__))
         dealers_file = os.path.join(base_dir, "data", "dealers.json")
         cars_file = os.path.join(base_dir, "data", "cars.json")
         try:
