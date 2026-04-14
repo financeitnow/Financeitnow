@@ -1,3 +1,6 @@
+# Old root data folder (use src/data/ only)
+data/
+
 # Python / scraper files (local only)
 __pycache__/
 *.pyc
