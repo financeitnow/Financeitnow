@@ -1281,12 +1281,8 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
                     `Mileage: ${chatMileage || 'ask us'} | Gearbox: ${chatGearbox || 'ask us'}\n\n` +
                     `View this car: ${uniqueLink}`
                 );
-                // whatsapp:// opens the app directly without going through a browser page.
-                // wa.me is the fallback for desktop or if the app isn't installed.
-                const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-                waLink.href = isMobileDevice
-                    ? `whatsapp://send?phone=447506301308&text=${waMessage}`
-                    : `https://wa.me/447506301308?text=${waMessage}`;
+                // wa.me handles both mobile and desktop without triggering an OS confirmation prompt.
+                waLink.href = `https://wa.me/447506301308?text=${waMessage}`;
             }
 
             // Tapping the card content (not image, not buttons/links) fires WhatsApp
