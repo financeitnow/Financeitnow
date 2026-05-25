@@ -6269,8 +6269,8 @@ function resetFilterOrder() {
             var voice = getBestVoice();
             if (voice) utter.voice = voice;
             utter.lang = 'en-GB';
-            utter.rate = 1.1;    // natural conversational pace
-            utter.pitch = 1.1;   // slightly higher — brighter, more human
+            utter.rate = 1.08;
+            utter.pitch = 1.25;  // higher pitch = more expressive, less flat
             utter.volume = 1.0;
             utter.onend = function () { startMic(); };
             utter.onerror = function () { startMic(); };
@@ -6292,9 +6292,9 @@ function resetFilterOrder() {
     }
 
     var greetings = [
-        "Hi there! I'm here to help you find your next car. Just tell me what you're looking for.",
-        "Hello! Tell me what kind of car you have in mind and I'll find the best options for you.",
-        "Hi! What type of car are you looking for today? Just tell me and I'll sort it out."
+        "Hi there! Welcome to Finance it Now. I'm here to help you find your perfect car today — so, what are you looking for?",
+        "Hello! Thanks for calling. I can help you find the right car. What kind of vehicle did you have in mind?",
+        "Hi! Great news — we've got hundreds of cars available. Just tell me what you're looking for, and I'll find the best options for you!"
     ];
 
     if (btn) {
