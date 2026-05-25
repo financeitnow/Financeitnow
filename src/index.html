@@ -175,7 +175,7 @@
                     <span class="wishlist-count">0</span>
                 </button>
             </div>
-            <a href="https://wa.me/+447506301308" target="_blank" class="desktop-message-btn" aria-label="Message us">
+            <a href="https://api.whatsapp.com/send?phone=447506301308" target="_blank" class="desktop-message-btn" aria-label="Message us">
                 <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" fill="currentColor" style="flex-shrink: 0;">
                     <path d="M20 3H4a1 1 0 0 0-1 1v16l4-4h13a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1z" fill="currentColor"/>
                 </svg>
@@ -473,7 +473,7 @@
                     </div>
                 </div>
                 <div class="desktop-modal-contact">
-                    <a href="https://wa.me/+447506301308" target="_blank" class="desktop-modal-contact-link">
+                    <a href="https://api.whatsapp.com/send?phone=447506301308" target="_blank" class="desktop-modal-contact-link">
                         <img src="whatsapp.png" alt="Contact us on WhatsApp" class="desktop-modal-contact-img">
                         <span class="desktop-modal-contact-text">Contact Now!</span>
                     </a>
@@ -807,7 +807,7 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
     </button>
 
 <!-- Mobile-only WhatsApp call button (top-right) -->
-<a id="whatsappFab" class="whatsapp-fab" aria-label="WhatsApp" title="WhatsApp" href="https://wa.me/447506301308" rel="noopener" target="_blank">
+<a id="whatsappFab" class="whatsapp-fab" aria-label="WhatsApp" title="WhatsApp" href="https://api.whatsapp.com/send?phone=447506301308" rel="noopener" target="_blank">
     <svg width="21" height="21" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" fill="#ffffff">
         <path d="M20 3H4a1 1 0 0 0-1 1v16l4-4h13a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1z" fill="#ffffff"/>
     </svg>
@@ -1318,8 +1318,7 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
                     `Mileage: ${chatMileage || 'ask us'} | Gearbox: ${chatGearbox || 'ask us'}\n\n` +
                     `View this car: ${uniqueLink}`
                 );
-                // wa.me handles both mobile and desktop without triggering an OS confirmation prompt.
-                waLink.href = `https://wa.me/447506301308?text=${waMessage}`;
+                waLink.href = `https://api.whatsapp.com/send?phone=447506301308&text=${waMessage}`;
             }
 
             // Tapping the card content (not image, not buttons/links) fires WhatsApp
@@ -2202,7 +2201,7 @@ const displayPrice = price + 300;
                     <div id="mobileMonthlyPreview" style="color:#FF8C00;"></div>
                 </div>
                 <div class="whatsapp-row-mobile">
-                    <a href="https://wa.me/+447506301308" target="_blank" class="whatsapp-link-mobile" style="display:inline-flex; align-items:center; gap:6px;">
+                    <a href="https://api.whatsapp.com/send?phone=447506301308" target="_blank" class="whatsapp-link-mobile" style="display:inline-flex; align-items:center; gap:6px;">
                         <img src="whatsapp.png" alt="Contact us on WhatsApp" class="whatsapp-img-mobile">
                         <span class="whatsapp-text-mobile">ContactNow!</span>
                     </a>
@@ -2223,7 +2222,7 @@ const displayPrice = price + 300;
                 <div class="car-info-price-desktop">£${displayPrice}</div>
             </div>
             <div class="whatsapp-row-desktop">
-                <a href="https://wa.me/+447506301308" target="_blank" class="whatsapp-link-desktop">
+                <a href="https://api.whatsapp.com/send?phone=447506301308" target="_blank" class="whatsapp-link-desktop">
                     <img src="whatsapp.png" alt="Contact us on WhatsApp" class="whatsapp-img-desktop">
                     <span class="whatsapp-text-desktop">ContactNow!</span>
                 </a>
