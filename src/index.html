@@ -6024,6 +6024,19 @@ function resetFilterOrder() {
         setSpeaking(true);
         window.speechSynthesis.cancel();
 
+        var doneFired = false;
+        var fallbackTimer = null;
+
+        // Guard: ensure onDone is called exactly once even if utter.onend never fires
+        // (known iOS/mobile Safari bug when called from fetch callbacks)
+        function fireDone() {
+            if (doneFired) return;
+            doneFired = true;
+            clearTimeout(fallbackTimer);
+            setSpeaking(false);
+            if (onDone) onDone();
+        }
+
         function doSpeak() {
             var utter = new SpeechSynthesisUtterance(text);
             var voice = getBestVoice();
@@ -6032,9 +6045,12 @@ function resetFilterOrder() {
             utter.rate = 1.08;
             utter.pitch = 1.25;
             utter.volume = 1.0;
-            utter.onend = function () { setSpeaking(false); if (onDone) onDone(); };
-            utter.onerror = function () { setSpeaking(false); if (onDone) onDone(); };
+            utter.onend = fireDone;
+            utter.onerror = fireDone;
             window.speechSynthesis.speak(utter);
+            // Fallback: if onend never fires (iOS bug), estimate duration and fire anyway
+            var wordCount = text.trim().split(/\s+/).length;
+            fallbackTimer = setTimeout(fireDone, Math.max(wordCount * 550, 5000));
         }
 
         var voices = window.speechSynthesis.getVoices();
@@ -6168,7 +6184,15 @@ function resetFilterOrder() {
     // ---- Open mic to listen for next customer turn ----
     function startMicLoop() {
         showToast('Listening…', 0);
-        try { recognition.start(); setListening(true); } catch (e) { /* already running */ }
+        try {
+            recognition.start();
+            setListening(true);
+        } catch (e) {
+            // Recognition may be in an intermediate state — retry after a short delay
+            setTimeout(function () {
+                try { recognition.start(); setListening(true); } catch (e2) {}
+            }, 350);
+        }
     }
 
     // ---- End the call cleanly ----
