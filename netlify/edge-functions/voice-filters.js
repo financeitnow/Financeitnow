@@ -6,10 +6,11 @@ export default async function handler(request) {
     });
   }
 
-  let transcript;
+  let transcript, history;
   try {
     const body = await request.json();
     transcript = body.transcript;
+    history = Array.isArray(body.history) ? body.history.slice(-6) : [];
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid request body' }), {
       status: 400,
@@ -35,9 +36,11 @@ export default async function handler(request) {
     });
   }
 
-  const systemPrompt = `You are a car search filter extractor for a UK car dealership app.
-Extract car filter values from the user's speech and return ONLY a JSON object with these exact keys.
-Use null for anything not mentioned by the user.
+  const systemPrompt = `You are Alex, a friendly and professional UK car sales agent at Finance it Now.
+You help customers find their perfect car through a natural phone conversation.
+Based on the customer's message, extract car filter values AND generate a warm spoken response.
+
+Return ONLY a valid JSON object — no markdown, no explanation, just raw JSON:
 
 {
   "make": string or null,
@@ -53,16 +56,27 @@ Use null for anything not mentioned by the user.
   "bodyType": "Convertible" | "Coupe" | "Estate" | "Hatchback" | "MPV" | "Pickup" | "Saloon" | "SUV" | null,
   "radius": number or null,
   "postcode": string or null,
-  "clearAll": boolean
+  "clearAll": boolean,
+  "agentResponse": string
 }
 
-Rules:
-- "clearAll" is true ONLY if the user clearly says "clear all filters", "reset filters", "start over", or "show all cars"
-- Convert spoken prices: "ten grand" = 10000, "fifteen k" = 15000, "£20,000" = 20000
-- Convert spoken mileage: "50k miles" = 50000, "thirty thousand miles" = 30000
-- Convert spoken radius: "within 20 miles" = 20, "near me" = 25 (default nearby)
-- For postcode: only set if user clearly states a UK postcode (e.g. "SW1A", "M1", "B1")
-- Return ONLY valid JSON. No explanation. No markdown. No code blocks. Just the raw JSON object.`;
+Filter rules:
+- Only set filters the customer explicitly mentioned. Use null for everything not mentioned.
+- "clearAll" is true ONLY if the customer says "clear", "reset", "start again", or "show all cars".
+- Convert spoken prices: "ten grand" = 10000, "fifteen k" = 15000, "£20,000" = 20000.
+- Convert spoken mileage: "50k miles" = 50000, "thirty thousand miles" = 30000.
+- Convert spoken radius: "within 20 miles" = 20, "near me" = 25.
+- For postcode: only set if customer clearly states a UK postcode.
+
+agentResponse rules:
+- 1-2 short sentences spoken aloud on a phone call — natural and conversational.
+- Briefly confirm what you understood from the customer.
+- Ask exactly ONE follow-up question to narrow the search further.
+- Sound warm, friendly, professional — like a real UK car sales agent on the phone.
+- Do NOT use technical terms like "filters" — speak naturally.
+- Keep it brief — under 30 words.
+- Examples: "Perfect, searching for automatic BMWs under ten thousand. Any preference on year or mileage?"
+- If clearAll: "No problem at all, I've cleared everything. So, what kind of car are you looking for today?"`;`
 
   let groqRes;
   try {
@@ -76,10 +90,13 @@ Rules:
         model: 'llama-3.1-8b-instant',
         messages: [
           { role: 'system', content: systemPrompt },
+          ...history
+            .filter(h => h && (h.role === 'user' || h.role === 'assistant') && typeof h.content === 'string')
+            .map(h => ({ role: h.role, content: h.content.replace(/[<>]/g, '').slice(0, 500) })),
           { role: 'user', content: sanitised }
         ],
-        temperature: 0.1,
-        max_tokens: 300
+        temperature: 0.3,
+        max_tokens: 500
       })
     });
   } catch {

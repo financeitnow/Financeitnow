@@ -5934,7 +5934,6 @@ function resetFilterOrder() {
     var btn = document.getElementById('voiceSearchBtn');
     var toast = document.getElementById('voiceToast');
 
-    // Hide button entirely if Speech API not available
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
         if (btn) btn.style.display = 'none';
         return;
@@ -5949,6 +5948,8 @@ function resetFilterOrder() {
 
     var isListening = false;
     var toastTimer = null;
+    var callActive = false;
+    var conversationHistory = [];
 
     function showToast(msg, duration) {
         if (!toast) return;
@@ -5972,11 +5973,11 @@ function resetFilterOrder() {
         if (!btn) return;
         if (active) {
             btn.classList.add('voice-btn--listening');
-            btn.setAttribute('aria-label', 'Listening… tap to cancel');
+            btn.classList.remove('voice-btn--thinking');
+            btn.classList.remove('voice-btn--speaking');
+            btn.setAttribute('aria-label', 'Tap to hang up');
         } else {
             btn.classList.remove('voice-btn--listening');
-            btn.classList.remove('voice-btn--thinking');
-            btn.setAttribute('aria-label', 'Voice search');
         }
     }
 
@@ -5984,256 +5985,25 @@ function resetFilterOrder() {
         if (!btn) return;
         if (active) {
             btn.classList.add('voice-btn--thinking');
+            btn.classList.remove('voice-btn--listening');
+            btn.classList.remove('voice-btn--speaking');
         } else {
             btn.classList.remove('voice-btn--thinking');
         }
     }
 
-    // Apply filters returned from the edge function
-    function applyVoiceFilters(filters) {
-        if (!filters || typeof filters !== 'object') return;
-
-        if (filters.clearAll === true) {
-            var resetBtn = document.getElementById('resetFiltersBtn') || document.querySelector('[data-action="reset-filters"]');
-            if (typeof resetFilterOrder === 'function') {
-                resetFilterOrder();
-                showToast('All filters cleared', 2500);
-                return;
-            }
-        }
-
-        var changed = false;
-
-        // Helper: set a select element value if the option exists
-        function setSelect(id, value) {
-            if (!value) return;
-            var el = document.getElementById(id);
-            if (!el) return;
-            var opts = Array.from(el.options).map(function (o) { return o.value.toLowerCase(); });
-            var idx = opts.indexOf(String(value).toLowerCase());
-            if (idx >= 0) { el.selectedIndex = idx; changed = true; }
-        }
-
-        // Helper: set a text input value
-        function setInput(id, value) {
-            if (value == null) return;
-            var el = document.getElementById(id);
-            if (!el) return;
-            el.value = value;
-            changed = true;
-        }
-
-        // Helper: tick/untick a checkbox group by value
-        function setCheckbox(containerSelector, value, checked) {
-            if (!value) return;
-            var container = document.querySelector(containerSelector);
-            if (!container) return;
-            var boxes = container.querySelectorAll('input[type="checkbox"]');
-            boxes.forEach(function (box) {
-                if (box.value.toLowerCase() === String(value).toLowerCase()) {
-                    box.checked = checked;
-                    changed = true;
-                }
-            });
-        }
-
-        // Make
-        if (filters.make) {
-            var makeEl = document.getElementById('makeDropdown');
-            if (makeEl) {
-                var makeOpts = Array.from(makeEl.options);
-                var makeMatch = makeOpts.find(function (o) {
-                    return o.value.toLowerCase() === filters.make.toLowerCase();
-                });
-                if (makeMatch) {
-                    makeEl.value = makeMatch.value;
-                    // Trigger model dropdown update
-                    if (typeof updateModelDropdown === 'function') {
-                        updateModelDropdown(makeMatch.value, 'model');
-                    }
-                    changed = true;
-                }
-            }
-        }
-
-        // Model (set after make)
-        if (filters.model) {
-            setTimeout(function () {
-                var modelEl = document.getElementById('model');
-                if (modelEl) {
-                    var modelOpts = Array.from(modelEl.options);
-                    var modelMatch = modelOpts.find(function (o) {
-                        return o.value.toLowerCase().includes(filters.model.toLowerCase());
-                    });
-                    if (modelMatch) {
-                        modelEl.value = modelMatch.value;
-                        modelEl.disabled = false;
-                    }
-                }
-            }, 150);
-        }
-
-        // Price
-        if (filters.minPrice != null) setInput('minPrice', filters.minPrice);
-        if (filters.maxPrice != null) setInput('maxPrice', filters.maxPrice);
-
-        // Mileage — use select dropdowns (pick closest option)
-        function setSelectClosest(id, value) {
-            if (value == null) return;
-            var el = document.getElementById(id);
-            if (!el) return;
-            var best = null, bestDiff = Infinity;
-            Array.from(el.options).forEach(function (o) {
-                var v = parseFloat(o.value);
-                if (!isNaN(v)) {
-                    var diff = Math.abs(v - value);
-                    if (diff < bestDiff) { bestDiff = diff; best = o.value; }
-                }
-            });
-            if (best !== null) { el.value = best; changed = true; }
-        }
-
-        setSelectClosest('mileageFromSelect', filters.minMileage);
-        setSelectClosest('mileageToSelect', filters.maxMileage);
-        setSelectClosest('yearFromSelect', filters.yearFrom);
-        setSelectClosest('yearToSelect', filters.yearTo);
-
-        // Transmission
-        if (filters.transmission === 'Automatic') {
-            var autoBox = document.getElementById('gearboxAutomatic');
-            var manBox = document.getElementById('gearboxManual');
-            if (autoBox) { autoBox.checked = true; changed = true; }
-            if (manBox) { manBox.checked = false; }
-        } else if (filters.transmission === 'Manual') {
-            var autoBox2 = document.getElementById('gearboxAutomatic');
-            var manBox2 = document.getElementById('gearboxManual');
-            if (manBox2) { manBox2.checked = true; changed = true; }
-            if (autoBox2) { autoBox2.checked = false; }
-        }
-
-        // Fuel type — uncheck all then check the one mentioned
-        if (filters.fuelType) {
-            var fuelContainer = document.getElementById('fuelTypeFilter');
-            if (fuelContainer) {
-                fuelContainer.querySelectorAll('input[type="checkbox"]').forEach(function (b) { b.checked = false; });
-                setCheckbox('#fuelTypeFilter', filters.fuelType, true);
-            }
-        }
-
-        // Body type — uncheck all then check the one mentioned
-        if (filters.bodyType) {
-            var bodyContainer = document.getElementById('bodyTypeFilter');
-            if (bodyContainer) {
-                bodyContainer.querySelectorAll('input[type="checkbox"]').forEach(function (b) { b.checked = false; });
-                setCheckbox('#bodyTypeFilter', filters.bodyType, true);
-            }
-        }
-
-        // Distance / postcode
-        if (filters.postcode) {
-            var pcEl = document.getElementById('postcode');
-            if (pcEl) {
-                pcEl.value = filters.postcode.toUpperCase();
-                // Trigger the existing postcode validation + filter logic
-                pcEl.dispatchEvent(new Event('keyup', { bubbles: true }));
-                changed = true;
-            }
-        }
-
-        if (filters.radius != null) {
-            setSelectClosest('distanceDropdown', filters.radius);
-        }
-
-        // Run the main filter function
-        if (changed && typeof filterCars === 'function') {
-            filterCars();
-        }
-
-        // Build summary toast
-        var parts = [];
-        if (filters.make) parts.push(filters.make);
-        if (filters.model) parts.push(filters.model);
-        if (filters.transmission) parts.push(filters.transmission);
-        if (filters.fuelType) parts.push(filters.fuelType);
-        if (filters.bodyType) parts.push(filters.bodyType);
-        if (filters.maxPrice) parts.push('under £' + filters.maxPrice.toLocaleString());
-        if (filters.maxMileage) parts.push('under ' + filters.maxMileage.toLocaleString() + ' miles');
-        if (filters.yearFrom) parts.push('from ' + filters.yearFrom);
-
-        if (parts.length > 0) {
-            showToast('Filters set: ' + parts.join(', '), 4000);
-        } else if (changed) {
-            showToast('Filters updated', 2500);
+    function setSpeaking(active) {
+        if (!btn) return;
+        if (active) {
+            btn.classList.add('voice-btn--speaking');
+            btn.classList.remove('voice-btn--listening');
+            btn.classList.remove('voice-btn--thinking');
         } else {
-            showToast("Couldn't find matching filters — try again", 3000);
+            btn.classList.remove('voice-btn--speaking');
         }
     }
 
-    // Send transcript to edge function
-    function processTranscript(transcript) {
-        setThinking(true);
-        showToast('Thinking…', 0);
-
-        fetch('/api/voice-filters', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ transcript: transcript })
-        })
-        .then(function (res) {
-            return res.json().then(function (data) {
-                return { ok: res.ok, status: res.status, data: data };
-            });
-        })
-        .then(function (result) {
-            setThinking(false);
-            if (!result.ok) {
-                if (result.status === 429 || (result.data && result.data.error === 'rate_limit')) {
-                    showToast('Voice search busy — please use filters manually', 4000);
-                } else {
-                    showToast('Voice search unavailable — please use filters manually', 4000);
-                }
-                return;
-            }
-            applyVoiceFilters(result.data);
-        })
-        .catch(function () {
-            setThinking(false);
-            showToast('Voice search unavailable — please use filters manually', 4000);
-        });
-    }
-
-    recognition.onresult = function (e) {
-        var transcript = e.results[0][0].transcript;
-        setListening(false);
-        if (!transcript || transcript.trim().length === 0) {
-            showToast("Nothing heard — try again", 3000);
-            return;
-        }
-        processTranscript(transcript);
-    };
-
-    recognition.onerror = function (e) {
-        setListening(false);
-        setThinking(false);
-        if (e.error === 'not-allowed' || e.error === 'permission-denied') {
-            showToast('Microphone access denied — please allow mic in browser settings', 4000);
-        } else if (e.error === 'no-speech') {
-            showToast("Nothing heard — try again", 3000);
-        } else if (e.error === 'network') {
-            showToast('Network error — please check your connection', 3500);
-        } else {
-            showToast("Voice search unavailable — please use filters manually", 3500);
-        }
-    };
-
-    recognition.onend = function () {
-        if (isListening) {
-            setListening(false);
-        }
-    };
-
-    // Speak a greeting, then automatically open the mic when speech finishes
-    // Pick the most natural-sounding available voice
+    // ---- Voice selection ----
     function getBestVoice() {
         var voices = window.speechSynthesis.getVoices();
         if (!voices || voices.length === 0) return null;
@@ -6246,22 +6016,13 @@ function resetFilterOrder() {
             || null;
     }
 
-    function speakAndListen(text) {
-        function startMic() {
-            try {
-                recognition.start();
-                setListening(true);
-                showToast('Listening… speak now', 0);
-            } catch (err) {
-                showToast('Could not start microphone — try again', 3000);
-            }
-        }
-
+    // ---- Speak text then call onDone ----
+    function speakThen(text, onDone) {
         if (!window.speechSynthesis) {
-            startMic();
+            if (onDone) onDone();
             return;
         }
-
+        setSpeaking(true);
         window.speechSynthesis.cancel();
 
         function doSpeak() {
@@ -6270,14 +6031,13 @@ function resetFilterOrder() {
             if (voice) utter.voice = voice;
             utter.lang = 'en-GB';
             utter.rate = 1.08;
-            utter.pitch = 1.25;  // higher pitch = more expressive, less flat
+            utter.pitch = 1.25;
             utter.volume = 1.0;
-            utter.onend = function () { startMic(); };
-            utter.onerror = function () { startMic(); };
+            utter.onend = function () { setSpeaking(false); if (onDone) onDone(); };
+            utter.onerror = function () { setSpeaking(false); if (onDone) onDone(); };
             window.speechSynthesis.speak(utter);
         }
 
-        // Voices may not be loaded yet on first call — wait if needed
         var voices = window.speechSynthesis.getVoices();
         if (voices && voices.length > 0) {
             doSpeak();
@@ -6286,11 +6046,221 @@ function resetFilterOrder() {
                 window.speechSynthesis.onvoiceschanged = null;
                 doSpeak();
             };
-            // Fallback if onvoiceschanged never fires
             setTimeout(doSpeak, 500);
         }
     }
 
+    // ---- Apply filters returned by AI ----
+    function applyVoiceFilters(filters) {
+        if (!filters || typeof filters !== 'object') return;
+
+        if (filters.clearAll === true) {
+            if (typeof resetFilterOrder === 'function') { resetFilterOrder(); }
+            return;
+        }
+
+        var changed = false;
+
+        function setInput(id, value) {
+            if (value == null) return;
+            var el = document.getElementById(id);
+            if (!el) return;
+            el.value = value; changed = true;
+        }
+
+        function setCheckbox(containerSelector, value, checked) {
+            if (!value) return;
+            var container = document.querySelector(containerSelector);
+            if (!container) return;
+            container.querySelectorAll('input[type="checkbox"]').forEach(function (box) {
+                if (box.value.toLowerCase() === String(value).toLowerCase()) {
+                    box.checked = checked; changed = true;
+                }
+            });
+        }
+
+        function setSelectClosest(id, value) {
+            if (value == null) return;
+            var el = document.getElementById(id);
+            if (!el) return;
+            var best = null, bestDiff = Infinity;
+            Array.from(el.options).forEach(function (o) {
+                var v = parseFloat(o.value);
+                if (!isNaN(v)) { var diff = Math.abs(v - value); if (diff < bestDiff) { bestDiff = diff; best = o.value; } }
+            });
+            if (best !== null) { el.value = best; changed = true; }
+        }
+
+        if (filters.make) {
+            var makeEl = document.getElementById('makeDropdown');
+            if (makeEl) {
+                var makeMatch = Array.from(makeEl.options).find(function (o) {
+                    return o.value.toLowerCase() === filters.make.toLowerCase();
+                });
+                if (makeMatch) {
+                    makeEl.value = makeMatch.value;
+                    if (typeof updateModelDropdown === 'function') updateModelDropdown(makeMatch.value, 'model');
+                    changed = true;
+                }
+            }
+        }
+
+        if (filters.model) {
+            setTimeout(function () {
+                var modelEl = document.getElementById('model');
+                if (modelEl) {
+                    var modelMatch = Array.from(modelEl.options).find(function (o) {
+                        return o.value.toLowerCase().includes(filters.model.toLowerCase());
+                    });
+                    if (modelMatch) { modelEl.value = modelMatch.value; modelEl.disabled = false; }
+                }
+            }, 150);
+        }
+
+        if (filters.minPrice != null) setInput('minPrice', filters.minPrice);
+        if (filters.maxPrice != null) setInput('maxPrice', filters.maxPrice);
+        setSelectClosest('mileageFromSelect', filters.minMileage);
+        setSelectClosest('mileageToSelect', filters.maxMileage);
+        setSelectClosest('yearFromSelect', filters.yearFrom);
+        setSelectClosest('yearToSelect', filters.yearTo);
+
+        if (filters.transmission === 'Automatic') {
+            var autoBox = document.getElementById('gearboxAutomatic');
+            var manBox = document.getElementById('gearboxManual');
+            if (autoBox) { autoBox.checked = true; changed = true; }
+            if (manBox) manBox.checked = false;
+        } else if (filters.transmission === 'Manual') {
+            var autoBox2 = document.getElementById('gearboxAutomatic');
+            var manBox2 = document.getElementById('gearboxManual');
+            if (manBox2) { manBox2.checked = true; changed = true; }
+            if (autoBox2) autoBox2.checked = false;
+        }
+
+        if (filters.fuelType) {
+            var fuelContainer = document.getElementById('fuelTypeFilter');
+            if (fuelContainer) {
+                fuelContainer.querySelectorAll('input[type="checkbox"]').forEach(function (b) { b.checked = false; });
+                setCheckbox('#fuelTypeFilter', filters.fuelType, true);
+            }
+        }
+
+        if (filters.bodyType) {
+            var bodyContainer = document.getElementById('bodyTypeFilter');
+            if (bodyContainer) {
+                bodyContainer.querySelectorAll('input[type="checkbox"]').forEach(function (b) { b.checked = false; });
+                setCheckbox('#bodyTypeFilter', filters.bodyType, true);
+            }
+        }
+
+        if (filters.postcode) {
+            var pcEl = document.getElementById('postcode');
+            if (pcEl) {
+                pcEl.value = filters.postcode.toUpperCase();
+                pcEl.dispatchEvent(new Event('keyup', { bubbles: true }));
+                changed = true;
+            }
+        }
+
+        if (filters.radius != null) setSelectClosest('distanceDropdown', filters.radius);
+
+        if (changed && typeof filterCars === 'function') filterCars();
+    }
+
+    // ---- Open mic to listen for next customer turn ----
+    function startMicLoop() {
+        showToast('Listening…', 0);
+        try { recognition.start(); setListening(true); } catch (e) { /* already running */ }
+    }
+
+    // ---- End the call cleanly ----
+    function hangUp() {
+        callActive = false;
+        conversationHistory = [];
+        window.speechSynthesis && window.speechSynthesis.cancel();
+        try { recognition.stop(); } catch (e) {}
+        setListening(false);
+        setThinking(false);
+        setSpeaking(false);
+        hideToast();
+        if (btn) {
+            btn.classList.remove('voice-btn--on-call');
+            btn.setAttribute('aria-label', 'Voice search');
+        }
+    }
+
+    // ---- Handle one conversation turn ----
+    function handleConversationTurn(transcript) {
+        conversationHistory.push({ role: 'user', content: transcript });
+        setThinking(true);
+        showToast('One moment…', 0);
+
+        fetch('/api/voice-filters', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ transcript: transcript, history: conversationHistory.slice(-6) })
+        })
+        .then(function (res) {
+            return res.json().then(function (data) { return { ok: res.ok, status: res.status, data: data }; });
+        })
+        .then(function (result) {
+            setThinking(false);
+            if (!result.ok) {
+                var errMsg = result.status === 429
+                    ? "I'm a bit busy right now — could you try again in just a moment?"
+                    : "I had a bit of trouble there. Could you say that again?";
+                speakThen(errMsg, function () { if (callActive) startMicLoop(); });
+                return;
+            }
+            var data = result.data;
+            applyVoiceFilters(data);
+            var agentReply = (data.agentResponse && data.agentResponse.trim())
+                || "Got it! Is there anything else you'd like me to narrow down?";
+            conversationHistory.push({ role: 'assistant', content: agentReply });
+            speakThen(agentReply, function () { if (callActive) startMicLoop(); });
+        })
+        .catch(function () {
+            setThinking(false);
+            speakThen("Sorry, I lost the connection for a moment. Could you say that again?", function () {
+                if (callActive) startMicLoop();
+            });
+        });
+    }
+
+    // ---- Recognition events ----
+    recognition.onresult = function (e) {
+        var transcript = e.results[0][0].transcript;
+        setListening(false);
+        if (!transcript || !transcript.trim()) {
+            speakThen("I didn't quite catch that — could you say it again?", function () {
+                if (callActive) startMicLoop();
+            });
+            return;
+        }
+        handleConversationTurn(transcript);
+    };
+
+    recognition.onerror = function (e) {
+        setListening(false);
+        setThinking(false);
+        if (e.error === 'not-allowed' || e.error === 'permission-denied') {
+            hangUp();
+            showToast('Microphone access denied — please allow mic in browser settings', 4000);
+        } else if (e.error === 'no-speech') {
+            speakThen("I didn't hear anything — are you still there?", function () {
+                if (callActive) startMicLoop();
+            });
+        } else if (e.error === 'network') {
+            speakThen("I've lost connection. Please check your signal and try again.", function () { hangUp(); });
+        } else {
+            hangUp();
+        }
+    };
+
+    recognition.onend = function () {
+        if (isListening) setListening(false);
+    };
+
+    // ---- Button: start call or hang up ----
     var greetings = [
         "Hi there! Welcome to Finance it Now. I'm here to help you find your perfect car today — so, what are you looking for?",
         "Hello! Thanks for calling. I can help you find the right car. What kind of vehicle did you have in mind?",
@@ -6299,19 +6269,23 @@ function resetFilterOrder() {
 
     if (btn) {
         btn.addEventListener('click', function () {
-            if (isListening) {
-                window.speechSynthesis && window.speechSynthesis.cancel();
-                recognition.stop();
-                setListening(false);
-                hideToast();
+            if (callActive) {
+                hangUp();
+                showToast('Call ended', 2000);
                 return;
             }
+            // Start call
+            callActive = true;
+            conversationHistory = [];
+            btn.classList.add('voice-btn--on-call');
+            btn.setAttribute('aria-label', 'Tap to hang up');
             var greeting = greetings[Math.floor(Math.random() * greetings.length)];
-            speakAndListen(greeting);
+            speakThen(greeting, function () { if (callActive) startMicLoop(); });
         });
     }
 })();
 </script>
+
 
 <script>
 // iOS: prevent page drag/refresh while allowing range slider interaction

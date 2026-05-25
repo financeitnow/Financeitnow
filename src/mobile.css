@@ -88,6 +88,12 @@
         animation: none;
     }
 
+    /* Speaking state — blue, agent is talking */
+    #voiceSearchBtn.voice-btn--speaking {
+        background: #1565c0; border-color: #1565c0;
+        animation: none;
+    }
+
     /* Toast notification */
     .voice-toast {
         position: fixed;
