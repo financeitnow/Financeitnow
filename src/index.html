@@ -6279,6 +6279,7 @@ function resetFilterOrder() {
         })
         .then(function (result) {
             setThinking(false);
+            setSpeaking(true); // show blue immediately — prevents green flash while applyVoiceFilters runs
             if (!result.ok) {
                 var errMsg = result.status === 429
                     ? "I'm a bit busy right now — could you try again in just a moment?"

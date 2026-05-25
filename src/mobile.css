@@ -76,6 +76,12 @@
     #voiceSearchBtn svg { display:block; color:#fff; width:22px; height:22px; }
     #voiceSearchBtn:active { transform: scale(0.95); }
 
+    /* On-call state — purple (base colour while call is active, overridden by the states below) */
+    #voiceSearchBtn.voice-btn--on-call {
+        background: #6200ea; border-color: #6200ea;
+        animation: none;
+    }
+
     /* Listening state — red + pulse */
     #voiceSearchBtn.voice-btn--listening {
         background: #e53935; border-color: #e53935;
