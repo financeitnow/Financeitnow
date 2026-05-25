@@ -6233,6 +6233,19 @@ function resetFilterOrder() {
     };
 
     // Speak a greeting, then automatically open the mic when speech finishes
+    // Pick the most natural-sounding available voice
+    function getBestVoice() {
+        var voices = window.speechSynthesis.getVoices();
+        if (!voices || voices.length === 0) return null;
+        return voices.find(function(v){ return v.name === 'Google UK English Female'; })
+            || voices.find(function(v){ return v.name === 'Google UK English Male'; })
+            || voices.find(function(v){ return v.name.includes('Google') && v.lang === 'en-GB'; })
+            || voices.find(function(v){ return v.name.includes('Google') && v.lang.startsWith('en'); })
+            || voices.find(function(v){ return v.lang === 'en-GB'; })
+            || voices.find(function(v){ return v.lang.startsWith('en'); })
+            || null;
+    }
+
     function speakAndListen(text) {
         function startMic() {
             try {
@@ -6245,20 +6258,44 @@ function resetFilterOrder() {
         }
 
         if (!window.speechSynthesis) {
-            // No TTS support — start mic directly
             startMic();
             return;
         }
 
-        window.speechSynthesis.cancel(); // stop any in-progress speech
-        var utter = new SpeechSynthesisUtterance(text);
-        utter.lang = 'en-GB';
-        utter.rate = 1.0;
-        utter.pitch = 1.0;
-        utter.onend = function () { startMic(); };
-        utter.onerror = function () { startMic(); }; // fallback if TTS fails
-        window.speechSynthesis.speak(utter);
+        window.speechSynthesis.cancel();
+
+        function doSpeak() {
+            var utter = new SpeechSynthesisUtterance(text);
+            var voice = getBestVoice();
+            if (voice) utter.voice = voice;
+            utter.lang = 'en-GB';
+            utter.rate = 0.9;    // slightly slower — relaxed, not rushed
+            utter.pitch = 0.95;  // slightly lower — warmer, less robotic
+            utter.volume = 1.0;
+            utter.onend = function () { startMic(); };
+            utter.onerror = function () { startMic(); };
+            window.speechSynthesis.speak(utter);
+        }
+
+        // Voices may not be loaded yet on first call — wait if needed
+        var voices = window.speechSynthesis.getVoices();
+        if (voices && voices.length > 0) {
+            doSpeak();
+        } else {
+            window.speechSynthesis.onvoiceschanged = function () {
+                window.speechSynthesis.onvoiceschanged = null;
+                doSpeak();
+            };
+            // Fallback if onvoiceschanged never fires
+            setTimeout(doSpeak, 500);
+        }
     }
+
+    var greetings = [
+        "Hi there! I'm here to help you find your next car. Just tell me what you're looking for.",
+        "Hello! Tell me what kind of car you have in mind and I'll find the best options for you.",
+        "Hi! What type of car are you looking for today? Just tell me and I'll sort it out."
+    ];
 
     if (btn) {
         btn.addEventListener('click', function () {
@@ -6269,7 +6306,8 @@ function resetFilterOrder() {
                 hideToast();
                 return;
             }
-            speakAndListen('Just tell me what type of car you are looking for.');
+            var greeting = greetings[Math.floor(Math.random() * greetings.length)];
+            speakAndListen(greeting);
         });
     }
 })();
