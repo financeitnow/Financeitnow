@@ -6269,8 +6269,8 @@ function resetFilterOrder() {
             var voice = getBestVoice();
             if (voice) utter.voice = voice;
             utter.lang = 'en-GB';
-            utter.rate = 0.9;    // slightly slower — relaxed, not rushed
-            utter.pitch = 0.95;  // slightly lower — warmer, less robotic
+            utter.rate = 1.1;    // natural conversational pace
+            utter.pitch = 1.1;   // slightly higher — brighter, more human
             utter.volume = 1.0;
             utter.onend = function () { startMic(); };
             utter.onerror = function () { startMic(); };
