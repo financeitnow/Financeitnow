@@ -5939,11 +5939,7 @@ function resetFilterOrder() {
     }
 
     var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    var recognition = new SpeechRecognition();
-    recognition.lang = 'en-GB';
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+    var recognition = null; // created fresh each turn — avoids stale-state errors on mobile
 
     var isListening = false;
     var toastTimer = null;
@@ -6182,16 +6178,69 @@ function resetFilterOrder() {
     }
 
     // ---- Open mic to listen for next customer turn ----
+    // Creates a FRESH instance every turn — reusing one instance causes 'aborted' errors on
+    // Android Chrome and iOS Safari, which previously hit the else{hangUp()} branch silently.
     function startMicLoop() {
+        if (!callActive) return;
+
+        // Abort and discard any previous instance
+        if (recognition) {
+            try { recognition.abort(); } catch (e) {}
+            recognition = null;
+        }
+
         showToast('Listening…', 0);
+
+        var rec = new SpeechRecognition();
+        rec.lang = 'en-GB';
+        rec.continuous = false;
+        rec.interimResults = false;
+        rec.maxAlternatives = 1;
+
+        rec.onresult = function (e) {
+            var transcript = e.results[0][0].transcript;
+            setListening(false);
+            if (!transcript || !transcript.trim()) {
+                speakThen("I didn't quite catch that — could you say it again?", function () {
+                    if (callActive) startMicLoop();
+                });
+                return;
+            }
+            handleConversationTurn(transcript);
+        };
+
+        rec.onerror = function (e) {
+            setListening(false);
+            setThinking(false);
+            if (e.error === 'not-allowed' || e.error === 'permission-denied') {
+                hangUp();
+                showToast('Microphone access denied — please allow mic in browser settings', 4000);
+            } else if (e.error === 'no-speech') {
+                speakThen("I didn't hear anything — are you still there?", function () {
+                    if (callActive) startMicLoop();
+                });
+            } else if (e.error === 'network') {
+                speakThen("I've lost connection. Please check your signal and try again.", function () { hangUp(); });
+            } else {
+                // 'aborted', 'audio-capture', 'service-not-allowed', etc.
+                // These are transient on mobile — restart rather than end the call
+                if (callActive) {
+                    setTimeout(function () { if (callActive) startMicLoop(); }, 400);
+                }
+            }
+        };
+
+        rec.onend = function () {
+            setListening(false);
+        };
+
+        recognition = rec;
+
         try {
-            recognition.start();
+            rec.start();
             setListening(true);
         } catch (e) {
-            // Recognition may be in an intermediate state — retry after a short delay
-            setTimeout(function () {
-                try { recognition.start(); setListening(true); } catch (e2) {}
-            }, 350);
+            setTimeout(function () { if (callActive) startMicLoop(); }, 500);
         }
     }
 
@@ -6200,7 +6249,10 @@ function resetFilterOrder() {
         callActive = false;
         conversationHistory = [];
         window.speechSynthesis && window.speechSynthesis.cancel();
-        try { recognition.stop(); } catch (e) {}
+        if (recognition) {
+            try { recognition.abort(); } catch (e) {}
+            recognition = null;
+        }
         setListening(false);
         setThinking(false);
         setSpeaking(false);
@@ -6248,40 +6300,6 @@ function resetFilterOrder() {
             });
         });
     }
-
-    // ---- Recognition events ----
-    recognition.onresult = function (e) {
-        var transcript = e.results[0][0].transcript;
-        setListening(false);
-        if (!transcript || !transcript.trim()) {
-            speakThen("I didn't quite catch that — could you say it again?", function () {
-                if (callActive) startMicLoop();
-            });
-            return;
-        }
-        handleConversationTurn(transcript);
-    };
-
-    recognition.onerror = function (e) {
-        setListening(false);
-        setThinking(false);
-        if (e.error === 'not-allowed' || e.error === 'permission-denied') {
-            hangUp();
-            showToast('Microphone access denied — please allow mic in browser settings', 4000);
-        } else if (e.error === 'no-speech') {
-            speakThen("I didn't hear anything — are you still there?", function () {
-                if (callActive) startMicLoop();
-            });
-        } else if (e.error === 'network') {
-            speakThen("I've lost connection. Please check your signal and try again.", function () { hangUp(); });
-        } else {
-            hangUp();
-        }
-    };
-
-    recognition.onend = function () {
-        if (isListening) setListening(false);
-    };
 
     // ---- Button: start call or hang up ----
     var greetings = [
