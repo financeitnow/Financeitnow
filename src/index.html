@@ -217,6 +217,20 @@
     <button id="mobileClearWishlistBtn" class="mobile-clear-wishlist-btn" aria-label="Clear wishlist" style="display:none;">
         Clear
     </button>
+
+<!-- Mobile Filter Chips Strip — horizontal scroll, each chip opens the filter sheet -->
+<div id="mobileFilterChipsRow" class="mobile-filter-chips-row" role="toolbar" aria-label="Filter shortcuts">
+    <button class="filter-chip" id="chip-make"     type="button" aria-label="Filter by Make &amp; Model">Make</button>
+    <button class="filter-chip" id="chip-model"    type="button" aria-label="Filter by Model">Model</button>
+    <button class="filter-chip" id="chip-price"    type="button" aria-label="Filter by Price">Price</button>
+    <button class="filter-chip" id="chip-year"     type="button" aria-label="Filter by Year">Year</button>
+    <button class="filter-chip" id="chip-mileage"  type="button" aria-label="Filter by Mileage">Mileage</button>
+    <button class="filter-chip" id="chip-gearbox"  type="button" aria-label="Filter by Gearbox">Gearbox</button>
+    <button class="filter-chip" id="chip-fuel"     type="button" aria-label="Filter by Fuel Type">Fuel</button>
+    <button class="filter-chip" id="chip-body"     type="button" aria-label="Filter by Body Type">Body</button>
+    <button class="filter-chip" id="chip-distance" type="button" aria-label="Filter by Distance">Distance</button>
+</div>
+
 <div id="carPage" class="mainContainer slide-in-from-left">
 
     
@@ -346,7 +360,7 @@
                 </button>
             </div>
         </div>
-        
+
         
         <div id="financeInfoContainer" class="finance-info-container">
             <h2 class="finance-title">FinanceItNOW!</h2>
@@ -384,6 +398,18 @@
         </div>
     </div>
 </div>
+
+<!-- Voice search button (mobile only — position:fixed so DOM location doesn't affect layout) -->
+<button id="voiceSearchBtn" aria-label="Voice search" title="Search by voice">
+    <svg id="voiceMicIcon" width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="currentColor">
+        <rect x="9" y="2" width="6" height="12" rx="3" fill="currentColor"/>
+        <path d="M5 10a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <line x1="12" y1="19" x2="12" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <line x1="9" y1="22" x2="15" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+</button>
+<!-- Voice search toast notification -->
+<div id="voiceToast" class="voice-toast" aria-live="polite"></div>
 
 <!-- Desktop Car Detail Modal -->
 <div id="desktopCarModal" class="desktop-car-modal">
@@ -925,7 +951,7 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
 
     // Mobile View Toggle System
     (function() {
-        let currentView = 'slideshow'; // 'slideshow' or 'cards'
+        let currentView = 'cards'; // default to card view
         
         // Make getCurrentMobileView globally accessible
         window.getCurrentMobileView = function() {
@@ -941,7 +967,14 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
         const toggleIconCards = document.getElementById('toggleIconCards');
         const toggleIconSlideshow = document.getElementById('toggleIconSlideshow');
         
-        if (!toggleBtn || window.innerWidth > 767) return;
+        if (window.innerWidth > 767) return;
+
+        // Start in card view: show cards, hide slideshow
+        if (slideshowContainer) slideshowContainer.style.display = 'none';
+        if (cardScrollContainer) cardScrollContainer.style.display = 'block';
+        if (toggleIconCards) toggleIconCards.style.display = 'none';
+        if (toggleIconSlideshow) toggleIconSlideshow.style.display = 'block';
+        if (toggleBtn) toggleBtn.style.display = 'none'; // toggle permanently hidden
 
         // Toggle between views
         toggleBtn.addEventListener('click', function() {
@@ -1025,10 +1058,15 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
             const price = parseInt(car.price) || 0;
             const displayPrice = price + 300;
             
-            // Monthly payment
-            const monthlyPayment = car.monthly_payment || '';
-            const monthlyHTML = monthlyPayment ? 
-                `<div class="mobile-card-monthly">£${monthlyPayment}/mo</div>` : '';
+            // Monthly payment — calculated using default finance terms (5.9% APR, 60 months, £1,000 deposit)
+            const cardLoan = Math.max(displayPrice - 1000, 0);
+            const cardMonthlyRate = 5.9 / 1200;
+            const cardMonthly = cardLoan > 0
+                ? (cardLoan * cardMonthlyRate) / (1 - Math.pow(1 + cardMonthlyRate, -60))
+                : 0;
+            const monthlyHTML = cardMonthly > 0
+                ? `<div class="mobile-card-monthly">£${cardMonthly.toFixed(2)} p/m</div>`
+                : '';
             
             // Helper: unknown detection + short persuasive fallbacks
             const isUnknown = (v) => !v || (String(v).trim().toLowerCase() === 'unknown') || (String(v).trim().toLowerCase() === 'n/a');
@@ -1086,7 +1124,7 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
                     ${seatsDisplay ? `<div class="mobile-card-detail">${seatsDisplay}</div>` : ''}
                     ${fuelTypeDisplay ? `<div class="mobile-card-detail">${fuelTypeDisplay}</div>` : ''}
                     <div class="mobile-card-price">
-                        £${displayPrice.toLocaleString()}
+                        <span class="mobile-card-price-value">£${displayPrice.toLocaleString()}</span>
                         ${monthlyHTML}
                     </div>
                     <button class="mobile-card-gallery-btn" aria-label="View gallery" title="View Gallery">
@@ -1258,7 +1296,6 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
             if (currentWishlist.includes(car.car_id)) {
                 favoriteBtn.classList.add('favorited');
                 favoriteBtn.textContent = '♥';
-                favoriteBtn.style.color = '#ff4081';
             }
 
             // ── WhatsApp Enquiry ──────────────────────────────────
@@ -1401,8 +1438,10 @@ async function loadCarsData() {
         // Desktop: Initialize filtered cars and show browse view
         filterCars();
     } else {
-        // Mobile: Show random car
-        selectRandomCar();
+        // Mobile: Always start in card view
+        if (window.populateMobileCards) {
+            window.populateMobileCards();
+        }
     }
 }
 
@@ -5877,11 +5916,365 @@ function resetFilterOrder() {
 @media (min-width:768px){
     /* Desktop: suppress sheet entirely (kept for code reuse) */
     #financeSheet{display:none !important;}
+    /* Hide mobile-only elements on desktop */
+    #voiceSearchBtn{display:none !important;}
+    .voice-toast{display:none !important;}
+    #mobileViewToggle{display:none !important;}
+    #mobileWishlistBtn{display:none !important;}
+    #mobileClearWishlistBtn{display:none !important;}
+    #mobileFilterChipsRow{display:none !important;}
 }
 </style>
 
-</body>
-</html>
+<!-- ==================== VOICE SEARCH ==================== -->
+<script>
+(function () {
+    'use strict';
+
+    var btn = document.getElementById('voiceSearchBtn');
+    var toast = document.getElementById('voiceToast');
+
+    // Hide button entirely if Speech API not available
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        if (btn) btn.style.display = 'none';
+        return;
+    }
+
+    var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var recognition = new SpeechRecognition();
+    recognition.lang = 'en-GB';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    var isListening = false;
+    var toastTimer = null;
+
+    function showToast(msg, duration) {
+        if (!toast) return;
+        clearTimeout(toastTimer);
+        toast.textContent = msg;
+        toast.classList.add('voice-toast--visible');
+        if (duration !== 0) {
+            toastTimer = setTimeout(function () {
+                toast.classList.remove('voice-toast--visible');
+            }, duration || 3000);
+        }
+    }
+
+    function hideToast() {
+        clearTimeout(toastTimer);
+        if (toast) toast.classList.remove('voice-toast--visible');
+    }
+
+    function setListening(active) {
+        isListening = active;
+        if (!btn) return;
+        if (active) {
+            btn.classList.add('voice-btn--listening');
+            btn.setAttribute('aria-label', 'Listening… tap to cancel');
+        } else {
+            btn.classList.remove('voice-btn--listening');
+            btn.classList.remove('voice-btn--thinking');
+            btn.setAttribute('aria-label', 'Voice search');
+        }
+    }
+
+    function setThinking(active) {
+        if (!btn) return;
+        if (active) {
+            btn.classList.add('voice-btn--thinking');
+        } else {
+            btn.classList.remove('voice-btn--thinking');
+        }
+    }
+
+    // Apply filters returned from the edge function
+    function applyVoiceFilters(filters) {
+        if (!filters || typeof filters !== 'object') return;
+
+        if (filters.clearAll === true) {
+            var resetBtn = document.getElementById('resetFiltersBtn') || document.querySelector('[data-action="reset-filters"]');
+            if (typeof resetFilterOrder === 'function') {
+                resetFilterOrder();
+                showToast('All filters cleared', 2500);
+                return;
+            }
+        }
+
+        var changed = false;
+
+        // Helper: set a select element value if the option exists
+        function setSelect(id, value) {
+            if (!value) return;
+            var el = document.getElementById(id);
+            if (!el) return;
+            var opts = Array.from(el.options).map(function (o) { return o.value.toLowerCase(); });
+            var idx = opts.indexOf(String(value).toLowerCase());
+            if (idx >= 0) { el.selectedIndex = idx; changed = true; }
+        }
+
+        // Helper: set a text input value
+        function setInput(id, value) {
+            if (value == null) return;
+            var el = document.getElementById(id);
+            if (!el) return;
+            el.value = value;
+            changed = true;
+        }
+
+        // Helper: tick/untick a checkbox group by value
+        function setCheckbox(containerSelector, value, checked) {
+            if (!value) return;
+            var container = document.querySelector(containerSelector);
+            if (!container) return;
+            var boxes = container.querySelectorAll('input[type="checkbox"]');
+            boxes.forEach(function (box) {
+                if (box.value.toLowerCase() === String(value).toLowerCase()) {
+                    box.checked = checked;
+                    changed = true;
+                }
+            });
+        }
+
+        // Make
+        if (filters.make) {
+            var makeEl = document.getElementById('makeDropdown');
+            if (makeEl) {
+                var makeOpts = Array.from(makeEl.options);
+                var makeMatch = makeOpts.find(function (o) {
+                    return o.value.toLowerCase() === filters.make.toLowerCase();
+                });
+                if (makeMatch) {
+                    makeEl.value = makeMatch.value;
+                    // Trigger model dropdown update
+                    if (typeof updateModelDropdown === 'function') {
+                        updateModelDropdown(makeMatch.value, 'model');
+                    }
+                    changed = true;
+                }
+            }
+        }
+
+        // Model (set after make)
+        if (filters.model) {
+            setTimeout(function () {
+                var modelEl = document.getElementById('model');
+                if (modelEl) {
+                    var modelOpts = Array.from(modelEl.options);
+                    var modelMatch = modelOpts.find(function (o) {
+                        return o.value.toLowerCase().includes(filters.model.toLowerCase());
+                    });
+                    if (modelMatch) {
+                        modelEl.value = modelMatch.value;
+                        modelEl.disabled = false;
+                    }
+                }
+            }, 150);
+        }
+
+        // Price
+        if (filters.minPrice != null) setInput('minPrice', filters.minPrice);
+        if (filters.maxPrice != null) setInput('maxPrice', filters.maxPrice);
+
+        // Mileage — use select dropdowns (pick closest option)
+        function setSelectClosest(id, value) {
+            if (value == null) return;
+            var el = document.getElementById(id);
+            if (!el) return;
+            var best = null, bestDiff = Infinity;
+            Array.from(el.options).forEach(function (o) {
+                var v = parseFloat(o.value);
+                if (!isNaN(v)) {
+                    var diff = Math.abs(v - value);
+                    if (diff < bestDiff) { bestDiff = diff; best = o.value; }
+                }
+            });
+            if (best !== null) { el.value = best; changed = true; }
+        }
+
+        setSelectClosest('mileageFromSelect', filters.minMileage);
+        setSelectClosest('mileageToSelect', filters.maxMileage);
+        setSelectClosest('yearFromSelect', filters.yearFrom);
+        setSelectClosest('yearToSelect', filters.yearTo);
+
+        // Transmission
+        if (filters.transmission === 'Automatic') {
+            var autoBox = document.getElementById('gearboxAutomatic');
+            var manBox = document.getElementById('gearboxManual');
+            if (autoBox) { autoBox.checked = true; changed = true; }
+            if (manBox) { manBox.checked = false; }
+        } else if (filters.transmission === 'Manual') {
+            var autoBox2 = document.getElementById('gearboxAutomatic');
+            var manBox2 = document.getElementById('gearboxManual');
+            if (manBox2) { manBox2.checked = true; changed = true; }
+            if (autoBox2) { autoBox2.checked = false; }
+        }
+
+        // Fuel type — uncheck all then check the one mentioned
+        if (filters.fuelType) {
+            var fuelContainer = document.getElementById('fuelTypeFilter');
+            if (fuelContainer) {
+                fuelContainer.querySelectorAll('input[type="checkbox"]').forEach(function (b) { b.checked = false; });
+                setCheckbox('#fuelTypeFilter', filters.fuelType, true);
+            }
+        }
+
+        // Body type — uncheck all then check the one mentioned
+        if (filters.bodyType) {
+            var bodyContainer = document.getElementById('bodyTypeFilter');
+            if (bodyContainer) {
+                bodyContainer.querySelectorAll('input[type="checkbox"]').forEach(function (b) { b.checked = false; });
+                setCheckbox('#bodyTypeFilter', filters.bodyType, true);
+            }
+        }
+
+        // Distance / postcode
+        if (filters.postcode) {
+            var pcEl = document.getElementById('postcode');
+            if (pcEl) {
+                pcEl.value = filters.postcode.toUpperCase();
+                // Trigger the existing postcode validation + filter logic
+                pcEl.dispatchEvent(new Event('keyup', { bubbles: true }));
+                changed = true;
+            }
+        }
+
+        if (filters.radius != null) {
+            setSelectClosest('distanceDropdown', filters.radius);
+        }
+
+        // Run the main filter function
+        if (changed && typeof filterCars === 'function') {
+            filterCars();
+        }
+
+        // Build summary toast
+        var parts = [];
+        if (filters.make) parts.push(filters.make);
+        if (filters.model) parts.push(filters.model);
+        if (filters.transmission) parts.push(filters.transmission);
+        if (filters.fuelType) parts.push(filters.fuelType);
+        if (filters.bodyType) parts.push(filters.bodyType);
+        if (filters.maxPrice) parts.push('under £' + filters.maxPrice.toLocaleString());
+        if (filters.maxMileage) parts.push('under ' + filters.maxMileage.toLocaleString() + ' miles');
+        if (filters.yearFrom) parts.push('from ' + filters.yearFrom);
+
+        if (parts.length > 0) {
+            showToast('Filters set: ' + parts.join(', '), 4000);
+        } else if (changed) {
+            showToast('Filters updated', 2500);
+        } else {
+            showToast("Couldn't find matching filters — try again", 3000);
+        }
+    }
+
+    // Send transcript to edge function
+    function processTranscript(transcript) {
+        setThinking(true);
+        showToast('Thinking…', 0);
+
+        fetch('/api/voice-filters', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ transcript: transcript })
+        })
+        .then(function (res) {
+            return res.json().then(function (data) {
+                return { ok: res.ok, status: res.status, data: data };
+            });
+        })
+        .then(function (result) {
+            setThinking(false);
+            if (!result.ok) {
+                if (result.status === 429 || (result.data && result.data.error === 'rate_limit')) {
+                    showToast('Voice search busy — please use filters manually', 4000);
+                } else {
+                    showToast('Voice search unavailable — please use filters manually', 4000);
+                }
+                return;
+            }
+            applyVoiceFilters(result.data);
+        })
+        .catch(function () {
+            setThinking(false);
+            showToast('Voice search unavailable — please use filters manually', 4000);
+        });
+    }
+
+    recognition.onresult = function (e) {
+        var transcript = e.results[0][0].transcript;
+        setListening(false);
+        if (!transcript || transcript.trim().length === 0) {
+            showToast("Nothing heard — try again", 3000);
+            return;
+        }
+        processTranscript(transcript);
+    };
+
+    recognition.onerror = function (e) {
+        setListening(false);
+        setThinking(false);
+        if (e.error === 'not-allowed' || e.error === 'permission-denied') {
+            showToast('Microphone access denied — please allow mic in browser settings', 4000);
+        } else if (e.error === 'no-speech') {
+            showToast("Nothing heard — try again", 3000);
+        } else if (e.error === 'network') {
+            showToast('Network error — please check your connection', 3500);
+        } else {
+            showToast("Voice search unavailable — please use filters manually", 3500);
+        }
+    };
+
+    recognition.onend = function () {
+        if (isListening) {
+            setListening(false);
+        }
+    };
+
+    // Speak a greeting, then automatically open the mic when speech finishes
+    function speakAndListen(text) {
+        function startMic() {
+            try {
+                recognition.start();
+                setListening(true);
+                showToast('Listening… speak now', 0);
+            } catch (err) {
+                showToast('Could not start microphone — try again', 3000);
+            }
+        }
+
+        if (!window.speechSynthesis) {
+            // No TTS support — start mic directly
+            startMic();
+            return;
+        }
+
+        window.speechSynthesis.cancel(); // stop any in-progress speech
+        var utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'en-GB';
+        utter.rate = 1.0;
+        utter.pitch = 1.0;
+        utter.onend = function () { startMic(); };
+        utter.onerror = function () { startMic(); }; // fallback if TTS fails
+        window.speechSynthesis.speak(utter);
+    }
+
+    if (btn) {
+        btn.addEventListener('click', function () {
+            if (isListening) {
+                window.speechSynthesis && window.speechSynthesis.cancel();
+                recognition.stop();
+                setListening(false);
+                hideToast();
+                return;
+            }
+            speakAndListen('Just tell me what type of car you are looking for.');
+        });
+    }
+})();
+</script>
+
 <script>
 // iOS: prevent page drag/refresh while allowing range slider interaction
 (function(){
@@ -6080,7 +6473,7 @@ function toggleWishlist(carId, btn) {
         // Add to wishlist
         wishlist.push(carId);
         btn.textContent = '♥';
-        btn.style.color = '#ff4081';
+        btn.style.color = '';
         btn.classList.add('favorited');
     }
 
@@ -6666,3 +7059,192 @@ function showCarDetail(carIndex) {
 
 </script>
 
+<script>
+// ==================== FILTER CHIPS STRIP ====================
+(function () {
+    'use strict';
+
+    if (window.innerWidth > 767) return;
+
+    var chipsRow = document.getElementById('mobileFilterChipsRow');
+    if (!chipsRow) return;
+
+    // Every chip tap opens the filter sheet
+    chipsRow.addEventListener('click', function (e) {
+        var chip = e.target.closest('.filter-chip');
+        if (!chip) return;
+        if (window.SheetManager) window.SheetManager.open('moreFiltersOverlay');
+    });
+
+    function fmt(n) {
+        return n >= 1000 ? '£' + Math.round(n / 1000) + 'k' : '£' + n;
+    }
+    function fmtMi(n) {
+        return n >= 1000 ? Math.round(n / 1000) + 'k' : String(n);
+    }
+
+    function updateFilterChips() {
+        // Make
+        var makeEl = document.getElementById('makeDropdown');
+        var makeChip = document.getElementById('chip-make');
+        if (makeEl && makeChip) {
+            var makeActive = !!makeEl.value;
+            makeChip.textContent = makeActive ? makeEl.value : 'Make';
+            makeChip.classList.toggle('filter-chip--active', makeActive);
+        }
+
+        // Model
+        var modelEl = document.getElementById('model');
+        var modelChip = document.getElementById('chip-model');
+        if (modelEl && modelChip) {
+            var modelActive = !!modelEl.value;
+            modelChip.textContent = modelActive ? modelEl.value : 'Model';
+            modelChip.classList.toggle('filter-chip--active', modelActive);
+        }
+
+        // Price
+        var minEl = document.getElementById('minPrice');
+        var maxEl = document.getElementById('maxPrice');
+        var priceChip = document.getElementById('chip-price');
+        if (priceChip) {
+            var minV = minEl && minEl.value ? parseInt(minEl.value) : null;
+            var maxV = maxEl && maxEl.value ? parseInt(maxEl.value) : null;
+            var priceActive = minV !== null || maxV !== null;
+            var priceLabel = 'Price';
+            if (priceActive) {
+                if (minV !== null && maxV !== null) priceLabel = fmt(minV) + '-' + fmt(maxV);
+                else if (minV !== null) priceLabel = fmt(minV) + '+';
+                else priceLabel = 'Under ' + fmt(maxV);
+            }
+            priceChip.textContent = priceLabel;
+            priceChip.classList.toggle('filter-chip--active', priceActive);
+        }
+
+        // Year
+        var yfEl = document.getElementById('yearFromSelect');
+        var ytEl = document.getElementById('yearToSelect');
+        var yearChip = document.getElementById('chip-year');
+        if (yearChip) {
+            var yFrom = yfEl && yfEl.value ? yfEl.value : null;
+            var yTo = ytEl && ytEl.value ? ytEl.value : null;
+            var yearActive = !!(yFrom || yTo);
+            var yearLabel = 'Year';
+            if (yearActive) {
+                if (yFrom && yTo) yearLabel = yFrom + '-' + yTo;
+                else if (yFrom) yearLabel = yFrom + '+';
+                else yearLabel = 'To ' + yTo;
+            }
+            yearChip.textContent = yearLabel;
+            yearChip.classList.toggle('filter-chip--active', yearActive);
+        }
+
+        // Mileage
+        var mfEl = document.getElementById('mileageFromSelect');
+        var mtEl = document.getElementById('mileageToSelect');
+        var milChip = document.getElementById('chip-mileage');
+        if (milChip) {
+            var mFrom = mfEl && mfEl.value ? parseInt(mfEl.value) : null;
+            var mTo = mtEl && mtEl.value ? parseInt(mtEl.value) : null;
+            var milActive = mFrom !== null || mTo !== null;
+            var milLabel = 'Mileage';
+            if (milActive) {
+                if (mFrom !== null && mTo !== null) milLabel = fmtMi(mFrom) + '-' + fmtMi(mTo) + ' mi';
+                else if (mFrom !== null) milLabel = fmtMi(mFrom) + '+ mi';
+                else milLabel = 'Under ' + fmtMi(mTo) + ' mi';
+            }
+            milChip.textContent = milLabel;
+            milChip.classList.toggle('filter-chip--active', milActive);
+        }
+
+        // Gearbox
+        var autoEl = document.getElementById('gearboxAutomatic');
+        var manEl = document.getElementById('gearboxManual');
+        var gearChip = document.getElementById('chip-gearbox');
+        if (gearChip) {
+            var autoOn = autoEl && autoEl.checked;
+            var manOn = manEl && manEl.checked;
+            var gearLabel = (autoOn && !manOn) ? 'Auto' : (manOn && !autoOn) ? 'Manual' : 'Gearbox';
+            gearChip.textContent = gearLabel;
+            gearChip.classList.toggle('filter-chip--active', !!(autoOn || manOn));
+        }
+
+        // Fuel
+        var fuelContainer = document.getElementById('fuelTypeFilter');
+        var fuelChip = document.getElementById('chip-fuel');
+        if (fuelChip) {
+            var fuelChecked = fuelContainer
+                ? Array.from(fuelContainer.querySelectorAll('input[type="checkbox"]:checked')).map(function (b) { return b.value; })
+                : [];
+            fuelChip.textContent = fuelChecked.length === 1 ? fuelChecked[0]
+                : fuelChecked.length > 1 ? 'Fuel (' + fuelChecked.length + ')'
+                : 'Fuel';
+            fuelChip.classList.toggle('filter-chip--active', fuelChecked.length > 0);
+        }
+
+        // Body Type
+        var bodyContainer = document.getElementById('bodyTypeFilter');
+        var bodyChip = document.getElementById('chip-body');
+        if (bodyChip) {
+            var bodyChecked = bodyContainer
+                ? Array.from(bodyContainer.querySelectorAll('input[type="checkbox"]:checked')).map(function (b) { return b.value; })
+                : [];
+            bodyChip.textContent = bodyChecked.length === 1 ? bodyChecked[0]
+                : bodyChecked.length > 1 ? 'Body (' + bodyChecked.length + ')'
+                : 'Body';
+            bodyChip.classList.toggle('filter-chip--active', bodyChecked.length > 0);
+        }
+
+        // Distance
+        var distEl = document.getElementById('distanceDropdown');
+        var distChip = document.getElementById('chip-distance');
+        if (distChip && distEl) {
+            var distActive = distEl.value && distEl.value !== 'national';
+            distChip.textContent = distActive ? distEl.value + ' mi' : 'Distance';
+            distChip.classList.toggle('filter-chip--active', !!distActive);
+        }
+    }
+
+    // Expose globally so filterCars can call it
+    window.updateFilterChips = updateFilterChips;
+
+    // Patch filterCars to update chips after every filter run
+    function patchFilterCars() {
+        if (typeof window.filterCars !== 'function') return;
+        if (window.filterCars.__chipsPatched) return;
+        var orig = window.filterCars;
+        window.filterCars = function () {
+            orig.apply(this, arguments);
+            updateFilterChips();
+        };
+        window.filterCars.__chipsPatched = true;
+    }
+
+    // Listen for any input change (catches modal filter changes too)
+    document.addEventListener('change', function () {
+        setTimeout(updateFilterChips, 0);
+    }, true);
+
+    // Re-observe the filter sheet closing (aria-hidden flip) to refresh chips
+    var overlay = document.getElementById('moreFiltersOverlay');
+    if (overlay && window.MutationObserver) {
+        new MutationObserver(function () {
+            setTimeout(updateFilterChips, 50);
+        }).observe(overlay, { attributes: true, attributeFilter: ['aria-hidden', 'class'] });
+    }
+
+    // Initialise after DOM is ready and again after cars data loads
+    function init() {
+        patchFilterCars();
+        updateFilterChips();
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+    window.addEventListener('load', function () {
+        patchFilterCars();
+        setTimeout(updateFilterChips, 300);
+    });
+})();
+</script>

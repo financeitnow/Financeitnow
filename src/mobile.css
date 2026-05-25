@@ -58,11 +58,123 @@
     }
     #financeButton svg { display:block; color:#fff; width:24px; height:24px; }
     #financeButton:active { transform:scale(.95); }
+
+    /* Voice search button — mirrors financeButton on the left side */
+    #voiceSearchBtn {
+        display: flex !important;
+        position: fixed !important;
+        left: 10px;
+        bottom: calc(env(safe-area-inset-bottom, 12px) + 38px + 54px);
+        width: 46px; height: 46px;
+        align-items: center; justify-content: center;
+        background: #2ecc40; color: #fff;
+        border: 2px solid #2ecc40; border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+        z-index: 1401; cursor: pointer;
+        transition: background 0.2s, border-color 0.2s, transform 0.1s;
+    }
+    #voiceSearchBtn svg { display:block; color:#fff; width:22px; height:22px; }
+    #voiceSearchBtn:active { transform: scale(0.95); }
+
+    /* Listening state — red + pulse */
+    #voiceSearchBtn.voice-btn--listening {
+        background: #e53935; border-color: #e53935;
+        animation: voicePulse 1s ease-in-out infinite;
+    }
+
+    /* Thinking state — amber */
+    #voiceSearchBtn.voice-btn--thinking {
+        background: #FF8C00; border-color: #FF8C00;
+        animation: none;
+    }
+
+    /* Toast notification */
+    .voice-toast {
+        position: fixed;
+        bottom: calc(env(safe-area-inset-bottom, 12px) + 38px + 54px + 54px);
+        left: 50%; transform: translateX(-50%);
+        background: rgba(0,0,0,0.78); color: #fff;
+        padding: 8px 16px; border-radius: 20px;
+        font-size: 0.82rem; font-family: 'Poppins', Arial, sans-serif;
+        white-space: nowrap; pointer-events: none;
+        opacity: 0; transition: opacity 0.25s; z-index: 1500;
+        max-width: calc(100vw - 32px); text-align: center;
+        white-space: normal; word-break: break-word;
+    }
+    .voice-toast--visible { opacity: 1; }
+
     .postcode-gate-sub { margin: 0 0 12px; font-size: 0.9rem; color: #444; }
     #postcodeGateInput { width: 100%; font-size: 1rem; padding: 10px 12px; border: 2px solid #2ecc40; border-radius: 10px; outline: none; }
     #postcodeGateInput:focus { box-shadow: 0 0 0 3px rgba(46,204,64,0.2); }
     .postcode-gate-hint { margin-top: 10px; font-size: 0.82rem; color: #666; }
 }
+
+/* Voice search pulse animation (outside media query for full browser compatibility) */
+@keyframes voicePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(229,57,53,0.5); }
+    50%       { box-shadow: 0 0 0 10px rgba(229,57,53,0); }
+}
+
+/* ===== Mobile Filter Chips Strip ===== */
+/* This file is loaded only on max-width:767px, so no media wrapper needed */
+#mobileFilterChipsRow {
+    position: fixed;
+    top: calc(1.5% + 3.9rem + 0.1rem);
+    left: 0;
+    right: 0;
+    height: 40px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 7px;
+    padding: 0 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    box-sizing: border-box;
+    z-index: 1081;
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(6px);
+    border-bottom: 1.5px solid rgba(46,204,64,0.18);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+#mobileFilterChipsRow::-webkit-scrollbar { display: none; }
+
+.filter-chip {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    padding: 5px 13px;
+    background: #f0faf0;
+    border: 1.5px solid #2ecc40;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-family: 'Poppins', Arial, sans-serif;
+    font-weight: 600;
+    color: #1a7a28;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    -webkit-tap-highlight-color: rgba(46,204,64,0.15);
+    touch-action: manipulation;
+    white-space: nowrap;
+    line-height: 1;
+}
+.filter-chip:active { transform: scale(0.92); background: #d0f5d5; }
+.filter-chip--active {
+    background: #2ecc40;
+    color: #fff;
+    border-color: #2ecc40;
+}
+.filter-chip--active:active { background: #27ae38; }
+
+@media (max-width: 430px) {
+    #mobileFilterChipsRow { top: calc(1.5% + 3.6rem + 0.1rem); }
+}
+@media (max-width: 350px) {
+    #mobileFilterChipsRow { top: calc(1.5% + 3.4rem + 0.1rem); }
+}
+
 body {
     padding-top: 16vh; /* Space for banner + buttons stack */
 }
@@ -137,7 +249,7 @@ body {
     }
     @media (max-width: 767px) {
         .mobile-view-toggle {
-            display: flex !important;
+            display: none !important;
         }
     }
 
@@ -205,7 +317,7 @@ body {
     /* Mobile Card Scroll Container */
     .mobile-card-scroll-container {
         position: fixed;
-        top: calc(1.5% + 3.9rem + 0.2rem + 3rem + 0.5rem); /* Below logo + AI buttons + Make&Model + gap */
+        top: calc(1.5% + 3.9rem + 0.1rem + 40px + 0.25rem); /* Below logo + chips strip + gap */
         left: 0;
         right: 0;
         bottom: 0;
@@ -331,23 +443,24 @@ body {
         position: absolute;
         top: 8px;
         left: 8px;
-        background: rgba(255,255,255,0.95);
-        border: 2px solid #e0e0e0;
+        background: rgba(255,255,255,0.92);
+        border: 2px solid transparent;
         border-radius: 50%;
         width: 36px;
         height: 36px;
         font-size: 1.3rem;
+        color: #ff4081;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: all 0.25s;
     }
 
     .mobile-card-favorite.favorited {
-        color: #f44336;
-        border-color: #f44336;
-        background: #ffebee;
+        color: #fff;
+        border-color: #ff4081;
+        background: #ff4081;
     }
 
     /* Mobile Card Content */
@@ -412,16 +525,24 @@ body {
     }
 
     .mobile-card-price {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 8px 0;
+        line-height: 1.2;
+    }
+
+    .mobile-card-price-value {
         color: #0f7d1f;
         font-size: calc(var(--combined-scale) * clamp(0.9rem, 3.7vw, 1.1rem));
         font-weight: 700;
-        margin: 8px 0;
-        line-height: 1.2;
     }
 
     .mobile-card-monthly {
         font-size: calc(clamp(0.8rem, 3.2vw, 0.9rem) * var(--combined-scale));
         color: #FF8C00;
+        font-weight: 600;
+        text-align: right;
     }
 
     .mobile-card-distance {
@@ -1132,10 +1253,11 @@ details.mileageRangeRow .mileageRangeInputs { gap:0.45em !important; }
     #prevButton, #nextButton { display:none !important; }
     /* TEST: hide AI function buttons on mobile */
     .aiFunctionBtns { display:none !important; }
-    /* With AI buttons hidden, pull Make/Model row up directly under logoBanner */
-    .makeModelPriceRow { top: calc(1.5% + 3.9rem + 0.05rem); }
-    .distanceRow { top: calc(1.5% + 3.9rem + 0.05rem); }
-    .mobile-wishlist-btn, .mobile-clear-wishlist-btn { top: calc(1.5% + 3.9rem + 0.05rem + 2.0rem + 4px); }
+    /* Hide old filter rows — replaced by chips strip */
+    .makeModelPriceRow { display: none !important; }
+    .distanceRow { display: none !important; }
+    /* Wishlist buttons sit just below chips strip */
+    .mobile-wishlist-btn, .mobile-clear-wishlist-btn { top: calc(1.5% + 3.9rem + 0.1rem + 40px + 4px); }
     /* Recompute slideshow top: moved up by reducing spacing */
     .video-container { top: calc(1.5% + 3.9rem + 0.05rem + (2.35rem + 0.15rem)*1 + 0.05rem) !important; }
     /* Make container fixed so gallery button (absolute) overlays correctly */
@@ -1242,16 +1364,18 @@ details.mileageRangeRow .mileageRangeInputs { gap:0.45em !important; }
 }
 @media (max-width:430px){
     /* Adjust smaller width breakpoint (remove AI buttons space) */
-    .makeModelPriceRow { top: calc(1.5% + 3.6rem + 0.05rem); }
-    .distanceRow { top: calc(1.5% + 3.6rem + 0.05rem); }
-    .mobile-wishlist-btn, .mobile-clear-wishlist-btn { top: calc(1.5% + 3.6rem + 0.05rem + 2.0rem + 4px); }
+    .makeModelPriceRow { display: none !important; }
+    .distanceRow { display: none !important; }
+    .mobile-wishlist-btn, .mobile-clear-wishlist-btn { top: calc(1.5% + 3.6rem + 0.1rem + 40px + 4px); }
+    .mobile-card-scroll-container { top: calc(1.5% + 3.6rem + 0.1rem + 40px + 0.25rem) !important; }
     .video-container { top: calc(1.5% + 3.6rem + 0.05rem + (2.2rem + 0.12rem)*1 + 0.05rem); width:100vw; }
     #viewGalleryBtn { font-size:0.8rem !important; }
 }
 @media (max-width:350px){
-    .makeModelPriceRow { top: calc(1.5% + 3.4rem + 0.05rem); }
-    .distanceRow { top: calc(1.5% + 3.4rem + 0.05rem); }
-    .mobile-wishlist-btn, .mobile-clear-wishlist-btn { top: calc(1.5% + 3.4rem + 0.05rem + 2.0rem + 4px); }
+    .makeModelPriceRow { display: none !important; }
+    .distanceRow { display: none !important; }
+    .mobile-wishlist-btn, .mobile-clear-wishlist-btn { top: calc(1.5% + 3.4rem + 0.1rem + 40px + 4px); }
+    .mobile-card-scroll-container { top: calc(1.5% + 3.4rem + 0.1rem + 40px + 0.25rem) !important; }
     .video-container { top: calc(1.5% + 3.4rem + 0.05rem + (2.05rem + 0.12rem)*1 + 0.05rem); width:100vw; }
     #viewGalleryBtn { font-size:0.75rem !important; padding:7px 14px !important; }
     

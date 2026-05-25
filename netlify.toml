@@ -6,6 +6,10 @@
   path = "/car/*"
   function = "car-preview"
 
+[[edge_functions]]
+  path = "/api/voice-filters"
+  function = "voice-filters"
+
 # Fallback: if edge function is not active, redirect /car/:id to the app
 [[redirects]]
   from = "/car/:id"
