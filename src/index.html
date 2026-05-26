@@ -6097,8 +6097,9 @@ function resetFilterOrder() {
         };
 
         rec.onend = function () {
-            // Continuous recognition stopped unexpectedly — restart if call is still live
-            // and we're not mid-turn (which would restart via finishTurn anyway)
+            // Always clear the reference so finishTurn() knows the session stopped
+            recognition = null;
+            // Restart immediately only if we're not mid-turn (finishTurn() handles that case)
             if (callActive && !processingTurn) {
                 setTimeout(function () {
                     if (callActive && !processingTurn) startRecognition();
