@@ -150,6 +150,7 @@
     backdrop-filter: blur(6px);
     border-bottom: 1.5px solid rgba(46,204,64,0.18);
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    touch-action: pan-x; /* allow horizontal swipe despite body touch-action:none */
 }
 #mobileFilterChipsRow::-webkit-scrollbar { display: none; }
 

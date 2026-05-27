@@ -6310,6 +6310,7 @@ function resetFilterOrder() {
     document.addEventListener('touchmove', function(e){
         if (e.target && e.target.closest('input[type="range"], .finance-range')) return; // allow slider
         if (e.target && e.target.closest('.mobile-card-scroll-container')) return; // allow card scroll
+        if (e.target && e.target.closest('#mobileFilterChipsRow')) return; // allow chip strip horizontal scroll
         e.preventDefault();
     }, { passive:false, capture:true });
 })();
