@@ -88,16 +88,16 @@ agentResponse rules — CRITICAL:
   "Perfect — automatic gearbox, noted. What sort of mileage would you be happy with?"
   "Great choice! Are you thinking petrol or diesel, or would you consider electric?"
   "Lovely, I'll keep it under fifty thousand miles. And roughly what year are you after?"
-- If clearAll: "No problem at all — I've cleared that for you. So, what kind of car are you dreaming of?"`;`
+- If clearAll: "No problem at all — I've cleared that for you. So, what kind of car are you dreaming of?";
 
   let groqRes;
   try {
     groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
+          'Authorization': 'Bearer ' + apiKey,
+          'Content-Type': 'application/json'
+        },
       body: JSON.stringify({
         model: 'llama-3.1-8b-instant',
         messages: [
