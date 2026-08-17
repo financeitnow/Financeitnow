@@ -154,11 +154,58 @@
 }
 #mobileFilterChipsRow::-webkit-scrollbar { display: none; }
 
+#mobileFilterChipsRow .mobile-wishlist-btn {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    flex: 0 0 auto;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    height: 30px;
+    min-width: 42px;
+    padding: 0 12px;
+    background: #fff;
+    color: #ff4081;
+    border: 1.5px solid #ff4081;
+    border-radius: 20px;
+    box-shadow: none;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    margin-right: 2px;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: rgba(255,64,129,0.12);
+}
+#mobileFilterChipsRow .mobile-wishlist-btn.has-items {
+    background: #ff4081;
+    color: #fff;
+}
+#mobileFilterChipsRow .mobile-wishlist-btn.active-view {
+    background: #c2185b;
+    border-color: #c2185b;
+    color: #fff;
+}
+#mobileFilterChipsRow .mobile-wishlist-heart {
+    font-size: 0.76rem;
+    line-height: 1;
+    transform: translateY(-0.5px);
+}
+#mobileFilterChipsRow .mobile-wishlist-count {
+    font-size: 0.65rem;
+    line-height: 1;
+    font-weight: 700;
+}
+
 .filter-chip {
     display: inline-flex;
     flex-shrink: 0;
     align-items: center;
-    padding: 5px 13px;
+    justify-content: center;
+    height: 30px;
+    padding: 0 13px;
     background: #f0faf0;
     border: 1.5px solid #2ecc40;
     border-radius: 20px;
@@ -172,6 +219,8 @@
     touch-action: manipulation;
     white-space: nowrap;
     line-height: 1;
+    box-sizing: border-box;
+    margin: 0;
 }
 .filter-chip:active { transform: scale(0.92); background: #d0f5d5; }
 .filter-chip--active {
@@ -264,46 +313,6 @@ body {
         .mobile-view-toggle {
             display: none !important;
         }
-    }
-
-    /* Mobile Wishlist Button — fixed below the Make & Model box */
-    .mobile-wishlist-btn {
-        display: none !important;
-        position: fixed !important;
-        top: calc(1.5% + 3.9rem + 0.2rem + 2.0rem + 4px);
-        left: 2%;
-        width: 12%;
-        max-width: 90px;
-        height: auto;
-        padding: 0.15em 0.3em;
-        background: white;
-        color: #ff4081;
-        border: 1px solid #ff4081;
-        border-radius: 8px;
-        z-index: 1080;
-        cursor: pointer;
-        align-items: center;
-        justify-content: center;
-        gap: 4px;
-        box-shadow: 0 1px 5px rgba(0,0,0,0.1);
-        font-family: 'Poppins', Arial, sans-serif;
-        box-sizing: border-box;
-    }
-    .mobile-wishlist-btn.has-items {
-        background: #ff4081;
-        color: white;
-    }
-    .mobile-wishlist-btn.active-view {
-        background: #c2185b;
-        border-color: #c2185b;
-        color: white;
-        box-shadow: 0 2px 8px rgba(194,24,91,0.4);
-    }
-    .mobile-wishlist-btn:active { transform: scale(0.95); }
-    .mobile-wishlist-heart { font-size: 0.7rem; line-height: 1; }
-    .mobile-wishlist-count { font-size: 0.55rem; font-weight: 700; line-height: 1; }
-    @media (max-width: 767px) {
-        .mobile-wishlist-btn { display: flex !important; }
     }
 
     /* Mobile Clear Wishlist Button — appears to the right of wishlist btn */
