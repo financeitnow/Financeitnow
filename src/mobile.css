@@ -139,7 +139,7 @@
     flex-direction: row;
     align-items: center;
     gap: 7px;
-    padding: 0 10px;
+    padding: 0 10px 0 60px;
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
@@ -155,9 +155,10 @@
 #mobileFilterChipsRow::-webkit-scrollbar { display: none; }
 
 #mobileFilterChipsRow .mobile-wishlist-btn {
-    position: sticky;
-    left: 0;
-    z-index: 2;
+    position: fixed;
+    left: 10px;
+    top: calc(1.5% + 3.9rem + 0.1rem);
+    z-index: 1082;
     flex: 0 0 auto;
     display: inline-flex !important;
     align-items: center;
@@ -170,7 +171,7 @@
     color: #ff4081;
     border: 1.5px solid #ff4081;
     border-radius: 20px;
-    box-shadow: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     font-size: 0.72rem;
     font-weight: 700;
     line-height: 1;
@@ -232,9 +233,11 @@
 
 @media (max-width: 430px) {
     #mobileFilterChipsRow { top: calc(1.5% + 3.6rem + 0.1rem); }
+    #mobileFilterChipsRow .mobile-wishlist-btn { top: calc(1.5% + 3.6rem + 0.1rem); }
 }
 @media (max-width: 350px) {
     #mobileFilterChipsRow { top: calc(1.5% + 3.4rem + 0.1rem); }
+    #mobileFilterChipsRow .mobile-wishlist-btn { top: calc(1.5% + 3.4rem + 0.1rem); }
 }
 
 body {
