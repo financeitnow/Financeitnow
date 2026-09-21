@@ -5989,10 +5989,7 @@ function updateBrowseCards() {
     // Clear existing cards
     cardsWrapper.innerHTML = '';
     
-    // Build all card HTML up front and write it in a single DOM mutation
-    // instead of one insertAdjacentHTML call per car (avoids N reflows).
-    const cardHTMLParts = [];
-    filteredCars.forEach((car, carIndex) => {
+    function buildCardHTML(car, carIndex) {
         // Get car images
         const carImages = (car.images || []).filter(img => img && img.trim() !== '');
         
@@ -6008,8 +6005,7 @@ function updateBrowseCards() {
             locationText = `${roundedDistance} ${roundedDistance === 1 ? 'mile' : 'miles'}`;
         }
         
-        // Create card element
-        const cardHTML = `
+        return `
             <div class="car-card" data-car-index="${carIndex}" data-current-image="0" data-total-images="${carImages.length}">
                 <div class="car-card-image-wrapper">
                     <img src="${carImages[0] || ''}" alt="${car.make} ${car.model}" class="car-card-image" loading="lazy">
@@ -6038,14 +6034,9 @@ function updateBrowseCards() {
                 </div>
             </div>
         `;
-        
-        cardHTMLParts.push(cardHTML);
-    });
-    
-    cardsWrapper.innerHTML = cardHTMLParts.join('');
-    
-    // Attach click handlers to all cards and setup image navigation
-    document.querySelectorAll('.car-card').forEach((card, index) => {
+    }
+
+    function wireCard(card) {
         const carIndex = parseInt(card.dataset.carIndex);
         const car = filteredCars[carIndex];
         const carImages = (car.images || []).filter(img => img && img.trim() !== '');
@@ -6085,14 +6076,39 @@ function updateBrowseCards() {
                 toggleWishlist(car.car_id, favoriteBtn);
             };
         }
-    });
-    
-    // Update wishlist counter in header
-    updateWishlistCounter();
-    
-    // Attach desktop modal handlers if available (desktop only)
-    if (window.attachCardClickHandlers && window.innerWidth >= 768) {
-        setTimeout(() => window.attachCardClickHandlers(), 50);
+    }
+
+    // Render in batches across animation frames so the first screenful of cards
+    // appears immediately instead of the whole list being built in one blocking pass.
+    const BATCH_SIZE = 24;
+    let batchIndex = 0;
+    function renderNextBatch() {
+        const end = Math.min(batchIndex + BATCH_SIZE, filteredCars.length);
+        const batchHTML = [];
+        for (let i = batchIndex; i < end; i++) {
+            batchHTML.push(buildCardHTML(filteredCars[i], i));
+        }
+        cardsWrapper.insertAdjacentHTML('beforeend', batchHTML.join(''));
+        for (let i = batchIndex; i < end; i++) {
+            const card = cardsWrapper.querySelector(`.car-card[data-car-index="${i}"]`);
+            if (card) wireCard(card);
+        }
+        batchIndex = end;
+
+        if (batchIndex < filteredCars.length) {
+            requestAnimationFrame(renderNextBatch);
+        } else {
+            // Update wishlist counter in header
+            updateWishlistCounter();
+            
+            // Attach desktop modal handlers if available (desktop only)
+            if (window.attachCardClickHandlers && window.innerWidth >= 768) {
+                setTimeout(() => window.attachCardClickHandlers(), 50);
+            }
+        }
+    }
+    if (filteredCars.length > 0) {
+        renderNextBatch();
     }
 }
 
