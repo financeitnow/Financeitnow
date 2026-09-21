@@ -998,11 +998,9 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
         });
         
         // Populate mobile card view
+        let mobileRenderToken = 0;
         window.populateMobileCards = function() {
-            console.log('populateMobileCards called');
-            console.log('parsedData length:', parsedData ? parsedData.length : 'undefined');
-            console.log('filteredCars length:', filteredCars ? filteredCars.length : 'undefined');
-            
+            const myRenderToken = ++mobileRenderToken;
             const wrapper = cardScrollContainer.querySelector('.mobile-cards-wrapper');
             if (!wrapper) {
                 console.error('mobile-cards-wrapper not found');
@@ -1014,8 +1012,6 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
             // Use filteredCars if available, otherwise use all parsedData (same logic as slideshow view)
             const sourceArray = (filteredCars.length > 0) ? filteredCars : parsedData;
             
-            console.log('sourceArray length:', sourceArray ? sourceArray.length : 'undefined');
-            
             if (!sourceArray || sourceArray.length === 0) {
                 wrapper.innerHTML = '<div style="text-align:center; padding:20px; color:#666; font-size:16px;">No cars available</div>';
                 return;
@@ -1026,6 +1022,9 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
             const BATCH_SIZE = 20;
             let batchIndex = 0;
             function renderNextBatch() {
+                // Abandon quietly if a newer call to this function has since started
+                // (otherwise stale/superseded cards get appended into the current list).
+                if (myRenderToken !== mobileRenderToken) return;
                 const fragment = document.createDocumentFragment();
                 const end = Math.min(batchIndex + BATCH_SIZE, sourceArray.length);
                 for (; batchIndex < end; batchIndex++) {
@@ -1034,8 +1033,6 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
                 wrapper.appendChild(fragment);
                 if (batchIndex < sourceArray.length) {
                     requestAnimationFrame(renderNextBatch);
-                } else {
-                    console.log('Cards appended:', sourceArray.length);
                 }
             }
             renderNextBatch();
@@ -1433,7 +1430,6 @@ async function loadCarsData() {
     if (parsedData.length !== manifest.count) {
         console.error(`Car count mismatch: expected ${manifest.count}, got ${parsedData.length}. Some chunks may have failed to load.`);
     }
-    console.log("Loaded cars:", parsedData.length); 
 
     // Build make/model relationships for dropdowns
     parsedMakeModels = {};
@@ -1498,7 +1494,6 @@ async function fetchPostCodesLatitudeLongitude() {
     try {
         const response = await fetch('postcodes.json?v=' + new Date().getTime());
         postCodeLatitudeLongitude = await response.json();
-        console.log('Loaded postcode data:', postCodeLatitudeLongitude.length);
         
     } catch (error) {
         console.error('Failed to load postcodes.json:', error);
@@ -1600,6 +1595,14 @@ function getSelectedFuelTypes() {
     return selected;
 }
 
+// Debounced wrapper for keyup-driven filter changes (e.g. typing a postcode),
+// so a full filter+rerender only runs once the user pauses instead of on every keystroke.
+let filterCarsDebounceTimer = null;
+function debouncedFilterCars() {
+    clearTimeout(filterCarsDebounceTimer);
+    filterCarsDebounceTimer = setTimeout(filterCars, 250);
+}
+
 function filterCars() {
     const make = document.getElementById('makeDropdown').value.trim().toLowerCase();
     const model = document.getElementById('model').value.trim().toLowerCase();
@@ -1631,13 +1634,11 @@ function filterCars() {
         if (make) {
             const carMake = (typeof car.make === 'string' ? car.make.trim().toLowerCase() : '');
             const isMakeMatch = carMake === make;
-            console.log(`Selected make: '${make}', Car make: '${carMake}', Match: ${isMakeMatch}`);
             if (!isMakeMatch) return false;
         }
         if (model) {
             const carModel = (typeof car.model === 'string' ? car.model.trim().toLowerCase() : '');
             const isModelMatch = carModel === model;
-            console.log(`Selected model: '${model}', Car model: '${carModel}', Match: ${isModelMatch}`);
             if (!isModelMatch) return false;
         }
         // Year filter (bi-directional logic)
@@ -2150,7 +2151,6 @@ function postCodeKeyUpEvent() {
             }
         }
     } else {
-        console.log("No cars have been viewed yet.");
     }
 }
 
@@ -2338,7 +2338,6 @@ const displayPrice = price + 300;
 
 function updateAPRCalculation(apr) {
     currentAPR = parseFloat(apr); // Update the global APR
-    console.log("Selected APR: ", currentAPR);
     calculateFinanceDetails(); // Recalculate finance details whenever APR changes
 }
 
@@ -2924,7 +2923,7 @@ document.getElementById('postcode').addEventListener('keyup', function() {
     }
 
     // Always filter cars - filterCars() handles invalid postcodes by reverting to default sorting
-    filterCars();
+    debouncedFilterCars();
 });
 
 // Trigger filterCars when the distance dropdown value changes
@@ -3009,7 +3008,7 @@ document.addEventListener('DOMContentLoaded', function() {
         pcMain.dispatchEvent(new Event('keyup'));
         ddMain.value = ddModal.value;
         styleDropdownOnSelection(ddMain);
-        filterCars();
+        debouncedFilterCars();
     }
 
     pcMain.addEventListener('keyup', () => {
@@ -5448,29 +5447,7 @@ function resetFilterOrder() {
   }
 }
 // --- DEBUG: Wrap openGalleryModal to log all calls and stack traces ---
-(function() {
-    if (typeof openGalleryModal === 'function') {
-        const originalOpenGalleryModal = openGalleryModal;
-        window.openGalleryModal = function() {
-            console.log('%c[DEBUG] openGalleryModal called!', 'color: red; font-weight: bold;', arguments);
-            console.trace('[DEBUG] openGalleryModal stack trace');
-            return originalOpenGalleryModal.apply(this, arguments);
-        };
-    } else {
-        // If not yet defined, wrap after definition
-        const script = document.currentScript || document.scripts[document.scripts.length - 1];
-        script.addEventListener('load', function() {
-            if (typeof openGalleryModal === 'function') {
-                const originalOpenGalleryModal = openGalleryModal;
-                window.openGalleryModal = function() {
-                    console.log('%c[DEBUG] openGalleryModal called!', 'color: red; font-weight: bold;', arguments);
-                    console.trace('[DEBUG] openGalleryModal stack trace');
-                    return originalOpenGalleryModal.apply(this, arguments);
-                };
-            }
-        });
-    }
-})();
+// (removed: was adding console.log/console.trace overhead on every gallery open)
 
 // Adaptive mobile car info sizing to prevent overlap with slideshow
 (function(){
@@ -6014,6 +5991,8 @@ function updateBrowseCards() {
     const cardsWrapper = document.querySelector('.car-cards-wrapper');
     if (!cardsWrapper) return;
     
+    const myRenderToken = ++updateBrowseCards.renderToken;
+    
     // Clear existing cards
     cardsWrapper.innerHTML = '';
     
@@ -6111,6 +6090,9 @@ function updateBrowseCards() {
     const BATCH_SIZE = 24;
     let batchIndex = 0;
     function renderNextBatch() {
+        // Abandon quietly if a newer call to this function has since started
+        // (otherwise stale/superseded cards get appended into the current list).
+        if (myRenderToken !== updateBrowseCards.renderToken) return;
         const end = Math.min(batchIndex + BATCH_SIZE, filteredCars.length);
         const batchHTML = [];
         for (let i = batchIndex; i < end; i++) {
@@ -6139,6 +6121,7 @@ function updateBrowseCards() {
         renderNextBatch();
     }
 }
+updateBrowseCards.renderToken = 0;
 
 // Wishlist functions
 function getWishlist() {
