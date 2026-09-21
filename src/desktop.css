@@ -1124,6 +1124,9 @@ body {
         position: relative;
         min-width: 0;
         height: auto;
+        /* Skip layout/paint for offscreen cards in long lists (big scroll-perf win) */
+        content-visibility: auto;
+        contain-intrinsic-size: 380px;
     }
     
     .car-card::before {

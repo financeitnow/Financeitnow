@@ -1010,12 +1010,24 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
                 return;
             }
             
-            sourceArray.forEach((car, index) => {
-                const card = createMobileCard(car, index);
-                wrapper.appendChild(card);
-            });
-            
-            console.log('Cards appended:', sourceArray.length);
+            // Render in batches across animation frames instead of building thousands
+            // of cards in one blocking pass, keeping scroll/tap responsive during load.
+            const BATCH_SIZE = 20;
+            let batchIndex = 0;
+            function renderNextBatch() {
+                const fragment = document.createDocumentFragment();
+                const end = Math.min(batchIndex + BATCH_SIZE, sourceArray.length);
+                for (; batchIndex < end; batchIndex++) {
+                    fragment.appendChild(createMobileCard(sourceArray[batchIndex], batchIndex));
+                }
+                wrapper.appendChild(fragment);
+                if (batchIndex < sourceArray.length) {
+                    requestAnimationFrame(renderNextBatch);
+                } else {
+                    console.log('Cards appended:', sourceArray.length);
+                }
+            }
+            renderNextBatch();
         }
         
         function createMobileCard(car, index) {
@@ -5977,7 +5989,9 @@ function updateBrowseCards() {
     // Clear existing cards
     cardsWrapper.innerHTML = '';
     
-    // Create cards for all filtered cars
+    // Build all card HTML up front and write it in a single DOM mutation
+    // instead of one insertAdjacentHTML call per car (avoids N reflows).
+    const cardHTMLParts = [];
     filteredCars.forEach((car, carIndex) => {
         // Get car images
         const carImages = (car.images || []).filter(img => img && img.trim() !== '');
@@ -5998,7 +6012,7 @@ function updateBrowseCards() {
         const cardHTML = `
             <div class="car-card" data-car-index="${carIndex}" data-current-image="0" data-total-images="${carImages.length}">
                 <div class="car-card-image-wrapper">
-                    <img src="${carImages[0] || ''}" alt="${car.make} ${car.model}" class="car-card-image">
+                    <img src="${carImages[0] || ''}" alt="${car.make} ${car.model}" class="car-card-image" loading="lazy">
                     <div class="car-card-image-count">1/${carImages.length}</div>
                     <button class="car-card-favorite">♡</button>
                     ${carImages.length > 1 ? `
@@ -6025,8 +6039,10 @@ function updateBrowseCards() {
             </div>
         `;
         
-        cardsWrapper.insertAdjacentHTML('beforeend', cardHTML);
+        cardHTMLParts.push(cardHTML);
     });
+    
+    cardsWrapper.innerHTML = cardHTMLParts.join('');
     
     // Attach click handlers to all cards and setup image navigation
     document.querySelectorAll('.car-card').forEach((card, index) => {
