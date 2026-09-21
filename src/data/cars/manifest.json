@@ -1,0 +1,17 @@
+{
+  "count": 6739,
+  "chunks": [
+    {
+      "file": "c1.json",
+      "count": 3325
+    },
+    {
+      "file": "c2.json",
+      "count": 2829
+    },
+    {
+      "file": "c3.json",
+      "count": 585
+    }
+  ]
+}

@@ -1,5 +1,13 @@
 # Old root data folder (use src/data/ only)
-data/
+/data/
+
+# Legacy monolithic data files (superseded by src/data/cars/ and src/data/dealers/ chunks; >10MB, would break Netlify deploys)
+src/data/cars.json
+src/data/dealers.json
+
+# Local scraper working-state (not site data, not deployed)
+src/data/postcodes.csv
+src/data/scrape_batch_state.json
 
 # Python / scraper files (local only)
 __pycache__/

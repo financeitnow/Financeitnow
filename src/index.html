@@ -1371,8 +1371,28 @@ function getCurrentYear() {
 }
 
 async function loadCarsData() {
-    const response = await fetch('data/cars.json?v=' + new Date().getTime());
-    parsedData = await response.json();
+    const cacheBust = new Date().getTime();
+
+    async function fetchAllChunks() {
+        const manifest = await (await fetch('data/cars/manifest.json?v=' + cacheBust)).json();
+        const chunkArrays = await Promise.all(
+            manifest.chunks.map(chunk => fetch(`data/cars/${chunk.file}?v=${cacheBust}`).then(r => r.json()))
+        );
+        return { manifest, records: chunkArrays.flat() };
+    }
+
+    let manifest, records;
+    try {
+        ({ manifest, records } = await fetchAllChunks());
+    } catch (error) {
+        console.error('Failed to load car chunks, retrying once:', error);
+        ({ manifest, records } = await fetchAllChunks());
+    }
+
+    parsedData = records;
+    if (parsedData.length !== manifest.count) {
+        console.error(`Car count mismatch: expected ${manifest.count}, got ${parsedData.length}. Some chunks may have failed to load.`);
+    }
     console.log("Loaded cars:", parsedData.length); 
 
     // Build make/model relationships for dropdowns

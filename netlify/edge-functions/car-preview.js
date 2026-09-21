@@ -21,13 +21,21 @@ export default async (request, context) => {
     return Response.redirect(appBase, 302);
   }
 
-  // Fetch cars.json from the same origin (served at /data/cars.json)
+  // Resolve the car via the chunk index (car_id -> chunk number) so we only
+  // fetch the one chunk containing this car, instead of the whole dataset.
   let car = null;
   try {
-    const resp = await fetch(new URL('/data/cars.json', url.origin).toString());
-    if (resp.ok) {
-      const cars = await resp.json();
-      car = cars.find(c => String(c.car_id) === carId);
+    const indexResp = await fetch(new URL('/data/cars/index.json', url.origin).toString());
+    if (indexResp.ok) {
+      const index = await indexResp.json();
+      const chunkNumber = index[carId];
+      if (chunkNumber) {
+        const chunkResp = await fetch(new URL(`/data/cars/c${chunkNumber}.json`, url.origin).toString());
+        if (chunkResp.ok) {
+          const cars = await chunkResp.json();
+          car = cars.find(c => String(c.car_id) === carId);
+        }
+      }
     }
   } catch (_) {
     // silently fall through to redirect
