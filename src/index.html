@@ -925,12 +925,23 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
         
         // Update on resize (address bar show/hide)
         window.addEventListener('resize', adjustCarInfoHeight);
-        window.addEventListener('scroll', adjustCarInfoHeight);
+        // Throttle scroll-triggered calls to once per animation frame (avoids
+        // forcing a style recalculation on every single scroll tick).
+        let adjustCarInfoHeightQueued = false;
+        function queueAdjustCarInfoHeight() {
+            if (adjustCarInfoHeightQueued) return;
+            adjustCarInfoHeightQueued = true;
+            requestAnimationFrame(() => {
+                adjustCarInfoHeightQueued = false;
+                adjustCarInfoHeight();
+            });
+        }
+        window.addEventListener('scroll', queueAdjustCarInfoHeight, { passive: true });
         
         // Use visualViewport API if available
         if (window.visualViewport) {
             window.visualViewport.addEventListener('resize', adjustCarInfoHeight);
-            window.visualViewport.addEventListener('scroll', adjustCarInfoHeight);
+            window.visualViewport.addEventListener('scroll', queueAdjustCarInfoHeight);
         }
         
         // Update on orientation change
@@ -1108,7 +1119,7 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
 
             card.innerHTML = `
                 <div class="mobile-card-image-container">
-                    <img src="${images[0]}" alt="${car.make} ${car.model}" class="mobile-card-image" loading="lazy">
+                    <img src="${getThumbnailUrl(images[0])}" srcset="${buildThumbnailSrcset(images[0])}" sizes="100vw" alt="${car.make} ${car.model}" class="mobile-card-image" loading="lazy" decoding="async">
                     <div class="mobile-card-image-count">${currentImageIndex + 1}/${images.length}</div>
                     <div class="mobile-card-favorite" data-car-id="${car.car_id}">♡</div>
                     ${images.length > 1 ? '<button class="mobile-card-prev" aria-label="Previous image">&#8249;</button>' : ''}
@@ -1247,7 +1258,8 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
             }
             
             function updateImage() {
-                image.src = images[currentImageIndex];
+                image.src = getThumbnailUrl(images[currentImageIndex]);
+                image.srcset = buildThumbnailSrcset(images[currentImageIndex]);
                 imageCount.textContent = `${currentImageIndex + 1}/${images.length}`;
                 // Map current index to one of 5 dot positions
                 const activeDot = images.length > 1
@@ -1380,6 +1392,22 @@ let mileageTo = null;
 
 function getCurrentYear() {
     return new Date().getFullYear();
+}
+
+// Request a smaller CDN-generated image size for list thumbnails instead of
+// the full-size photo (car detail/gallery views still use the original URL).
+function getThumbnailUrl(url, width = 480) {
+    if (!url) return url;
+    return url.replace(/\/media\/w\d+\//, `/media/w${width}/`);
+}
+
+// Build a srcset so the browser picks the sharpest size for its own pixel
+// density/layout width instead of us guessing one fixed size for every device.
+function buildThumbnailSrcset(url) {
+    if (!url) return '';
+    return [340, 480, 640, 1024]
+        .map(w => `${getThumbnailUrl(url, w)} ${w}w`)
+        .join(', ');
 }
 
 async function loadCarsData() {
@@ -6008,7 +6036,7 @@ function updateBrowseCards() {
         return `
             <div class="car-card" data-car-index="${carIndex}" data-current-image="0" data-total-images="${carImages.length}">
                 <div class="car-card-image-wrapper">
-                    <img src="${carImages[0] || ''}" alt="${car.make} ${car.model}" class="car-card-image" loading="lazy">
+                    <img src="${getThumbnailUrl(carImages[0] || '')}" srcset="${buildThumbnailSrcset(carImages[0] || '')}" sizes="(max-width: 767px) 90vw, 320px" alt="${car.make} ${car.model}" class="car-card-image" loading="lazy" decoding="async">
                     <div class="car-card-image-count">1/${carImages.length}</div>
                     <button class="car-card-favorite">♡</button>
                     ${carImages.length > 1 ? `
@@ -6285,7 +6313,8 @@ function navigateCardImage(card, direction) {
     // Update image
     const img = card.querySelector('.car-card-image');
     if (img) {
-        img.src = images[currentIndex];
+        img.src = getThumbnailUrl(images[currentIndex]);
+        img.srcset = buildThumbnailSrcset(images[currentIndex]);
     }
     
     // Update counter
