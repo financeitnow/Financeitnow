@@ -1042,6 +1042,8 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
             const card = document.createElement('div');
             card.className = 'mobile-car-card';
             card.dataset.carId = car.car_id;
+            card.dataset.images = JSON.stringify(images);
+            card.dataset.currentImage = '0';
             
             const images = car.images && car.images.length > 0 ? car.images : ['placeholder.jpg'];
             let currentImageIndex = 0;
@@ -1255,6 +1257,7 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
             }
             
             function updateImage() {
+                card.dataset.currentImage = String(currentImageIndex);
                 image.src = getThumbnailUrl(images[currentImageIndex]);
                 image.srcset = buildThumbnailSrcset(images[currentImageIndex]);
                 imageCount.textContent = `${currentImageIndex + 1}/${images.length}`;
@@ -1267,41 +1270,7 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
                 });
             }
             
-            // Gallery button
-            const galleryCardBtn = card.querySelector('.mobile-card-gallery-btn');
-            if (galleryCardBtn) {
-                galleryCardBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (typeof openGalleryModal === 'function') {
-                        openGalleryModal(images, currentImageIndex);
-                    }
-                });
-            }
-
-            // Finance button
-            const financeCardBtn = card.querySelector('.mobile-card-finance-btn');
-            if (financeCardBtn) {
-                financeCardBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // Seed the price input so seedFinanceSheet picks it up
-                    const priceEl = document.getElementById('price');
-                    if (priceEl) priceEl.value = financeCardBtn.dataset.price;
-                    if (window.SheetManager) window.SheetManager.open('financeSheet');
-                });
-            }
-
-            // Favorite functionality
             const favoriteBtn = card.querySelector('.mobile-card-favorite');
-            favoriteBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (typeof toggleWishlist === 'function') {
-                    toggleWishlist(car.car_id, favoriteBtn);
-                }
-            });
-            
             // Check if already favorited
             const currentWishlist = typeof getWishlist === 'function' ? getWishlist() : [];
             if (currentWishlist.includes(car.car_id)) {
@@ -1332,15 +1301,40 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
                 waLink.href = `https://wa.me/447506301308?text=${waMessage}`;
             }
 
-            // Tapping the card content (not image, not buttons/links) fires WhatsApp
-            card.addEventListener('click', function(e) {
-                if (e.target.closest('.mobile-card-image-container')) return;
-                if (e.target.closest('button') || e.target.closest('a')) return;
-                if (waLink) waLink.click();
-            });
-
             return card;
         }
+
+        cardScrollContainer.addEventListener('click', function(e) {
+            const card = e.target.closest('.mobile-car-card');
+            if (!card || !cardScrollContainer.contains(card)) return;
+
+            const button = e.target.closest('button');
+            if (button?.classList.contains('mobile-card-gallery-btn')) {
+                e.preventDefault();
+                e.stopPropagation();
+                const images = JSON.parse(card.dataset.images || '[]');
+                const imageIndex = parseInt(card.dataset.currentImage || '0', 10);
+                if (typeof openGalleryModal === 'function') openGalleryModal(images, imageIndex);
+                return;
+            }
+            if (button?.classList.contains('mobile-card-finance-btn')) {
+                e.preventDefault();
+                e.stopPropagation();
+                const priceEl = document.getElementById('price');
+                if (priceEl) priceEl.value = button.dataset.price;
+                if (window.SheetManager) window.SheetManager.open('financeSheet');
+                return;
+            }
+            if (button?.classList.contains('mobile-card-favorite')) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (typeof toggleWishlist === 'function') toggleWishlist(card.dataset.carId, button);
+                return;
+            }
+            if (e.target.closest('.mobile-card-image-container') || e.target.closest('a')) return;
+            const waLink = card.querySelector('.mobile-card-whatsapp-link');
+            if (waLink) waLink.click();
+        });
     })();
     </script>
 
@@ -1371,6 +1365,7 @@ let allCarsViewed = false;
 let autoClickerInterval;
 let validPostcode = false;
 let postCodeLatitudeLongitude = [];
+let postcodeCoordinates = new Map();
 let parsedMakeModels = {};
 let financeDetails = { carPrice: 0, deposit: 1000, months: 60 };
 let currentAPR = 5.9;
@@ -1494,8 +1489,15 @@ async function fetchPostCodesLatitudeLongitude() {
     try {
         const response = await fetch('postcodes.json?v=' + new Date().getTime());
         postCodeLatitudeLongitude = await response.json();
+        postcodeCoordinates = new Map(
+            postCodeLatitudeLongitude.map(entry => [
+                entry.PostalCode.replace(/\s/g, '').toUpperCase(),
+                entry,
+            ])
+        );
         
     } catch (error) {
+        postcodeCoordinates = new Map();
         console.error('Failed to load postcodes.json:', error);
     }
 }
@@ -1795,14 +1797,8 @@ function calculateDistanceFromUserToCar(userPostCode, carFrontOfPostCode) {
         return null;
     }
 
-    // Find lat/lon for user
-    const userPostcodeData = postCodeLatitudeLongitude.find(
-        entry => entry.PostalCode.replace(/\s/g, '').toUpperCase() === userOutwardCode.replace(/\s/g, '').toUpperCase()
-    );
-    // Find lat/lon for car
-    const carPostcodeData = postCodeLatitudeLongitude.find(
-        entry => entry.PostalCode.replace(/\s/g, '').toUpperCase() === carFrontOfPostCode.replace(/\s/g, '').toUpperCase()
-    );
+    const userPostcodeData = postcodeCoordinates.get(userOutwardCode.replace(/\s/g, ''));
+    const carPostcodeData = postcodeCoordinates.get(carFrontOfPostCode.replace(/\s/g, '').toUpperCase());
 
     if (!userPostcodeData || !carPostcodeData) {
         validPostcode = false;
@@ -2511,9 +2507,7 @@ function displayCarInfoContainer() {
 
 function sortCarsByDistance(userPostCode, carsArray) {
     const userOutwardCode = userPostCode.trim().toUpperCase().split(' ')[0];
-    const userPostcodeData = postCodeLatitudeLongitude.find(
-        entry => entry.PostalCode.replace(/\s/g, '').toUpperCase() === userOutwardCode.replace(/\s/g, '').toUpperCase()
-    );
+    const userPostcodeData = postcodeCoordinates.get(userOutwardCode.replace(/\s/g, ''));
     if (!userPostcodeData) return carsArray; // If user postcode not found, don't sort
 
     const userCoords = {
@@ -2524,9 +2518,7 @@ function sortCarsByDistance(userPostCode, carsArray) {
     // Attach distance to each car, then sort
     return carsArray
         .map(car => {
-            const carPostcodeData = postCodeLatitudeLongitude.find(
-                entry => entry.PostalCode.replace(/\s/g, '').toUpperCase() === (car.frontOfPostCode || '').replace(/\s/g, '').toUpperCase()
-            );
+            const carPostcodeData = postcodeCoordinates.get((car.frontOfPostCode || '').replace(/\s/g, '').toUpperCase());
             if (!carPostcodeData) {
                 return { ...car, _distance: Infinity };
             }
@@ -2899,10 +2891,7 @@ function isValidPostcodeForDistance(userPostCode) {
     // UK postcode outward code must contain at least one digit (e.g., NW9, M1, SW1A)
     if (!/\d/.test(userOutwardCode)) return false;
     
-    // Check if postcode exists in your postCodeLatitudeLongitude data
-    return postCodeLatitudeLongitude.some(
-        entry => entry.PostalCode.replace(/\s/g, '').toUpperCase() === userOutwardCode
-    );
+    return postcodeCoordinates.has(userOutwardCode.replace(/\s/g, ''));
 }
 
 
@@ -6050,25 +6039,7 @@ function updateBrowseCards() {
         
         // Store images in card dataset
         card.dataset.images = JSON.stringify(carImages);
-        
-        // Click handler for card (excluding buttons)
-        card.onclick = (e) => {
-            if (!e.target.closest('.car-card-nav') && !e.target.closest('.car-card-favorite')) {
-                showCarDetail(carIndex);
-            }
-        };
-        
-        // Setup navigation buttons
-        const navButtons = card.querySelectorAll('.car-card-nav');
-        navButtons.forEach(btn => {
-            btn.onclick = (e) => {
-                e.stopPropagation();
-                const direction = btn.dataset.direction;
-                navigateCardImage(card, direction);
-            };
-        });
-        
-        // Setup favorite button
+
         const favoriteBtn = card.querySelector('.car-card-favorite');
         if (favoriteBtn) {
             // Check if car is already in wishlist
@@ -6077,12 +6048,36 @@ function updateBrowseCards() {
                 favoriteBtn.textContent = '♥';
                 favoriteBtn.style.color = '#ff4081';
             }
-            
-            favoriteBtn.onclick = (e) => {
-                e.stopPropagation();
-                toggleWishlist(car.car_id, favoriteBtn);
-            };
         }
+    }
+
+    if (!cardsWrapper.dataset.delegated) {
+        cardsWrapper.dataset.delegated = 'true';
+        cardsWrapper.addEventListener('click', (e) => {
+            const card = e.target.closest('.car-card');
+            if (!card || !cardsWrapper.contains(card)) return;
+            const carIndex = parseInt(card.dataset.carIndex, 10);
+            const car = filteredCars[carIndex];
+            if (!car) return;
+
+            const navButton = e.target.closest('.car-card-nav');
+            if (navButton) {
+                e.preventDefault();
+                e.stopPropagation();
+                navigateCardImage(card, navButton.dataset.direction);
+                return;
+            }
+
+            const favoriteButton = e.target.closest('.car-card-favorite');
+            if (favoriteButton) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleWishlist(car.car_id, favoriteButton);
+                return;
+            }
+
+            showCarDetail(carIndex);
+        });
     }
 
     // Render in batches across animation frames so the first screenful of cards
@@ -6435,9 +6430,6 @@ function updateBrowseCardsOld() {
                 monthly.textContent = `£${monthlyPayment.toFixed(2)} p/m`;
                 monthly.style.color = '#FF8C00'; // Orange color
             }
-            
-            // Add click handler to show car detail
-            card.onclick = () => showCarDetail(carIndex);
             
         } else {
             card.style.display = 'none';
