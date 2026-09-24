@@ -1042,11 +1042,10 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
             const card = document.createElement('div');
             card.className = 'mobile-car-card';
             card.dataset.carId = car.car_id;
-            card.dataset.images = JSON.stringify(images);
-            card.dataset.currentImage = '0';
-            
             const images = car.images && car.images.length > 0 ? car.images : ['placeholder.jpg'];
             let currentImageIndex = 0;
+            card.dataset.images = JSON.stringify(images);
+            card.dataset.currentImage = '0';
             
             // Status badge
             let statusHTML = '';
@@ -1308,6 +1307,14 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
             const card = e.target.closest('.mobile-car-card');
             if (!card || !cardScrollContainer.contains(card)) return;
 
+            const favoriteButton = e.target.closest('.mobile-card-favorite');
+            if (favoriteButton) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (typeof toggleWishlist === 'function') toggleWishlist(card.dataset.carId, favoriteButton);
+                return;
+            }
+
             const button = e.target.closest('button');
             if (button?.classList.contains('mobile-card-gallery-btn')) {
                 e.preventDefault();
@@ -1323,12 +1330,6 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
                 const priceEl = document.getElementById('price');
                 if (priceEl) priceEl.value = button.dataset.price;
                 if (window.SheetManager) window.SheetManager.open('financeSheet');
-                return;
-            }
-            if (button?.classList.contains('mobile-card-favorite')) {
-                e.preventDefault();
-                e.stopPropagation();
-                if (typeof toggleWishlist === 'function') toggleWishlist(card.dataset.carId, button);
                 return;
             }
             if (e.target.closest('.mobile-card-image-container') || e.target.closest('a')) return;
