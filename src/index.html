@@ -797,7 +797,7 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
     </button>
 
 <!-- Mobile-only WhatsApp call button (top-right) -->
-<a id="whatsappFab" class="whatsapp-fab" aria-label="WhatsApp" title="WhatsApp" href="https://wa.me/447506301308" rel="noopener" target="_blank">
+<a id="whatsappFab" class="whatsapp-fab" aria-label="WhatsApp" title="WhatsApp" href="https://wa.me/447506301308" rel="noopener">
     <svg width="21" height="21" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" fill="#ffffff">
         <path d="M20 3H4a1 1 0 0 0-1 1v16l4-4h13a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1z" fill="#ffffff"/>
     </svg>
@@ -821,11 +821,18 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
             }
             
             if (isMobile()) {
-                if (window.SheetManager) window.SheetManager.open('moreFiltersOverlay');
+                if (window.SheetManager) {
+                    window.SheetManager.open('moreFiltersOverlay');
+                } else if (overlay) {
+                    overlay.classList.add('sheet-open', 'fin-open');
+                    overlay.setAttribute('aria-hidden', 'false');
+                    document.body.style.overflow = 'hidden';
+                }
             } else if (headerBtn) {
                 headerBtn.click();
             }
         }
+        window.openMobileFilters = openFilters;
         if (fab) {
             fab.addEventListener('click', openFilters);
         }
@@ -6772,7 +6779,34 @@ function showCarDetail(carIndex) {
     chipsRow.addEventListener('click', function (e) {
         var chip = e.target.closest('.filter-chip');
         if (!chip) return;
-        if (window.SheetManager) window.SheetManager.open('moreFiltersOverlay');
+        e.preventDefault();
+        if (typeof window.openMobileFilters === 'function') {
+            window.openMobileFilters();
+        } else if (window.SheetManager) {
+            window.SheetManager.open('moreFiltersOverlay');
+        }
+
+        var filterBlocks = {
+            'chip-make': 'mmFilterBlock',
+            'chip-model': 'mmFilterBlock',
+            'chip-price': 'priceRangeFilterBlock',
+            'chip-year': 'yearRangeFilterBlock',
+            'chip-mileage': 'mileageRangeFilterBlock',
+            'chip-gearbox': 'gearboxFilterBlock',
+            'chip-fuel': 'fuelTypeFilterBlock',
+            'chip-body': 'bodyTypeFilterBlock',
+            'chip-distance': 'distanceFilterBlock'
+        };
+        var target = document.getElementById(filterBlocks[chip.id]);
+        if (!target) return;
+        document.querySelectorAll('#moreFiltersModal .filter-dropdown').forEach(function (block) {
+            block.classList.toggle('open', block === target);
+        });
+        var modalContent = document.querySelector('#moreFiltersModal .modal-inner-content');
+        if (modalContent) {
+            modalContent.insertBefore(target, modalContent.firstChild);
+            modalContent.scrollTop = 0;
+        }
     });
 
     function fmt(n) {
