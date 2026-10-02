@@ -1039,11 +1039,10 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
             wrapper.innerHTML = '';
             cardScrollContainer.scrollTop = 0;
             
-            // Use filteredCars if available, otherwise use all parsedData (same logic as slideshow view)
-            const sourceArray = (filteredCars.length > 0) ? filteredCars : parsedData;
+            const sourceArray = filteredCars;
             
             if (!sourceArray || sourceArray.length === 0) {
-                wrapper.innerHTML = '<div style="text-align:center; padding:20px; color:#666; font-size:16px;">No cars available</div>';
+                wrapper.innerHTML = `<div style="text-align:center; padding:20px; color:#666; font-size:16px;">${emptyCarResultsMessage()}</div>`;
                 return;
             }
             
@@ -1416,6 +1415,7 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
 
 <script>
 let parsedData = [];  // All cars from cars.json
+const dealerStockId = new URLSearchParams(window.location.search).get('dealer');
  
 let currentImageIndex = 0;
 let carImages = [];
@@ -1440,6 +1440,11 @@ let yearTo = null;
 
 let mileageFrom = null;
 let mileageTo = null;
+
+function emptyCarResultsMessage() {
+    if (dealerStockId !== null && parsedData.length === 0) return 'No vehicles available for this dealer.';
+    return parsedData.length > 0 ? 'No cars match your filters.' : 'No cars available.';
+}
 
 function getCurrentYear() {
     return new Date().getFullYear();
@@ -1489,10 +1494,13 @@ async function loadCarsData() {
         ({ manifest, records } = await fetchAllChunks());
     }
 
-    parsedData = records;
-    if (parsedData.length !== manifest.count) {
-        console.error(`Car count mismatch: expected ${manifest.count}, got ${parsedData.length}. Some chunks may have failed to load.`);
+    if (records.length !== manifest.count) {
+        console.error(`Car count mismatch: expected ${manifest.count}, got ${records.length}. Some chunks may have failed to load.`);
     }
+    parsedData = dealerStockId === null ? records : records.filter(car =>
+        dealerStockId.trim() !== '' &&
+        String(car.retailer_id || car.dealer_id || '').trim() === dealerStockId.trim()
+    );
 
     // Build make/model relationships for dropdowns
     parsedMakeModels = {};
@@ -1532,7 +1540,9 @@ async function loadCarsData() {
                 if (backBanner) {
                     backBanner.style.display = 'flex';
                     document.getElementById('singleCarBackBtn').onclick = function() {
-                        history.replaceState({}, '', window.location.pathname);
+                        const stockUrl = new URL(window.location.href);
+                        stockUrl.searchParams.delete('car');
+                        history.replaceState({}, '', stockUrl.pathname + stockUrl.search);
                         backBanner.style.display = 'none';
                         filterCars();
                     };
@@ -1542,16 +1552,7 @@ async function loadCarsData() {
         }
     }
     
-    // Initialize view based on screen size (if no car_id in URL)
-    if (!isMobileLayout()) {
-        // Desktop: Initialize filtered cars and show browse view
-        filterCars();
-    } else {
-        // Mobile: Always start in card view
-        if (window.populateMobileCards) {
-            window.populateMobileCards();
-        }
-    }
+    filterCars();
 }
 
 async function fetchPostCodesLatitudeLongitude() {
@@ -5026,6 +5027,10 @@ document.getElementById('closeMoreFilters').onclick = function() {
 
 // Reset More Filters button handler
 document.getElementById('resetMoreFiltersBtn').onclick = function() {
+    yearFrom = null;
+    yearTo = null;
+    mileageFrom = null;
+    mileageTo = null;
     // Reset modal dropdowns
     const makeDropdownModal = document.getElementById('makeDropdownModal');
     const modelModal = document.getElementById('modelModal');
@@ -6050,6 +6055,11 @@ function updateBrowseCards() {
     
     // Clear existing cards
     cardsWrapper.innerHTML = '';
+    if (filteredCars.length === 0) {
+        cardsWrapper.innerHTML = `<p style="grid-column:1 / -1; text-align:center;">${emptyCarResultsMessage()}</p>`;
+        updateWishlistCounter();
+        return;
+    }
     
     function buildCardHTML(car, carIndex) {
         // Get car images
