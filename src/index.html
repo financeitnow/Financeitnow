@@ -5,12 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>FinanceItNOW</title>
     <link rel="icon" type="image/png" href="netlifyicon.png">
-    <!-- Desktop Stylesheet (applies when viewport width is 768px and up) -->
-     <link rel="stylesheet" href="mobile.css" media="(max-width: 767px)">
-    <link rel="stylesheet" href="desktop.css" media="(min-width: 768px)">
+    <link rel="stylesheet" href="mobile.css" media="(max-width: 767px), (hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px)">
+    <link rel="stylesheet" href="desktop.css" media="(min-width: 768px) and ((hover: hover) or (pointer: fine) or (pointer: none) or (min-width: 1025px) or (min-height: 601px))">
+    <script>
+        function isMobileLayout() {
+            return window.matchMedia('(max-width: 767px), (hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px)').matches;
+        }
+    </script>
         <style>
             /* Prevent iOS Safari auto-zoom on inputs by ensuring 16px font-size on small screens */
-            @media (max-width: 767px) {
+            @media ((max-width: 767px) or ((hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px))) {
                 input, select, textarea { font-size: 16px !important; }
                 html { -webkit-text-size-adjust: 100%; }
             }
@@ -813,7 +817,7 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
         const overlay = document.getElementById('moreFiltersOverlay');
         const financeSheet = document.getElementById('financeSheet');
 
-        function isMobile(){ return window.innerWidth <= 767; }
+        function isMobile(){ return isMobileLayout(); }
         function openFilters(){
             // Reset filters before opening
             if (typeof resetFilterOrder === 'function') {
@@ -861,7 +865,7 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
     (function() {
         function updateMobileScale() {
             // Only apply on mobile devices
-            if (window.innerWidth > 767) return;
+            if (!isMobileLayout()) return;
             
             const width = window.innerWidth;
             const height = window.innerHeight;
@@ -909,7 +913,7 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
     (function() {
         function adjustCarInfoHeight() {
             // Only apply on mobile devices
-            if (window.innerWidth > 767) return;
+            if (!isMobileLayout()) return;
             
             const carInfoContainer = document.getElementById('carInfoContainer');
             if (!carInfoContainer) return;
@@ -975,7 +979,7 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
         const toggleIconCards = document.getElementById('toggleIconCards');
         const toggleIconSlideshow = document.getElementById('toggleIconSlideshow');
         
-        if (window.innerWidth > 767) return;
+        if (!isMobileLayout()) return;
 
         // Start in card view: show cards, hide slideshow
         if (slideshowContainer) slideshowContainer.style.display = 'none';
@@ -1497,7 +1501,7 @@ async function loadCarsData() {
     if (carId) {
         const car = parsedData.find(c => c.car_id === carId);
         if (car) {
-            if (window.innerWidth >= 768) {
+            if (!isMobileLayout()) {
                 // Desktop: Show browse view first, then open modal
                 filterCars();
                 setTimeout(() => window.openDesktopModal(car), 500);
@@ -1525,7 +1529,7 @@ async function loadCarsData() {
     }
     
     // Initialize view based on screen size (if no car_id in URL)
-    if (window.innerWidth >= 768) {
+    if (!isMobileLayout()) {
         // Desktop: Initialize filtered cars and show browse view
         filterCars();
     } else {
@@ -1775,7 +1779,7 @@ function filterCars() {
     allCarsViewed = false;
     
     // Desktop: Show browse view instead of single car detail
-    if (window.innerWidth >= 768) {
+    if (!isMobileLayout()) {
         showCarBrowseView();
     } else {
         // Mobile: Check which view mode is active
@@ -2677,7 +2681,7 @@ function displayLogo() {
 }
 */
     function isMobile() {
-        return window.innerWidth < 768; // Adjust as necessary
+        return isMobileLayout(); // Adjust as necessary
     }
 
     function handleMobileOrDesktopView() {
@@ -4779,7 +4783,7 @@ document.addEventListener('DOMContentLoaded', function() {
         clearInterval(slideshowInterval);
         
         var overlay = document.getElementById('moreFiltersOverlay');
-        if (window.innerWidth <= 767) {
+        if (isMobileLayout()) {
             // Mobile uses SheetManager
             if (window.SheetManager) window.SheetManager.open('moreFiltersOverlay');
             
@@ -4829,7 +4833,7 @@ document.addEventListener('DOMContentLoaded', function() {
     moreFiltersBtn.onclick = () => openMoreFiltersModal();
     
     // Make all desktop header filter buttons open More Filters modal on desktop
-    if (window.innerWidth > 767) {
+    if (!isMobileLayout()) {
         // Make & Model filter
         const makeModelFilter = document.querySelector('.desktop-header-bar #makeModelFilter summary');
         if (makeModelFilter) {
@@ -4942,7 +4946,7 @@ document.addEventListener('DOMContentLoaded', function() {
 const makeModelSummary = document.querySelector('.carSearchFilters summary.makeModelPriceTitle');
 if (makeModelSummary) {
     makeModelSummary.addEventListener('click', function(e){
-        if (window.innerWidth <= 767) { // mobile only
+        if (isMobileLayout()) { // mobile only
             e.preventDefault(); // prevent native <details> toggle
             const detailsEl = makeModelSummary.parentElement;
             if (detailsEl && detailsEl.hasAttribute('open')) {
@@ -4953,7 +4957,7 @@ if (makeModelSummary) {
             resetFilterOrder();
             
             const overlay = document.getElementById('moreFiltersOverlay');
-            if (window.SheetManager && window.innerWidth <= 767) {
+            if (window.SheetManager && isMobileLayout()) {
                 window.SheetManager.open('moreFiltersOverlay');
             } else {
                 overlay.style.display = 'flex';
@@ -4976,7 +4980,7 @@ if (makeModelSummary) {
         containerEl.style.cursor = 'pointer';
         containerEl.addEventListener('click', function(ev){
             // Ignore clicks that originated on interactive form controls inside the container
-            if (window.innerWidth <= 767 && !ev.target.closest('select') && !ev.target.closest('input')) {
+            if (isMobileLayout() && !ev.target.closest('select') && !ev.target.closest('input')) {
                 makeModelSummary.click();
             }
         });
@@ -4986,7 +4990,7 @@ document.getElementById('closeMoreFilters').onclick = function() {
     // Reset filters to default arrangement when closing
     resetFilterOrder();
     
-    if (window.innerWidth <= 767 && window.SheetManager) {
+    if (isMobileLayout() && window.SheetManager) {
         window.SheetManager.close('moreFiltersOverlay');
     } else {
         const overlay = document.getElementById('moreFiltersOverlay');
@@ -5148,7 +5152,7 @@ document.getElementById('moreFiltersOverlay').onclick = function(e) {
         // Reset filters to default arrangement when closing
         resetFilterOrder();
         
-        if (window.innerWidth <= 767 && window.SheetManager) {
+        if (isMobileLayout() && window.SheetManager) {
             window.SheetManager.close('moreFiltersOverlay');
         } else {
             const overlay = this;
@@ -5177,7 +5181,7 @@ let originalFilterOrder = [];
 // Function to update desktop header button style when filters are active
 function updateDesktopHeaderButtonStyle(filterDropdown) {
   // Only run on desktop
-  if (window.innerWidth <= 767) return;
+  if (isMobileLayout()) return;
   
   // Map filter block IDs to desktop header button IDs
   const filterMapping = {
@@ -5488,7 +5492,7 @@ function resetFilterOrder() {
 
 // Adaptive mobile car info sizing to prevent overlap with slideshow
 (function(){
-  function isMobile(){ return window.innerWidth <= 767; }
+  function isMobile(){ return isMobileLayout(); }
   function sizeCarInfo(){
     if(!isMobile()) return;
     const video = document.querySelector('.video-container');
@@ -5517,7 +5521,7 @@ function resetFilterOrder() {
 })();
 // Extend adaptive sizing: adjust font scale so content fits within maxHeight without large overflow
 (function(){
-  function isMobile(){ return window.innerWidth <= 767; }
+  function isMobile(){ return isMobileLayout(); }
   function scaleCarInfoFonts(){
     if(!isMobile()) return;
     const info = document.getElementById('carInfoContainer');
@@ -5779,7 +5783,7 @@ function resetFilterOrder() {
     const financeBtn = document.getElementById('financeButton');
     function applyFinanceMode(){
         if(!financeBtn) return;
-        const isMobile = window.innerWidth <= 767;
+        const isMobile = isMobileLayout();
         const sheetId = 'financeSheet';
         const inlinePanel = document.getElementById('financeInfoContainer');
         const sheetOverlay = document.getElementById(sheetId);
@@ -5968,7 +5972,7 @@ function resetFilterOrder() {
 
 <style>
 /* Mobile/desktop finance mode separation */
-@media (max-width:767px){
+@media ((max-width: 767px) or ((hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px))){
     /* Hide legacy inline panel on mobile */
     #financeInfoContainer[data-legacy-finance]{display:none !important;}
     /* Ensure filters sheet-overlay uses flex when open */
@@ -5976,7 +5980,7 @@ function resetFilterOrder() {
     /* Avoid accidental legacy inline style display during mobile */
     #moreFiltersOverlay{display:none;}
 }
-@media (min-width:768px){
+@media ((min-width: 768px) and ((hover: hover) or (pointer: fine) or (pointer: none) or (min-width: 1025px) or (min-height: 601px))){
     /* Desktop: suppress sheet entirely (kept for code reuse) */
     #financeSheet{display:none !important;}
     /* Hide mobile-only elements on desktop */
@@ -5996,7 +6000,7 @@ function resetFilterOrder() {
     function isIOS(){
         return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     }
-    function isMobile(){ return window.innerWidth <= 767; }
+    function isMobile(){ return isMobileLayout(); }
     if (!isIOS() || !isMobile()) return;
     document.addEventListener('touchmove', function(e){
         if (e.target && e.target.closest('input[type="range"], .finance-range')) return; // allow slider
@@ -6155,7 +6159,7 @@ function updateBrowseCards() {
             updateWishlistCounter();
             
             // Attach desktop modal handlers if available (desktop only)
-            if (window.attachCardClickHandlers && window.innerWidth >= 768) {
+            if (window.attachCardClickHandlers && !isMobileLayout()) {
                 setTimeout(() => window.attachCardClickHandlers(), 50);
             }
         }
@@ -6182,7 +6186,7 @@ function toggleWishlist(carId, btn) {
     const wishlistBtn = document.getElementById('wishlistBtn');
     const mobileWishlistBtn = document.getElementById('mobileWishlistBtn');
     const mobileClearBtn = document.getElementById('mobileClearWishlistBtn');
-    const isMobileCards = window.innerWidth < 768;
+    const isMobileCards = isMobileLayout();
     const isInWishlistView = isMobileCards
         ? mobileWishlistBtn?.classList.contains('active-view')
         : wishlistBtn?.classList.contains('active-view');
@@ -6290,7 +6294,7 @@ function showWishlistCars() {
     const wishlistBtn = document.getElementById('wishlistBtn');
     const mobileWishlistBtn = document.getElementById('mobileWishlistBtn');
     const mobileClearBtn = document.getElementById('mobileClearWishlistBtn');
-    const isMobileCards = window.innerWidth < 768;
+    const isMobileCards = isMobileLayout();
     const activeBtn = isMobileCards ? mobileWishlistBtn : wishlistBtn;
 
     // Toggle off if already in wishlist view
@@ -6525,7 +6529,7 @@ function showCarDetail(carIndex) {
     
     // Open modal when clicking a car card (desktop only)
     function attachCardClickHandlers() {
-        if (window.innerWidth < 768) return; // Mobile uses existing system
+        if (isMobileLayout()) return; // Mobile uses existing system
         
         document.querySelectorAll('.car-card').forEach(card => {
             card.style.cursor = 'pointer';
@@ -6553,7 +6557,7 @@ function showCarDetail(carIndex) {
     window.openDesktopModal = openDesktopModal;
     
     function openDesktopModal(car) {
-        if (!modal || window.innerWidth < 768) return;
+        if (!modal || isMobileLayout()) return;
         
         currentCar = car;
         currentImages = (car.images || []).filter(img => img && img.trim() !== '');
@@ -6810,7 +6814,7 @@ function showCarDetail(carIndex) {
 (function () {
     'use strict';
 
-    if (window.innerWidth > 767) return;
+    if (!isMobileLayout()) return;
 
     var chipsRow = document.getElementById('mobileFilterChipsRow');
     if (!chipsRow) return;

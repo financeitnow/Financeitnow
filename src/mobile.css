@@ -7,7 +7,7 @@
 }
 
 /* Single-car back banner (shown when a shared car link is opened on mobile) */
-@media (max-width: 767px) {
+@media ((max-width: 767px) or ((hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px))) {
     .single-car-back-banner {
         display: flex;
         align-items: center;
@@ -29,7 +29,7 @@
 }
 
 /* Postcode Gate Overlay (mobile) */
-@media (max-width: 767px) {
+@media ((max-width: 767px) or ((hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px))) {
     /* Screen reader only - visually hidden but accessible */
     .sr-only {
         position: absolute;
@@ -256,7 +256,7 @@ body {
 }
 
 /* Prevent iOS pull-to-refresh and page drag scroll on mobile */
-@media (max-width: 767px) {
+@media ((max-width: 767px) or ((hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px))) {
     html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
     /* iOS Safari specific hint */
     body { touch-action: none; }
@@ -323,7 +323,7 @@ body {
     .mobile-view-toggle:active {
         transform: scale(0.95);
     }
-    @media (max-width: 767px) {
+    @media ((max-width: 767px) or ((hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px))) {
         .mobile-view-toggle {
             display: none !important;
         }
@@ -1285,7 +1285,7 @@ details.mileageRangeRow .mileageRangeInputs { gap:0.45em !important; }
 }
 
 /* === Mobile slideshow: position container after Mileage filter; keep View Gallery button visible === */
-@media (max-width:767px){
+@media ((max-width: 767px) or ((hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px))){
     /* Hide Year & Mileage filters on main page (they still exist in More Filters modal) */
     #yearRangeFilter, #mileageRangeFilter { display:none !important; }
     /* Hide only nav arrows */
@@ -1331,7 +1331,7 @@ details.mileageRangeRow .mileageRangeInputs { gap:0.45em !important; }
 }
 
 /* === Mobile Bottom Car Info & Navigation Arrows === */
-@media (max-width:767px){
+@media ((max-width: 767px) or ((hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px))){
     #carInfoContainer {
         position:fixed !important;
         bottom: env(safe-area-inset-bottom, 12px);
@@ -1397,7 +1397,7 @@ details.mileageRangeRow .mileageRangeInputs { gap:0.45em !important; }
     #moreFiltersOverlay.active .mobile-share-btn { z-index:998; opacity:0.25; pointer-events:none; }
     
     /* Show mobile share button only on mobile */
-    @media (max-width:767px) {
+    @media ((max-width: 767px) or ((hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px))) {
         .mobile-share-btn { display:flex !important; }
     }
 }
@@ -1436,14 +1436,14 @@ details.mileageRangeRow .mileageRangeInputs { gap:0.45em !important; }
 }
 
 /* Fix for devices with short viewport height (address bar at top) */
-@media (max-height:700px) and (max-width:767px){
+@media (max-height:700px) and ((max-width: 767px) or ((hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px))){
     #carInfoContainer {
         max-height:min(60dvh, calc(100vh - 200px)) !important;
         padding:6px 8px 10px 8px !important;
     }
 }
 
-@media (max-height:600px) and (max-width:767px){
+@media (max-height:600px) and ((max-width: 767px) or ((hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px))){
     #carInfoContainer {
         max-height:min(55dvh, calc(100vh - 160px)) !important;
         padding:5px 7px 8px 7px !important;
@@ -1607,9 +1607,9 @@ details.mileageRangeRow .mileageRangeInputs { gap:0.45em !important; }
 
 
 /* Hide the FAB on desktop */
-@media (min-width:768px){ .filters-fab { display:none !important; } }
+@media ((min-width: 768px) and ((hover: hover) or (pointer: fine) or (pointer: none) or (min-width: 1025px) or (min-height: 601px))){ .filters-fab { display:none !important; } }
     /* WhatsApp FAB styles (mobile) */
-    @media (max-width:767px){
+    @media ((max-width: 767px) or ((hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px))){
         .whatsapp-fab {
                 position:fixed; right:0.6rem; top:0.45rem; z-index:1120;
                 width:3.0rem; height:3.0rem; border-radius:999px;
@@ -1623,7 +1623,7 @@ details.mileageRangeRow .mileageRangeInputs { gap:0.45em !important; }
         .whatsapp-fab:active { transform:translateY(0); }
         .whatsapp-fab.hidden { opacity:0; pointer-events:none; }
     }
-    @media (min-width:768px){ .whatsapp-fab { display:none !important; } }
+    @media ((min-width: 768px) and ((hover: hover) or (pointer: fine) or (pointer: none) or (min-width: 1025px) or (min-height: 601px))){ .whatsapp-fab { display:none !important; } }
     /* --- Harmonize Year Range & Mileage selects with desktop look inside modal --- */
     #yearRangeFilterPanel .yearRangeInputs,
     #mileageRangeFilterPanel .mileageRangeInputs,
@@ -1868,7 +1868,7 @@ details.mileageRangeRow .mileageRangeInputs { gap:0.45em !important; }
     }
     
 /* === Mobile Fullscreen Gallery Overrides === */
-@media (max-width:767px){
+@media ((max-width: 767px) or ((hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px))){
     footer { display:none !important; }
     .gallery-overlay { display:none; position:fixed; inset:0; width:100vw; height:100vh; background:rgba(0,0,0,0.9); z-index:12000; justify-content:center; align-items:center; }
     .gallery-modal { width:100vw; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 0.4rem 0.9rem; box-sizing:border-box; }
@@ -1930,7 +1930,7 @@ details.mileageRangeRow .mileageRangeInputs { gap:0.45em !important; }
 
 
     /* === Mobile dropdown + distance message fallbacks (ensure fit, no zoom, stable spacing) === */
-    @media (max-width: 767px) {
+    @media ((max-width: 767px) or ((hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px))) {
         /* Postcode input font size - dynamic based on viewport */
         #postcode,
         #postcodeModal {
@@ -1967,7 +1967,7 @@ details.mileageRangeRow .mileageRangeInputs { gap:0.45em !important; }
 .finance-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.52); backdrop-filter:blur(2px); display:none; align-items:flex-end; justify-content:center; z-index:2600; opacity:0; transition:opacity .25s ease; }
 .finance-overlay.fin-open { display:flex; opacity:1; }
 .finance-modal-shell { width:100%; max-width:640px; background:#fff; border-radius:18px 18px 0 0; box-shadow:0 8px 36px -6px rgba(0,0,0,0.35); position:relative; display:flex; flex-direction:column; font-family:system-ui,Poppins,Arial,sans-serif; animation:finSlideUp .35s cubic-bezier(.4,.8,.4,1) both; max-height:88vh; }
-@media (min-width:768px){ .finance-overlay { align-items:center; } .finance-modal-shell { border-radius:24px; animation:finPop .35s ease both; max-height:84vh; } }
+@media ((min-width: 768px) and ((hover: hover) or (pointer: fine) or (pointer: none) or (min-width: 1025px) or (min-height: 601px))){ .finance-overlay { align-items:center; } .finance-modal-shell { border-radius:24px; animation:finPop .35s ease both; max-height:84vh; } }
 @keyframes finSlideUp { from { transform:translateY(25%); opacity:0; } to { transform:translateY(0); opacity:1; } }
 @keyframes finPop { from { transform:scale(.92); opacity:0; } to { transform:scale(1); opacity:1; } }
 .finance-close-btn { position:absolute; top:10px; right:12px; width:36px; height:36px; border:none; background:#f1f1f4; color:#444; border-radius:50%; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; transition:background .2s, transform .2s; }
@@ -1984,14 +1984,14 @@ details.mileageRangeRow .mileageRangeInputs { gap:0.45em !important; }
 @supports(padding:max(0px)){ .finance-modal-shell { padding-bottom:max(env(safe-area-inset-bottom),0px); } }
 
 /* Force fixed 45% viewport height for finance sheet on mobile */
-@media (max-width:767px){
+@media ((max-width: 767px) or ((hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px))){
     .finance-modal-shell { height:75vh; max-height:75vh; }
     .finance-modal-body-wrapper { flex:1 1 auto; }
 }
 
 
 /* ================= More Filters Overlay (Mobile bottom-sheet to match Finance) ================ */
-@media (max-width:767px){
+@media ((max-width: 767px) or ((hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px))){
     /* Overlay mirrors .finance-overlay */
     #moreFiltersOverlay { 
         position: fixed; inset: 0; 
@@ -2089,7 +2089,7 @@ details.mileageRangeRow .mileageRangeInputs { gap:0.45em !important; }
 
 
 /* Ensure both mobile sheets use border-box so padding doesn't change perceived width */
-@media (max-width:767px){
+@media ((max-width: 767px) or ((hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px))){
     .finance-modal-shell,
     #moreFiltersModal.sheet { box-sizing: border-box; }
 }
@@ -2097,7 +2097,7 @@ details.mileageRangeRow .mileageRangeInputs { gap:0.45em !important; }
 
 
 /* ================= Finance Calculator (Mobile, themed + professional) ================= */
-@media (max-width: 767px) {
+@media ((max-width: 767px) or ((hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px))) {
     /* Container + heading (compact) */
     #financeSheet .finance-modal-body-wrapper { padding: 0.9rem 0.9rem 1rem; }
         #financeSheet .finance-modal-heading { 
