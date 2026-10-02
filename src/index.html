@@ -1006,8 +1006,13 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
         
         // Populate mobile card view
         let mobileRenderToken = 0;
+        let mobileCardsObserver = null;
+        let mobileCardsFrame = null;
         window.populateMobileCards = function() {
             const myRenderToken = ++mobileRenderToken;
+            if (mobileCardsObserver) mobileCardsObserver.disconnect();
+            if (mobileCardsFrame !== null) cancelAnimationFrame(mobileCardsFrame);
+            mobileCardsFrame = null;
             const wrapper = cardScrollContainer.querySelector('.mobile-cards-wrapper');
             if (!wrapper) {
                 console.error('mobile-cards-wrapper not found');
@@ -1024,23 +1029,51 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
                 return;
             }
             
-            // Render in batches across animation frames instead of building thousands
-            // of cards in one blocking pass, keeping scroll/tap responsive during load.
             const BATCH_SIZE = 20;
             let batchIndex = 0;
+            let batchQueued = false;
+            const loadMoreButton = document.createElement('button');
+            loadMoreButton.type = 'button';
+            loadMoreButton.textContent = 'Load more';
+            wrapper.appendChild(loadMoreButton);
+
+            function requestNextBatch() {
+                if (batchQueued || batchIndex >= sourceArray.length || myRenderToken !== mobileRenderToken) return;
+                batchQueued = true;
+                loadMoreButton.disabled = true;
+                mobileCardsFrame = requestAnimationFrame(renderNextBatch);
+            }
+
             function renderNextBatch() {
-                // Abandon quietly if a newer call to this function has since started
-                // (otherwise stale/superseded cards get appended into the current list).
                 if (myRenderToken !== mobileRenderToken) return;
+                mobileCardsFrame = null;
                 const fragment = document.createDocumentFragment();
                 const end = Math.min(batchIndex + BATCH_SIZE, sourceArray.length);
                 for (; batchIndex < end; batchIndex++) {
                     fragment.appendChild(createMobileCard(sourceArray[batchIndex], batchIndex));
                 }
-                wrapper.appendChild(fragment);
-                if (batchIndex < sourceArray.length) {
-                    requestAnimationFrame(renderNextBatch);
+                wrapper.insertBefore(fragment, loadMoreButton);
+                batchQueued = false;
+                loadMoreButton.disabled = false;
+                if (batchIndex >= sourceArray.length) {
+                    if (mobileCardsObserver) mobileCardsObserver.disconnect();
+                    loadMoreButton.remove();
+                } else if (mobileCardsObserver) {
+                    mobileCardsObserver.unobserve(loadMoreButton);
+                    mobileCardsObserver.observe(loadMoreButton);
                 }
+            }
+
+            loadMoreButton.addEventListener('click', function(e) {
+                e.stopPropagation();
+                requestNextBatch();
+            });
+            if ('IntersectionObserver' in window) {
+                mobileCardsObserver = new IntersectionObserver(entries => {
+                    if (entries.some(entry => entry.isIntersecting)) requestNextBatch();
+                }, { root: cardScrollContainer, rootMargin: '400px 0px' });
+            } else {
+                mobileCardsObserver = null;
             }
             renderNextBatch();
         }
@@ -1166,7 +1199,7 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
                         </svg>
                     </button>
                     ${distanceHTML}
-                    <a class="mobile-card-whatsapp mobile-card-whatsapp-link" href="#" target="_blank" rel="noopener">
+                    <a class="mobile-card-whatsapp mobile-card-whatsapp-link" href="#" rel="noopener">
                         <img src="whatsapp.png" alt="WhatsApp">
                         <span>Enquire Now</span>
                     </a>
