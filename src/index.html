@@ -1597,10 +1597,11 @@ function selectRandomCar() {
 } 
 
 function parseMileage(mileageStr) {
-    // Handles values like "85,000 miles" or "5000 miles"
-    if (!mileageStr) return null;
-    const num = mileageStr.replace(/,/g, '').replace(/ miles/i, '').trim();
-    return parseInt(num) || null;
+    const normalized = String(mileageStr ?? '').replace(/,/g, '').trim();
+    const match = normalized.match(/^(\d+(?:\.\d+)?)\s*(k)?\s*(?:miles?)?$/i);
+    if (!match) return null;
+    const mileage = Number(match[1]) * (match[2] ? 1000 : 1);
+    return Number.isFinite(mileage) ? mileage : null;
 }
 
 function getSelectedGearboxes() {
@@ -1613,20 +1614,7 @@ function getSelectedGearboxes() {
     return [];
 }
 
-// Add event listeners for Gearbox checkboxes
-const gearboxAuto = document.getElementById('gearboxAutomatic');
-const gearboxManual = document.getElementById('gearboxManual');
-if (gearboxAuto && gearboxManual) {
-    gearboxAuto.addEventListener('change', filterCars);
-    gearboxManual.addEventListener('change', filterCars);
-}
-// Add event listeners for Type checkboxes
 const typeCat = document.getElementById('typeCat');
-const typeHpi = document.getElementById('typeHpi');
-if (typeCat && typeHpi) {
-    typeCat.addEventListener('change', filterCars);
-    typeHpi.addEventListener('change', filterCars);
-}
 
 // Add event listener for Repaired checkbox (desktop header)
 const repairedCheckbox = document.getElementById('repairedCheckbox');
@@ -1676,10 +1664,13 @@ function debouncedFilterCars() {
 }
 
 function filterCars() {
+    clearTimeout(filterCarsDebounceTimer);
+    filterCarsDebounceTimer = null;
     const make = document.getElementById('makeDropdown').value.trim().toLowerCase();
     const model = document.getElementById('model').value.trim().toLowerCase();
     const minPrice = parseInt(document.getElementById('minPrice').value) || 0;
-    const maxPrice = parseInt(document.getElementById('maxPrice').value) || Infinity;
+    const maxPriceValue = document.getElementById('maxPrice').value;
+    const maxPrice = maxPriceValue === '' ? Infinity : Number(maxPriceValue);
     const userPostCode = document.getElementById('postcode').value.trim();
     // Robust distance value retrieval (works for main, modal, or inline controls on mobile)
     const distanceValue = getSelectedDistanceValue();
@@ -1700,7 +1691,7 @@ function filterCars() {
     // Engine size filter
     const selectedEngineSizes = getSelectedEngineSizes();
     filteredCars = parsedData.filter(car => {
-        const carPrice = parseInt(car.price) || 0;
+        const carPrice = (parseInt(car.price) || 0) + 300;
         if (carPrice < minPrice || carPrice > maxPrice) return false;
         // Debug: log make/model comparison
         if (make) {
@@ -1725,13 +1716,13 @@ function filterCars() {
         }
         // Mileage filter (bi-directional logic)
         const carMileage = parseMileage(car.mileage);
-        if (mileageFrom && mileageTo) {
+        if (mileageFrom !== null && mileageTo !== null) {
             const minMileage = Math.min(mileageFrom, mileageTo);
             const maxMileage = Math.max(mileageFrom, mileageTo);
             if (carMileage === null || carMileage < minMileage || carMileage > maxMileage) return false;
         } else {
-            if (mileageFrom && (carMileage === null || carMileage < mileageFrom)) return false;
-            if (mileageTo && (carMileage === null || carMileage > mileageTo)) return false;
+            if (mileageFrom !== null && (carMileage === null || carMileage < mileageFrom)) return false;
+            if (mileageTo !== null && (carMileage === null || carMileage > mileageTo)) return false;
         }
         // Gearbox filter logic
         if (gearboxAuto && !gearboxManual) {
@@ -1780,10 +1771,7 @@ function filterCars() {
         if (distanceValue !== "national") {
             filteredCars = filteredCars.filter(car => {
                 const distance = calculateDistanceFromUserToCar(userPostCode, car.frontOfPostCode);
-                if (distanceValue === "200") {
-                    return distance >= 200;
-                }
-                return distance <= parseInt(distanceValue);
+                return distance !== null && Number.isFinite(distance) && distance <= Number(distanceValue);
             });
         }
     }
@@ -1865,7 +1853,7 @@ function calculateDistanceFromUserToCar(userPostCode, carFrontOfPostCode) {
     }
 
     const userPostcodeData = postcodeCoordinates.get(userOutwardCode.replace(/\s/g, ''));
-    const carPostcodeData = postcodeCoordinates.get(carFrontOfPostCode.replace(/\s/g, '').toUpperCase());
+    const carPostcodeData = postcodeCoordinates.get(String(carFrontOfPostCode ?? '').replace(/\s/g, '').toUpperCase());
 
     if (!userPostcodeData || !carPostcodeData) {
         validPostcode = false;
@@ -2817,41 +2805,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // ...existing code...
     ensureGalleryButton();
 
-    // Add event listeners for static checkboxes in Body Type and Doors filters
-    document.querySelectorAll('#bodyTypeFilter input[type="checkbox"]').forEach(cb => {
-        cb.addEventListener('change', filterCars);
-    });
-    document.querySelectorAll('#doorsFilter input[type="checkbox"]').forEach(cb => {
-        cb.addEventListener('change', filterCars);
-    });
-    // Attach event listeners for Seats filter checkboxes
-    document.querySelectorAll('#seatsFilter input[type="checkbox"]').forEach(cb => {
-        cb.addEventListener('change', filterCars);
-    });
-    // Attach event listeners for Engine Size filter checkboxes
-    document.querySelectorAll('#engineSizeFilter input[type="checkbox"]').forEach(cb => {
-        cb.addEventListener('change', filterCars);
-    });
-    // Gearbox
-    const gearboxAuto = document.getElementById('gearboxAutomatic');
-    const gearboxManual = document.getElementById('gearboxManual');
-    if (gearboxAuto && gearboxManual) {
-        gearboxAuto.addEventListener('change', filterCars);
-        gearboxManual.addEventListener('change', filterCars);
-    }
-    // Type
-    const typeCat = document.getElementById('typeCat');
-    const typeHpi = document.getElementById('typeHpi');
-    if (typeCat && typeHpi) {
-        typeCat.addEventListener('change', filterCars);
-        typeHpi.addEventListener('change', filterCars);
-    }
-    // Fuel Type
-    const fuelTypeCheckboxes = document.querySelectorAll('#fuelTypeFilter input[type="checkbox"]');
-    fuelTypeCheckboxes.forEach(cb => {
-        cb.addEventListener('change', filterCars);
-    });
-
     // Desktop inline finance: live-sync inputs to financeDetails
     const priceMain = document.getElementById('price');
     const depositMain = document.getElementById('deposit');
@@ -3061,9 +3014,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     function syncFromModal() {
         pcMain.value = pcModal.value;
-        pcMain.dispatchEvent(new Event('keyup'));
         ddMain.value = ddModal.value;
         styleDropdownOnSelection(ddMain);
+        pcMain.dispatchEvent(new Event('keyup'));
         debouncedFilterCars();
     }
 
@@ -3160,7 +3113,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         syncFromModal();
     });
-    ddModal.addEventListener('change', syncFromModal);
+    ddModal.addEventListener('change', function() {
+        syncFromModal();
+        filterCars();
+    });
     
     // Update hint when distance dropdown changes
     ddModal.addEventListener('change', () => {
@@ -3187,40 +3143,6 @@ document.addEventListener('DOMContentLoaded', function() {
     populatePriceDropdowns();
     populateDistanceDropdown();
     populateYearDropdowns();
-    const yearFromSelect = document.getElementById('yearFromSelect');
-    const yearToSelect = document.getElementById('yearToSelect');
-    const yearFromSelectModal = document.getElementById('yearFromSelectModal');
-    const yearToSelectModal = document.getElementById('yearToSelectModal');
-    if (yearFromSelect && yearToSelect) {
-        yearFromSelect.addEventListener('change', function() {
-            yearFrom = this.value ? parseInt(this.value) : null;
-            updateYearSelectOutline(this);
-            filterCars();
-            if (yearFromSelectModal) yearFromSelectModal.value = this.value;
-        });
-        yearToSelect.addEventListener('change', function() {
-            yearTo = this.value ? parseInt(this.value) : null;
-            updateYearSelectOutline(this);
-            filterCars();
-            if (yearToSelectModal) yearToSelectModal.value = this.value;
-        });
-        updateYearSelectOutline(yearFromSelect);
-        updateYearSelectOutline(yearToSelect);
-    }
-    if (yearFromSelectModal && yearToSelectModal) {
-        yearFromSelectModal.addEventListener('change', function() {
-            yearFrom = this.value ? parseInt(this.value) : null;
-            if (yearFromSelect) yearFromSelect.value = this.value;
-            updateYearSelectOutline(this);
-            filterCars();
-        });
-        yearToSelectModal.addEventListener('change', function() {
-            yearTo = this.value ? parseInt(this.value) : null;
-            if (yearToSelect) yearToSelect.value = this.value;
-            updateYearSelectOutline(this);
-            filterCars();
-        });
-    }
     // Setup Postcode Gate overlay logic
     (function setupPostcodeGate(){
         const overlay = document.getElementById('postcodeGateOverlay');
@@ -3327,72 +3249,45 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-['minPrice','minPriceModal','maxPrice','maxPriceModal','mileageFromSelect','mileageFromSelectModal','mileageToSelect','mileageToSelectModal'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-        el.addEventListener('change', function(e){
-            const val = e.target.value;
-            // Apply styling
-            if (val) {
-                this.classList.add('dropdown-selected');
-            } else {
-                this.classList.remove('dropdown-selected');
-            }
-            const map = {
-                minPrice:'minPriceModal', minPriceModal:'minPrice',
-                maxPrice:'maxPriceModal', maxPriceModal:'maxPrice',
-                mileageFromSelect:'mileageFromSelectModal', mileageFromSelectModal:'mileageFromSelect',
-                mileageToSelect:'mileageToSelectModal', mileageToSelectModal:'mileageToSelect'
-            };
-            const otherId = map[id];
-            const other = document.getElementById(otherId);
-            if (other) {
-                other.value = val;
-                if (val) {
-                    other.classList.add('dropdown-selected');
-                } else {
-                    other.classList.remove('dropdown-selected');
-                }
-            }
-            filterCars();
-        });
-    }
-});
+const rangeFilterControls = {
+    minPrice: ['minPrice', 'minPriceModal'],
+    minPriceModal: ['minPrice', 'minPriceModal'],
+    maxPrice: ['maxPrice', 'maxPriceModal'],
+    maxPriceModal: ['maxPrice', 'maxPriceModal'],
+    yearFromSelect: ['yearFromSelect', 'yearFromSelectModal'],
+    yearFromSelectModal: ['yearFromSelect', 'yearFromSelectModal'],
+    yearToSelect: ['yearToSelect', 'yearToSelectModal'],
+    yearToSelectModal: ['yearToSelect', 'yearToSelectModal'],
+    mileageFromSelect: ['mileageFromSelect', 'mileageFromSelectModal'],
+    mileageFromSelectModal: ['mileageFromSelect', 'mileageFromSelectModal'],
+    mileageToSelect: ['mileageToSelect', 'mileageToSelectModal'],
+    mileageToSelectModal: ['mileageToSelect', 'mileageToSelectModal']
+};
 
-['mileageFromSelect','mileageFromSelectModal','mileageToSelect','mileageToSelectModal'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-        el.addEventListener('change', function(){
-            const mileageFromValue = document.getElementById('mileageFromSelect')?.value || document.getElementById('mileageFromSelectModal')?.value;
-            const mileageToValue = document.getElementById('mileageToSelect')?.value || document.getElementById('mileageToSelectModal')?.value;
-            mileageFrom = mileageFromValue ? parseInt(mileageFromValue) : null;
-            mileageTo = mileageToValue ? parseInt(mileageToValue) : null;
-            filterCars();
-        });
+document.addEventListener('change', function(e) {
+    if (e.target.matches('#gearboxAutomatic, #gearboxManual, #typeCat, #typeHpi, #fuelTypeFilter input[type="checkbox"], #bodyTypeFilter input[type="checkbox"], #doorsFilter input[type="checkbox"], #seatsFilter input[type="checkbox"], #engineSizeFilter input[type="checkbox"]')) {
+        if (e.target.id === 'typeCat' && repairedCheckbox) repairedCheckbox.checked = e.target.checked;
+        filterCars();
+        return;
     }
-});
-// Distance dropdown change: style + filter (preserve user selection)
-const _ddMain = document.getElementById('distanceDropdown');
-if (_ddMain) {
-    _ddMain.addEventListener('change', function(){
-        styleDropdownOnSelection(this);
-        filterCars();
+    const controls = rangeFilterControls[e.target.id];
+    if (!Array.isArray(controls)) return;
+    const value = e.target.value;
+    controls.forEach(id => {
+        document.querySelectorAll(`[id="${id}"]`).forEach(control => {
+            control.value = value;
+            if (id.startsWith('year')) updateYearSelectOutline(control);
+            else if (id.startsWith('mileage')) updateMileageSelectOutline(control);
+            else control.classList.toggle('dropdown-selected', value !== '');
+        });
     });
-}
-// Modal distance dropdown listener (ensure styling + filtering on mobile sheet)
-const _ddModal = document.getElementById('distanceDropdownModal');
-if (_ddModal) {
-    _ddModal.addEventListener('change', function(){
-        styleDropdownOnSelection(this);
-        // Keep main in sync if present without overwriting user style
-        const mainDD = document.getElementById('distanceDropdown');
-        if (mainDD && mainDD.value !== this.value) {
-            mainDD.value = this.value;
-            styleDropdownOnSelection(mainDD);
-        }
-        filterCars();
-    });
-}
+    const number = value === '' ? null : Number(value);
+    if (controls[0] === 'yearFromSelect') yearFrom = number;
+    if (controls[0] === 'yearToSelect') yearTo = number;
+    if (controls[0] === 'mileageFromSelect') mileageFrom = number;
+    if (controls[0] === 'mileageToSelect') mileageTo = number;
+    filterCars();
+}, true);
 // Inline (appears when postcode invalid on mobile) distance dropdown listener
 const _ddInline = document.getElementById('distanceDropdownInline');
 if (_ddInline) {
@@ -3983,29 +3878,6 @@ document.getElementById('resetFiltersBtn').addEventListener('click', function() 
   // Re-filter cars
   filterCars();
 });  
-document.getElementById('minPrice').addEventListener('change', filterCars);
-document.getElementById('maxPrice').addEventListener('change', filterCars);
-document.getElementById('minPrice').addEventListener('change', function() {
-    filterCars();
-    // Style minPrice dropdown if selected
-    const minPriceDropdown = document.getElementById('minPrice');
-    if (minPriceDropdown.value) {
-        minPriceDropdown.classList.add('dropdown-selected');
-    } else {
-        minPriceDropdown.classList.remove('dropdown-selected');
-    }
-});
-document.getElementById('maxPrice').addEventListener('change', function() {
-    filterCars();
-    // Style maxPrice dropdown if selected
-    const maxPriceDropdown = document.getElementById('maxPrice');
-    if (maxPriceDropdown.value) {
-        maxPriceDropdown.classList.add('dropdown-selected');
-    } else {
-        maxPriceDropdown.classList.remove('dropdown-selected');
-    }
-});
-
 // Style make and model dropdowns on selection
 document.getElementById('makeDropdown').addEventListener('change', function() {
     if (this.value) {
@@ -4076,30 +3948,6 @@ function updateYearSelectOutline(selectEl) {
                          }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-   
-
-   
-   
-    populateYearDropdowns();
-    const yearFromSelect = document.getElementById('yearFromSelect');
-    const yearToSelect = document.getElementById('yearToSelect');
-    if (yearFromSelect && yearToSelect) {
-        yearFromSelect.addEventListener('change', function() {
-            yearFrom = this.value ? parseInt(this.value) : null;
-            updateYearSelectOutline(this);
-            filterCars();
-        });
-        yearToSelect.addEventListener('change', function() {
-            yearTo = this.value ? parseInt(this.value) : null;
-            updateYearSelectOutline(this);
-            filterCars();
-        });
-        updateYearSelectOutline(yearFromSelect);
-        updateYearSelectOutline(yearToSelect);
-    }
-});
-
 // --- Mileage Range Dropdowns Logic ---
 function populateMileageDropdowns() {
     const mileageFromSelect = document.getElementById('mileageFromSelect');
@@ -4166,28 +4014,6 @@ function updateMileageSelectOutline(selectEl) {
 document.addEventListener('DOMContentLoaded', function() {
     // ...existing code...
     populateMileageDropdowns();
-    const mileageFromSelect = document.getElementById('mileageFromSelect');
-    const mileageToSelect = document.getElementById('mileageToSelect');
-    if (mileageFromSelect && mileageToSelect) {
-        mileageFromSelect.addEventListener('change', function() {
-            mileageFrom = this.value ? parseInt(this.value) : null;
-            if (this.value) {
-                this.classList.add('dropdown-selected');
-            } else {
-                this.classList.remove('dropdown-selected');
-            }
-            filterCars();
-        });
-        mileageToSelect.addEventListener('change', function() {
-            mileageTo = this.value ? parseInt(this.value) : null;
-            if (this.value) {
-                this.classList.add('dropdown-selected');
-            } else {
-                this.classList.remove('dropdown-selected');
-            }
-            filterCars();
-        });
-    }
 });
 
 // Utility function to style dropdowns on selection
@@ -4328,19 +4154,6 @@ function getSelectedEngineSizes() {
     });
     return selected;
 }
-
-// Attach event listeners to Body Type checkboxes after DOM is loaded
-function attachBodyTypeFilterListeners() {
-    const checkboxes = document.querySelectorAll('#bodyTypeFilter input[type="checkbox"]');
-    checkboxes.forEach(cb => {
-        cb.addEventListener('change', filterCars);
-    });
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    // ...existing code...
-    attachBodyTypeFilterListeners();
-});
 
 // --- Fullscreen Gallery Modal Logic ---
 let galleryCurrentIndex = 0;
