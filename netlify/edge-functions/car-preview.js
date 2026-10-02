@@ -73,8 +73,8 @@ export default async (request, context) => {
     .join(' · ');
 
   const description = details
-    ? `${details}\n\nAvailable now on flexible finance at FinanceItNOW.`
-    : 'Available now on flexible finance at FinanceItNOW.';
+    ? `${details}\n\nAvailable now on Flexible Finance at FinanceItNOW.`
+    : 'Available now on Flexible Finance at FinanceItNOW.';
 
   // First non-empty image URL
   const image =
