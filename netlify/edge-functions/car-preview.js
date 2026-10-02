@@ -7,6 +7,13 @@
  * - Real visitors are instantly redirected into the main app with ?car=ID
  *   so it opens the card view for that specific car.
  */
+function formatPreviewMileage(value) {
+  const normalized = String(value ?? '').replace(/,/g, '').trim();
+  const mileage = parseFloat(normalized) * (/^\d+(?:\.\d+)?\s*k\b/i.test(normalized) ? 1000 : 1);
+  if (!Number.isFinite(mileage) || mileage < 0) return null;
+  return `${(mileage / 1000).toLocaleString('en-GB', { maximumFractionDigits: 1 })}K miles`;
+}
+
 export default async (request, context) => {
   const url = new URL(request.url);
 
@@ -63,7 +70,7 @@ export default async (request, context) => {
 
   const details = [
     !isUnknown(car.mileage)
-      ? `${parseInt(car.mileage).toLocaleString()} miles`
+      ? formatPreviewMileage(car.mileage)
       : null,
     car.Gearbox || car.gearbox || null,
     car.fuel_type || null,
