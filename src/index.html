@@ -1410,6 +1410,15 @@ function buildThumbnailSrcset(url) {
         .join(', ');
 }
 
+function shuffleCarsInPlace(cars) {
+    for (let remaining = cars.length - 1; remaining > 0; remaining--) {
+        const randomIndex = Math.floor(Math.random() * (remaining + 1));
+        const currentCar = cars[remaining];
+        cars[remaining] = cars[randomIndex];
+        cars[randomIndex] = currentCar;
+    }
+}
+
 async function loadCarsData() {
     const cacheBust = new Date().getTime();
 
@@ -1446,6 +1455,7 @@ async function loadCarsData() {
     });
 
     populateMakeDropdown(Object.keys(parsedMakeModels));
+    shuffleCarsInPlace(parsedData);
     
     // Check if URL has car_id parameter and auto-open that car
     const urlParams = new URLSearchParams(window.location.search);
@@ -1724,9 +1734,6 @@ function filterCars() {
                 return distance <= parseInt(distanceValue);
             });
         }
-    } else {
-        // 3. Only sort by price if no valid postcode (no distance sorting)
-        filteredCars.sort((a, b) => (parseInt(a.price) || 0) - (parseInt(b.price) || 0));
     }
 
     filteredCarIndex = 0;
