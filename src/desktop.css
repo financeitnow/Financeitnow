@@ -773,14 +773,18 @@ body {
     align-items: center;
     justify-content: center;
     gap: 3px;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: min(48vw, 560px);
     height: auto;
     align-self: center;
     margin: 5px 12px;
-    padding: 8px 18px;
+    padding: 7px clamp(10px, 1.4vw, 20px);
     border: 1px solid #d8e3dc;
     border-radius: 10px;
     background: #fff;
     color: #16803a;
+    font-size: clamp(0.78rem, 1.35vw, 1.12rem);
     letter-spacing: 0;
     line-height: 1.15;
     -webkit-text-fill-color: initial;
@@ -789,6 +793,7 @@ body {
     filter: none;
     cursor: default;
     white-space: normal;
+    overflow-wrap: anywhere;
 }
 #logoBanner.dealer-brand-banner:hover {
     transform: none;
@@ -799,16 +804,45 @@ body {
     color: #16803a;
     font-size: 0.9em;
     font-weight: 700;
+    text-wrap: balance;
 }
 #logoBanner.dealer-brand-banner .dealer-brand-address {
     color: #7041a6;
-    font-size: 0.62em;
+    font-size: clamp(0.62rem, 0.85vw, 0.76rem);
     font-weight: 500;
+    overflow-wrap: anywhere;
 }
 #logoBanner.dealer-brand-banner::before,
 #logoBanner.dealer-brand-banner::after,
 #logoBanner.dealer-brand-banner:hover::before {
     display: none;
+}
+
+.desktop-header-bar:has(#logoBanner.dealer-brand-banner) {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    column-gap: clamp(8px, 1.2vw, 18px);
+    row-gap: 2px;
+}
+.desktop-header-bar:has(#logoBanner.dealer-brand-banner) > .header-buttons-left {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+    align-items: center;
+    padding: 4px 0;
+}
+.desktop-header-bar:has(#logoBanner.dealer-brand-banner) > .right-side-column {
+    grid-column: 2;
+    grid-row: 1;
+}
+.desktop-header-bar:has(#logoBanner.dealer-brand-banner) > .header-buttons-right {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    min-width: 0;
+    justify-content: flex-start;
+    overflow: visible;
+    padding: 0 0 6px;
 }
 
 #logoBanner::before {

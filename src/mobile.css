@@ -901,6 +901,7 @@ body {
     border-radius: 9px;
     background: #fff;
     color: #16803a;
+    max-width: calc(100vw - 8rem);
     letter-spacing: 0;
     line-height: 1.15;
     white-space: normal;
@@ -909,12 +910,12 @@ body {
 }
 #logoBanner.dealer-brand-banner .dealer-brand-name {
     color: #16803a;
-    font-size: 0.62em;
+    font-size: clamp(0.78rem, 3.5vw, 1rem);
     font-weight: 700;
 }
 #logoBanner.dealer-brand-banner .dealer-brand-address {
     color: #7041a6;
-    font-size: 0.38em;
+    font-size: clamp(0.58rem, 2.2vw, 0.72rem);
     font-weight: 500;
 }
 
@@ -2115,6 +2116,12 @@ details.mileageRangeRow .mileageRangeInputs { gap:0.45em !important; }
                 .finance-modal-shell { padding-top: 3.6rem; }
 }
 
+            body.dealer-branded #mobileFilterChipsRow {
+                top: calc(0.5vh + var(--dealer-brand-banner-height, 3.9rem) + 6px);
+            }
+            body.dealer-branded .mobile-card-scroll-container {
+                top: calc(0.5vh + var(--dealer-brand-banner-height, 3.9rem) + 50px) !important;
+            }
 
 /* Ensure both mobile sheets use border-box so padding doesn't change perceived width */
 @media ((max-width: 767px) or ((hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px))){

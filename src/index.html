@@ -1436,8 +1436,22 @@ function applyDealerBranding() {
         banner.appendChild(address);
     }
     banner.classList.add('dealer-brand-banner');
+    document.body.classList.add('dealer-branded');
     banner.setAttribute('aria-label', dealerAddress ? `${dealerName}, ${dealerAddress}` : dealerName);
     document.title = `${dealerName} | Used Cars`;
+
+    const updateDealerBrandHeight = () => {
+        document.documentElement.style.setProperty(
+            '--dealer-brand-banner-height',
+            `${Math.ceil(banner.getBoundingClientRect().height)}px`
+        );
+    };
+    updateDealerBrandHeight();
+    if ('ResizeObserver' in window) {
+        new ResizeObserver(updateDealerBrandHeight).observe(banner);
+    } else {
+        window.addEventListener('resize', updateDealerBrandHeight);
+    }
 }
 
 applyDealerBranding();
