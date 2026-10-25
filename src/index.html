@@ -1415,7 +1415,32 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
 
 <script>
 let parsedData = [];  // All cars from cars.json
-const dealerStockId = new URLSearchParams(window.location.search).get('dealer');
+const pageParams = new URLSearchParams(window.location.search);
+const dealerStockId = pageParams.get('dealer');
+
+function applyDealerBranding() {
+    if (pageParams.get('dealerBrand') !== '1') return;
+    const banner = document.getElementById('logoBanner');
+    if (!banner) return;
+
+    const dealerName = pageParams.get('dealerName') || 'Dealer Stock';
+    const dealerAddress = pageParams.get('dealerAddress') || '';
+    const name = document.createElement('span');
+    name.className = 'dealer-brand-name';
+    name.textContent = dealerName;
+    banner.replaceChildren(name);
+    if (dealerAddress) {
+        const address = document.createElement('span');
+        address.className = 'dealer-brand-address';
+        address.textContent = dealerAddress;
+        banner.appendChild(address);
+    }
+    banner.classList.add('dealer-brand-banner');
+    banner.setAttribute('aria-label', dealerAddress ? `${dealerName}, ${dealerAddress}` : dealerName);
+    document.title = `${dealerName} | Used Cars`;
+}
+
+applyDealerBranding();
  
 let currentImageIndex = 0;
 let carImages = [];

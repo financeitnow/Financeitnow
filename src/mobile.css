@@ -890,6 +890,34 @@ body {
     display: block;
 }
 
+#logoBanner.dealer-brand-banner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 5px 12px;
+    border: 1px solid #d8e3dc;
+    border-radius: 9px;
+    background: #fff;
+    color: #16803a;
+    letter-spacing: 0;
+    line-height: 1.15;
+    white-space: normal;
+    text-align: center;
+    pointer-events: none;
+}
+#logoBanner.dealer-brand-banner .dealer-brand-name {
+    color: #16803a;
+    font-size: 0.62em;
+    font-weight: 700;
+}
+#logoBanner.dealer-brand-banner .dealer-brand-address {
+    color: #7041a6;
+    font-size: 0.38em;
+    font-weight: 500;
+}
+
 /* === AI Function Buttons (Mobile Variant) === */
 .aiFunctionBtns {
     position: fixed;

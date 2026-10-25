@@ -768,6 +768,49 @@ body {
     letter-spacing: 0.1em;
 }
 
+#logoBanner.dealer-brand-banner {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: auto;
+    align-self: center;
+    margin: 5px 12px;
+    padding: 8px 18px;
+    border: 1px solid #d8e3dc;
+    border-radius: 10px;
+    background: #fff;
+    color: #16803a;
+    letter-spacing: 0;
+    line-height: 1.15;
+    -webkit-text-fill-color: initial;
+    -webkit-background-clip: initial;
+    background-clip: initial;
+    filter: none;
+    cursor: default;
+    white-space: normal;
+}
+#logoBanner.dealer-brand-banner:hover {
+    transform: none;
+    letter-spacing: 0;
+    filter: none;
+}
+#logoBanner.dealer-brand-banner .dealer-brand-name {
+    color: #16803a;
+    font-size: 0.9em;
+    font-weight: 700;
+}
+#logoBanner.dealer-brand-banner .dealer-brand-address {
+    color: #7041a6;
+    font-size: 0.62em;
+    font-weight: 500;
+}
+#logoBanner.dealer-brand-banner::before,
+#logoBanner.dealer-brand-banner::after,
+#logoBanner.dealer-brand-banner:hover::before {
+    display: none;
+}
+
 #logoBanner::before {
     content: '';
     position: absolute;
