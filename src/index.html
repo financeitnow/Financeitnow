@@ -1416,15 +1416,23 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
 <script>
 let parsedData = [];  // All cars from cars.json
 const pageParams = new URLSearchParams(window.location.search);
-const dealerStockId = pageParams.get('dealer');
+const dealerSiteConfigs = {
+    '1stlinemotors.netlify.app': {
+        dealerId: '10040797',
+        dealerName: '1ST LINE MOTORS LTD',
+        dealerAddress: '617 Great Horton Road, Bradford, England, BD7 4ED',
+    },
+};
+const dealerSiteConfig = dealerSiteConfigs[window.location.hostname.toLowerCase()];
+const dealerStockId = dealerSiteConfig?.dealerId ?? pageParams.get('dealer');
 
 function applyDealerBranding() {
-    if (pageParams.get('dealerBrand') !== '1') return;
+    if (!dealerSiteConfig && pageParams.get('dealerBrand') !== '1') return;
     const banner = document.getElementById('logoBanner');
     if (!banner) return;
 
-    const dealerName = pageParams.get('dealerName') || 'Dealer Stock';
-    const dealerAddress = pageParams.get('dealerAddress') || '';
+    const dealerName = dealerSiteConfig?.dealerName || pageParams.get('dealerName') || 'Dealer Stock';
+    const dealerAddress = dealerSiteConfig?.dealerAddress || pageParams.get('dealerAddress') || '';
     const name = document.createElement('span');
     name.className = 'dealer-brand-name';
     name.textContent = dealerName;
