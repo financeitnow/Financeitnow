@@ -64,9 +64,11 @@ export default async (request, context) => {
   const isUnknown = (v) =>
     !v || ['unknown', 'n/a', ''].includes(String(v).trim().toLowerCase());
 
+  const isFinanceItNowSite = url.hostname.toLowerCase() === 'financeitnow.netlify.app';
+  const siteName = isFinanceItNowSite ? 'FinanceItNOW' : (car.dealer_name || 'the dealer');
   const title =
     [yearStr, car.make, car.model].filter(Boolean).join(' ') +
-    ` — £${price.toLocaleString()} | FinanceItNOW`;
+    ` — £${price.toLocaleString()} | ${siteName}`;
 
   const details = [
     !isUnknown(car.mileage)
@@ -79,9 +81,10 @@ export default async (request, context) => {
     .filter(Boolean)
     .join(' · ');
 
-  const description = details
-    ? `${details}\n\nAvailable now on Flexible Finance at FinanceItNOW.`
-    : 'Available now on Flexible Finance at FinanceItNOW.';
+  const availability = isFinanceItNowSite
+    ? 'Available now on Flexible Finance at FinanceItNOW.'
+    : `Available now with ${siteName}.`;
+  const description = details ? `${details}\n\n${availability}` : availability;
 
   // First non-empty image URL
   const image =
@@ -109,7 +112,7 @@ export default async (request, context) => {
   <meta property="og:url"         content="${e(url.href)}">
   <meta property="og:title"       content="${e(title)}">
   <meta property="og:description" content="${e(description)}">
-  <meta property="og:site_name"   content="FinanceItNOW">
+  <meta property="og:site_name"   content="${e(siteName)}">
   ${image ? `<meta property="og:image" content="${e(image)}">
   <meta property="og:image:width"  content="1200">
   <meta property="og:image:height" content="630">` : ''}
