@@ -1427,6 +1427,8 @@ const firstLineDealerConfig = {
     dealerId: '10040797',
     dealerName: '1ST LINE MOTORS LTD',
     dealerAddress: '617 Great Horton Road, Bradford, England, BD7 4ED',
+    dealerEmail: 'info@1stlinemotors.com',
+    openingHours: '9am - 6pm',
     companyNumber: '17038277',
     companyType: 'Private limited company',
     companiesHouseUrl: 'https://find-and-update.company-information.service.gov.uk/company/17038277',
@@ -1861,6 +1863,8 @@ function applyDealerHeaderLinks(root, car = null, cars = parsedData) {
     const phone = normalizedWhatsAppPhone(dealerId);
     root.querySelectorAll('[data-dealer-call]').forEach(callLink => {
         callLink.href = `tel:+${phone}`;
+        const phoneLabel = callLink.querySelector('[data-dealer-phone-label]');
+        if (phoneLabel) phoneLabel.textContent = dealerPhoneFor(dealerId) || `+${phone}`;
     });
     root.querySelectorAll('[data-dealer-whatsapp]').forEach(whatsAppLink => {
         const message = car
@@ -2043,11 +2047,33 @@ function renderDealerStorefront(cars = null) {
         <section class="dealer-section dealer-contact-section" id="dealer-contact" aria-labelledby="dealerContactTitle">
             <div class="dealer-contact-copy">
                 <p class="dealer-section-kicker">GET IN TOUCH</p>
-                <h2 id="dealerContactTitle">Questions about a vehicle?</h2>
-                <p>Message 1ST LINE MOTORS LTD directly or visit the Bradford showroom.</p>
-                <p>617 Great Horton Road, Bradford, England, BD7 4ED</p>
+                <h2 id="dealerContactTitle">Contact Us</h2>
+                <address class="dealer-contact-details">
+                    <span>617 Great Horton Road<br>Bradford, England<br>BD7 4ED</span>
+                    <a data-dealer-call href="#"><span data-dealer-phone-label></span></a>
+                    <a id="dealerContactEmail" href="#"></a>
+                </address>
+                <a class="dealer-primary-action" id="dealerContactWhatsApp" href="#dealer-contact">Contact on WhatsApp</a>
             </div>
-            <a class="dealer-primary-action" id="dealerContactWhatsApp" href="#dealer-contact">Contact on WhatsApp</a>
+            <div class="dealer-opening-hours" aria-labelledby="dealerOpeningHoursTitle">
+                <h2 id="dealerOpeningHoursTitle">Opening Hours</h2>
+                <dl class="dealer-hours-list">
+                    ${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => `<div><dt>${day}</dt><dd data-dealer-hours></dd></div>`).join('')}
+                </dl>
+            </div>
+            <div class="dealer-directions" aria-labelledby="dealerDirectionsTitle">
+                <h2 id="dealerDirectionsTitle">Get Directions</h2>
+                <form class="dealer-directions-form" action="https://www.google.com/maps/dir/" method="get" target="_blank" rel="noopener noreferrer">
+                    <input type="hidden" name="api" value="1">
+                    <input type="hidden" name="destination" id="dealerDirectionsDestination">
+                    <label for="dealerDirectionsPostcode">Your postcode</label>
+                    <div class="dealer-directions-controls">
+                        <input type="text" name="origin" id="dealerDirectionsPostcode" autocomplete="postal-code" placeholder="Enter postcode" maxlength="10" required>
+                        <button type="submit" class="dealer-primary-action">Get directions</button>
+                    </div>
+                </form>
+            </div>
+            <iframe class="dealer-location-map" id="dealerLocationMap" title="1st Line Motors dealership location" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
         </section>
         <footer class="dealer-site-footer"><strong>1ST LINE MOTORS LTD</strong><span>617 Great Horton Road, Bradford, England, BD7 4ED</span><span>Vehicle details and availability should be confirmed with the dealer.</span></footer>
     `;
@@ -2056,6 +2082,17 @@ function renderDealerStorefront(cars = null) {
     const countLabel = storefront.querySelector('#dealerStockCount');
     const heroImage = storefront.querySelector('#dealerHeroImage');
     const featuredGrid = storefront.querySelector('#dealerFeaturedGrid');
+    const emailLink = storefront.querySelector('#dealerContactEmail');
+    emailLink.href = `mailto:${dealerSiteConfig.dealerEmail}`;
+    emailLink.textContent = dealerSiteConfig.dealerEmail;
+    storefront.querySelectorAll('[data-dealer-hours]').forEach(hours => {
+        hours.textContent = dealerSiteConfig.openingHours;
+    });
+    const mapUrl = new URL('https://maps.google.com/maps');
+    mapUrl.searchParams.set('q', dealerSiteConfig.dealerAddress);
+    mapUrl.searchParams.set('output', 'embed');
+    storefront.querySelector('#dealerLocationMap').src = mapUrl.href;
+    storefront.querySelector('#dealerDirectionsDestination').value = dealerSiteConfig.dealerAddress;
     applyDealerHeaderLinks(storefront);
     storefront.querySelectorAll('a[href="/?view=stock"]').forEach(link => {
         link.href = dealerPageHref('/', { view: 'stock' });

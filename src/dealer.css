@@ -834,12 +834,104 @@ html.dealer-site-mode body > *:not(#dealer-storefront):not(script):not(style) {
 }
 
 .dealer-contact-section {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
     gap: 36px;
     background: #0c8ed4;
     color: #03101a;
+}
+
+.dealer-contact-section h2 {
+    margin: 0 0 20px;
+    font-size: 26px;
+    line-height: 1.2;
+}
+
+.dealer-contact-details {
+    display: grid;
+    gap: 12px;
+    font-size: 15px;
+    font-style: normal;
+    line-height: 1.6;
+}
+
+.dealer-contact-details a {
+    width: fit-content;
+    max-width: 100%;
+    color: #03101a;
+    overflow-wrap: anywhere;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.dealer-hours-list {
+    margin: 0;
+    font-size: 15px;
+}
+
+.dealer-hours-list > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(3, 16, 26, 0.2);
+}
+
+.dealer-hours-list dt,
+.dealer-hours-list dd {
+    margin: 0;
+}
+
+.dealer-hours-list dd {
+    white-space: nowrap;
+}
+
+.dealer-contact-copy > .dealer-primary-action {
+    margin-top: 20px;
+}
+
+.dealer-location-map {
+    grid-column: 1 / -1;
+    display: block;
+    width: 100%;
+    height: 360px;
+    border: 0;
+}
+
+.dealer-directions-form {
+    margin-top: 24px;
+}
+
+.dealer-directions-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.dealer-directions-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.dealer-directions-controls input {
+    flex: 1 1 160px;
+    min-width: 0;
+    min-height: 48px;
+    padding: 12px;
+    border: 1px solid #092b41;
+    border-radius: 4px;
+    background: #fff;
+    color: #07111b;
+    font: inherit;
+    font-size: 16px;
+}
+
+.dealer-directions-controls input:focus-visible {
+    outline: 2px solid #07111b;
+    outline-offset: 2px;
 }
 
 .dealer-contact-section .dealer-section-kicker {
@@ -1493,9 +1585,12 @@ body.dealer-stock-view .dealer-brand-home-link {
     }
 
     .dealer-contact-section {
-        align-items: flex-start;
-        flex-direction: column;
+        grid-template-columns: minmax(0, 1fr);
         gap: 22px;
+    }
+
+    .dealer-location-map {
+        height: 300px;
     }
 
     .dealer-site-footer {
