@@ -26,7 +26,7 @@ export default async (request, context) => {
   if (!response.headers.get('content-type')?.includes('text/html')) return response;
 
   let html = await response.text();
-  html = html.replace(/<title>[\\s\\S]*?<\\/title>/i, `<title>${escapeHtmlAttribute(preview.title)}</title>`);
+  html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtmlAttribute(preview.title)}</title>`);
   html = replaceMetaContent(html, 'name="description"', preview.description);
   html = replaceMetaContent(html, 'property="og:title"', preview.title);
   html = replaceMetaContent(html, 'property="og:description"', preview.description);
