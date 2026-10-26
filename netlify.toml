@@ -3,6 +3,10 @@
   edge_functions = "netlify/edge-functions"
 
 [[edge_functions]]
+  path = "/"
+  function = "dealer-home-preview"
+
+[[edge_functions]]
   path = "/car/*"
   function = "car-preview"
 
