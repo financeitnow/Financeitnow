@@ -1455,6 +1455,14 @@ function applyDealerWhatsAppLinks() {
         if (link.classList.contains('mobile-card-whatsapp-link')) return;
         link.href = whatsappLinkFor(dealerId);
     });
+    for (const id of ['getQuote', 'modalGetQuote', 'getQuoteSheet']) {
+        const enquiryLink = document.getElementById(id);
+        if (!enquiryLink || !dealerSiteConfig) continue;
+        enquiryLink.href = whatsappLinkFor(dealerId);
+        enquiryLink.textContent = 'Enquire on WhatsApp';
+    }
+    const financeTitle = document.querySelector('.finance-title');
+    if (financeTitle && dealerSiteConfig) financeTitle.textContent = 'Finance Calculator';
     const phoneLabel = document.querySelector('.desktop-modal-phone-text');
     if (phoneLabel) phoneLabel.textContent = dealerPhoneFor(dealerId) || '07506 301 308';
 }

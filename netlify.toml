@@ -3,7 +3,7 @@
   edge_functions = "netlify/edge-functions"
 
 [[edge_functions]]
-  path = "/"
+  path = ["/", "/index", "/index/", "/index.html", "/privacy", "/privacy/", "/privacy.html", "/terms", "/terms/", "/terms.html", "/inquiry", "/inquiry/", "/inquiry.html", "/acquisition", "/acquisition/", "/acquisition.html", "/finForm", "/finForm/", "/finForm/index.html", "/finForm/*"]
   function = "dealer-home-preview"
 
 [[edge_functions]]
