@@ -16,13 +16,16 @@ function formatPreviewMileage(value) {
 
 export default async (request, context) => {
   const url = new URL(request.url);
+  const hostname = url.hostname.toLowerCase();
+  const isDealerHost = ['1stlinemotors.netlify.app', '1stlinemotors.com', 'www.1stlinemotors.com'].includes(hostname);
+  const dataOrigin = isDealerHost ? 'https://1stlinemotors.netlify.app' : url.origin;
 
   // Extract car ID from path  e.g. /car/ABC123  → "ABC123"
   const rawId = url.pathname.split('/car/')[1] ?? '';
   const carId = decodeURIComponent(rawId.replace(/\/$/, '').trim());
 
   // Fallback URL: main app root
-  const appBase = new URL('/src/index.html', url.origin).toString();
+  const appBase = new URL('/index.html', url.origin).toString();
 
   if (!carId) {
     return Response.redirect(appBase, 302);
@@ -32,12 +35,12 @@ export default async (request, context) => {
   // fetch the one chunk containing this car, instead of the whole dataset.
   let car = null;
   try {
-    const indexResp = await fetch(new URL('/data/cars/index.json', url.origin).toString());
+    const indexResp = await fetch(new URL('/data/cars/index.json', dataOrigin).toString());
     if (indexResp.ok) {
       const index = await indexResp.json();
       const chunkNumber = index[carId];
       if (chunkNumber) {
-        const chunkResp = await fetch(new URL(`/data/cars/c${chunkNumber}.json`, url.origin).toString());
+        const chunkResp = await fetch(new URL(`/data/cars/c${chunkNumber}.json`, dataOrigin).toString());
         if (chunkResp.ok) {
           const cars = await chunkResp.json();
           car = cars.find(c => String(c.car_id) === carId);
@@ -49,7 +52,9 @@ export default async (request, context) => {
   }
 
   if (!car) {
-    return Response.redirect(appBase, 302);
+    const carAppUrl = new URL(appBase);
+    carAppUrl.searchParams.set('car', carId);
+    return Response.redirect(carAppUrl, 302);
   }
 
   // Build the app deep-link that opens just this car
@@ -59,7 +64,7 @@ export default async (request, context) => {
   ).toString();
 
   // ── Build OG content ──────────────────────────────────────────────────────
-  const isFinanceItNowSite = url.hostname.toLowerCase() === 'financeitnow.netlify.app';
+  const isFinanceItNowSite = hostname === 'financeitnow.netlify.app';
   const price = (parseInt(car.price) || 0) + (isFinanceItNowSite ? 300 : 0);
   const yearStr = car.year_reg || car.year || '';
   const isUnknown = (v) =>
