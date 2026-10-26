@@ -57,6 +57,8 @@ export default async (request, context) => {
 
   let html = await response.text();
   const whatsAppHref = `whatsapp://send?phone=${await dealerWhatsAppPhone(url.origin, preview)}`;
+  const financeLogo = /FinanceIt<a class=\\?"n-icon\\?"><img src=\\?"netlifyicon3\.png\\?" alt=\\?"N\\?" \/><\/a>OW!/g;
+  html = html.replace(financeLogo, escapeHtmlAttribute(preview.dealerName));
   const dealerFooter = `<footer class="dealer-site-footer"><p>${escapeHtmlAttribute(preview.dealerName)}</p><p>${escapeHtmlAttribute(preview.dealerAddress)}</p><p>Contact the dealer to confirm vehicle details and availability.</p></footer>`;
   html = html.replace(/<footer\b[^>]*>[\s\S]*?<\/footer>/i, dealerFooter);
   html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtmlAttribute(preview.title)}</title>`);
