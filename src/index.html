@@ -1506,7 +1506,23 @@ function applyDealerBranding() {
     }
 }
 
+function applyDealerFooter() {
+    if (!dealerSiteConfig) return;
+    const footer = document.querySelector('footer');
+    if (!footer) return;
+
+    const dealerName = document.createElement('p');
+    dealerName.textContent = dealerSiteConfig.dealerName;
+    const dealerAddress = document.createElement('p');
+    dealerAddress.textContent = dealerSiteConfig.dealerAddress;
+    const vehicleNote = document.createElement('p');
+    vehicleNote.textContent = 'Contact the dealer to confirm vehicle details and availability.';
+    footer.classList.add('dealer-site-footer');
+    footer.replaceChildren(dealerName, dealerAddress, vehicleNote);
+}
+
 applyDealerBranding();
+applyDealerFooter();
  
 let currentImageIndex = 0;
 let carImages = [];

@@ -2,6 +2,8 @@ const DEALER_PREVIEWS = {
   '1stlinemotors.netlify.app': {
     title: '1ST LINE MOTORS LTD | Find Your Next Car',
     description: 'Browse our latest used cars.',
+    dealerName: '1ST LINE MOTORS LTD',
+    dealerAddress: '617 Great Horton Road, Bradford, England, BD7 4ED',
   },
 };
 
@@ -26,6 +28,8 @@ export default async (request, context) => {
   if (!response.headers.get('content-type')?.includes('text/html')) return response;
 
   let html = await response.text();
+  const dealerFooter = `<footer class="dealer-site-footer"><p>${escapeHtmlAttribute(preview.dealerName)}</p><p>${escapeHtmlAttribute(preview.dealerAddress)}</p><p>Contact the dealer to confirm vehicle details and availability.</p></footer>`;
+  html = html.replace(/<footer\b[^>]*>[\s\S]*?<\/footer>/i, dealerFooter);
   html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtmlAttribute(preview.title)}</title>`);
   html = replaceMetaContent(html, 'name="description"', preview.description);
   html = replaceMetaContent(html, 'property="og:title"', preview.title);

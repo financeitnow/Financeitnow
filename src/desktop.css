@@ -1555,6 +1555,19 @@ footer {
     font-size: calc(0.4vw + 0.4vh);
 }
 
+footer.dealer-site-footer {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+footer.dealer-site-footer p {
+    margin: 4px 0;
+}
+
+footer.dealer-site-footer p:first-child {
+    font-weight: 600;
+}
+
 /* Search filters container - now using modern collapsible design */
 .carSearchFilters {
     width: 100%;
