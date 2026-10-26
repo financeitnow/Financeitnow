@@ -64,7 +64,7 @@ export default async (request, context) => {
 
   let html = await response.text();
   const whatsAppHref = `whatsapp://send?phone=${await dealerWhatsAppPhone(url.origin, preview)}`;
-  const previewImage = new URL('/1stline-logo.svg', url.origin).toString();
+  const previewImage = new URL('/1stline-mark.png', url.origin).toString();
   const financeLogo = /FinanceIt<a class=\\?"n-icon\\?"><img src=\\?"netlifyicon3\.png\\?" alt=\\?"N\\?" \/><\/a>OW!/g;
   html = html.replace(financeLogo, escapeHtmlAttribute(preview.dealerName));
   const dealerFooter = `<footer class="dealer-site-footer"><p><strong>${escapeHtmlAttribute(preview.dealerName)}</strong></p><p>${escapeHtmlAttribute(preview.companyType)} registered in England and Wales. Company number <a href="${escapeHtmlAttribute(preview.companiesHouseUrl)}">${escapeHtmlAttribute(preview.companyNumber)}</a>.</p><p>Registered office: ${escapeHtmlAttribute(preview.dealerAddress)}</p><p>Vehicle details and availability should be confirmed with the dealer.</p></footer>`;
@@ -76,12 +76,13 @@ export default async (request, context) => {
   html = replaceMetaContent(html, 'property="og:title"', preview.title);
   html = replaceMetaContent(html, 'property="og:description"', preview.description);
   html = replaceMetaContent(html, 'property="og:image"', previewImage);
-  html = replaceMetaContent(html, 'property="og:image:type"', 'image/svg+xml');
-  html = replaceMetaContent(html, 'property="og:image:alt"', `${preview.dealerName} vehicle stock`);
+  html = replaceMetaContent(html, 'property="og:image:type"', 'image/png');
+  html = replaceMetaContent(html, 'property="og:image:alt"', `${preview.dealerName} logo`);
+  html = replaceMetaContent(html, 'property="og:image:width"', '512');
+  html = replaceMetaContent(html, 'property="og:image:height"', '512');
   html = replaceMetaContent(html, 'name="twitter:title"', preview.title);
   html = replaceMetaContent(html, 'name="twitter:description"', preview.description);
   html = replaceMetaContent(html, 'name="twitter:image"', previewImage);
-  html = html.replace(/\s*<meta property="og:image:(?:width|height)" content="[^"]*">/gi, '');
   html = html.replace(/<link rel="icon"[^>]*>/i, '<link rel="icon" type="image/svg+xml" href="/1stline-mark.svg">');
   for (const id of ['getQuote', 'modalGetQuote', 'getQuoteSheet']) {
     html = replaceLinkById(html, id, whatsAppHref, 'Enquire on WhatsApp');

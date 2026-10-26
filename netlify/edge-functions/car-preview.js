@@ -92,9 +92,8 @@ export default async (request, context) => {
   const description = details ? `${details}\n\n${availability}` : availability;
 
   // First non-empty image URL
-  const image = isFinanceItNowSite
-    ? (car.images && car.images.find((i) => i && i.trim())) || ''
-    : new URL('/1stline-logo.svg', url.origin).toString();
+  const imagePath = (Array.isArray(car.images) && car.images.find((image) => typeof image === 'string' && image.trim())) || '';
+  const image = imagePath ? new URL(imagePath, url.origin).toString() : '';
 
   // Escape helper (prevents HTML injection from scraped car data)
   const e = (s) =>

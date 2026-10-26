@@ -1864,7 +1864,7 @@ function applyDealerHeaderLinks(root, car = null, cars = parsedData) {
     });
     root.querySelectorAll('[data-dealer-whatsapp]').forEach(whatsAppLink => {
         const message = car
-            ? `Hi, I'm interested in the ${[car.year_reg || car.year, car.make, car.model].filter(Boolean).join(' ')}. ${dealerPageHref(`/car/${encodeURIComponent(car.car_id)}`)}`
+            ? dealerCarEnquiryMessage(car)
             : '';
         whatsAppLink.href = whatsappLinkFor(dealerId, message);
     });
@@ -2159,6 +2159,17 @@ function dealerCarPath(car) {
         : `/car/${encodeURIComponent(car.car_id)}`;
 }
 
+function dealerCarEnquiryMessage(car) {
+    const title = [car.year_reg || car.year, car.make, car.model].filter(Boolean).join(' ');
+    const price = parseInt(car.price, 10) || 0;
+    const priceText = price > 0 ? ` priced at \u00A3${price.toLocaleString('en-GB')}` : '';
+    const mileage = knownDealerValue(car.mileage) || 'ask us';
+    const gearbox = knownDealerValue(car.Gearbox || car.gearbox) || 'ask us';
+    const link = new URL(dealerCarPath(car), window.location.origin).href;
+    return `Hi! I'm interested in the ${title}${priceText}.\n` +
+        `Mileage: ${mileage} | Gearbox: ${gearbox}\n\nView this car: ${link}`;
+}
+
 function createDealerCarCard(car) {
     const imageUrl = Array.isArray(car.images) ? car.images.find(image => typeof image === 'string' && image.trim()) : '';
     if (!imageUrl) return null;
@@ -2357,7 +2368,7 @@ function renderDealerVehiclePage(car = null) {
     whatsapp.className = 'dealer-secondary-action';
     whatsapp.dataset.dealerWhatsApp = '';
     whatsapp.textContent = 'Enquire on WhatsApp';
-    const enquiryMessage = `Hi, I'm interested in the ${displayTitle}. ${dealerPageHref(`/car/${encodeURIComponent(car.car_id)}`)}`;
+    const enquiryMessage = dealerCarEnquiryMessage(car);
     whatsapp.href = whatsappLinkFor(dealerIdForCar(car), enquiryMessage);
     actions.append(call, whatsapp);
     info.append(kicker, title, price, attributes, message, actions);
