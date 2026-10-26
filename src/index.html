@@ -1859,8 +1859,9 @@ function applyDealerHeaderLinks(root, car = null, cars = parsedData) {
     if (contactSectionLink) contactSectionLink.href = `${dealerPageHref('/')}#dealer-contact`;
     setupDealerSearchPanel(root, cars);
     const phone = normalizedWhatsAppPhone(dealerId);
-    const callLink = root.querySelector('[data-dealer-call]');
-    if (callLink) callLink.href = `tel:+${phone}`;
+    root.querySelectorAll('[data-dealer-call]').forEach(callLink => {
+        callLink.href = `tel:+${phone}`;
+    });
     root.querySelectorAll('[data-dealer-whatsapp]').forEach(whatsAppLink => {
         const message = car
             ? `Hi, I'm interested in the ${[car.year_reg || car.year, car.make, car.model].filter(Boolean).join(' ')}. ${dealerPageHref(`/car/${encodeURIComponent(car.car_id)}`)}`
