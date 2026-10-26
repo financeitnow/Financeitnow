@@ -1,3 +1,5 @@
+import carPreview from './car-preview.js';
+
 const firstLinePreview = {
   dealerId: '10040797',
   title: '1ST LINE MOTORS LTD | Find Your Next Car',
@@ -86,6 +88,23 @@ export default async (request, context) => {
   html = html.replace(/<link rel="icon"[^>]*>/i, '<link rel="icon" type="image/svg+xml" href="/1stline-mark.svg">');
   for (const id of ['getQuote', 'modalGetQuote', 'getQuoteSheet']) {
     html = replaceLinkById(html, id, whatsAppHref, 'Enquire on WhatsApp');
+  }
+
+  const carId = url.searchParams.get('car')?.trim();
+  if (carId) {
+    const carUrl = new URL(`/car/${encodeURIComponent(carId)}`, url.origin);
+    const carResponse = await carPreview(new Request(carUrl), context);
+    if (carResponse.status === 200) {
+      const carHtml = await carResponse.text();
+      const metadataPattern = /<meta\s+(?:property="og:[^"]+"|name="(?:twitter:[^"]+|description)")\s+content="[^"]*"\s*>/g;
+      const metadata = carHtml.match(metadataPattern) || [];
+      const carTitle = carHtml.match(/<title>[\s\S]*?<\/title>/i)?.[0];
+      if (metadata.length && carTitle) {
+        html = html.replace(metadataPattern, '');
+        html = html.replace(/<title>[\s\S]*?<\/title>/i, () => carTitle);
+        html = html.replace('</head>', () => `${metadata.join('\n')}\n</head>`);
+      }
+    }
   }
 
   const headers = new Headers(response.headers);
