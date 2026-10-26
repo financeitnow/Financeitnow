@@ -1349,12 +1349,11 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
                 const uniqueLink = isPublic
                     ? window.location.origin + '/car/' + encodeURIComponent(car.car_id)
                     : window.location.href.split('?')[0] + '?car=' + encodeURIComponent(car.car_id);
-                const waMessage   = encodeURIComponent(
+                const waMessage   =
                     `Hi! I'm interested in the ${chatCarName} priced at \u00A3${displayPrice.toLocaleString()}.\n` +
                     `Mileage: ${chatMileage || 'ask us'} | Gearbox: ${chatGearbox || 'ask us'}\n\n` +
-                    `View this car: ${uniqueLink}`
-                );
-                waLink.href = `whatsapp://send?phone=447506301308&text=${waMessage}`;
+                    `View this car: ${uniqueLink}`;
+                waLink.href = whatsappLinkFor(dealerIdForCar(car), waMessage);
             }
 
             return card;
@@ -1425,6 +1424,51 @@ const dealerSiteConfigs = {
 };
 const dealerSiteConfig = dealerSiteConfigs[window.location.hostname.toLowerCase()];
 const dealerStockId = dealerSiteConfig?.dealerId ?? pageParams.get('dealer');
+const DEFAULT_WHATSAPP_PHONE = '447506301308';
+let dealerPhoneIndex = {};
+
+function dealerIdForCar(car = null) {
+    return String(car?.retailer_id || car?.dealer_id || dealerSiteConfig?.dealerId || dealerStockId || '').trim();
+}
+
+function dealerPhoneFor(dealerId) {
+    return String(dealerPhoneIndex[String(dealerId || '').trim()] || '').trim();
+}
+
+function normalizedWhatsAppPhone(dealerId) {
+    const digits = dealerPhoneFor(dealerId).replace(/\D/g, '');
+    if (!digits) return DEFAULT_WHATSAPP_PHONE;
+    if (digits.startsWith('00')) return digits.slice(2);
+    if (digits.startsWith('0')) return `44${digits.slice(1)}`;
+    return digits;
+}
+
+function whatsappLinkFor(dealerId, message = '') {
+    const params = new URLSearchParams({ phone: normalizedWhatsAppPhone(dealerId) });
+    if (message) params.set('text', message);
+    return `whatsapp://send?${params.toString()}`;
+}
+
+function applyDealerWhatsAppLinks() {
+    const dealerId = dealerSiteConfig?.dealerId ?? dealerStockId;
+    document.querySelectorAll('a[href^="whatsapp://send"]').forEach(link => {
+        if (link.classList.contains('mobile-card-whatsapp-link')) return;
+        link.href = whatsappLinkFor(dealerId);
+    });
+    const phoneLabel = document.querySelector('.desktop-modal-phone-text');
+    if (phoneLabel) phoneLabel.textContent = dealerPhoneFor(dealerId) || '07506 301 308';
+}
+
+async function loadDealerPhoneIndex(cacheBust) {
+    try {
+        const response = await fetch(`data/dealers/phone-index.json?v=${cacheBust}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        dealerPhoneIndex = await response.json();
+    } catch (error) {
+        console.warn('Failed to load dealer phone index; using the default WhatsApp number:', error);
+    }
+    applyDealerWhatsAppLinks();
+}
 
 function applyDealerBranding() {
     if (!dealerSiteConfig && pageParams.get('dealerBrand') !== '1') return;
@@ -1524,6 +1568,7 @@ function shuffleCarsInPlace(cars) {
 
 async function loadCarsData() {
     const cacheBust = new Date().getTime();
+    await loadDealerPhoneIndex(cacheBust);
 
     async function fetchAllChunks() {
         const manifest = await (await fetch('data/cars/manifest.json?v=' + cacheBust)).json();
@@ -6444,6 +6489,11 @@ function showCarDetail(carIndex) {
         if (!modal || isMobileLayout()) return;
         
         currentCar = car;
+        const dealerId = dealerIdForCar(car);
+        const contactLink = modal.querySelector('.desktop-modal-contact-link');
+        if (contactLink) contactLink.href = whatsappLinkFor(dealerId);
+        const phoneLabel = modal.querySelector('.desktop-modal-phone-text');
+        if (phoneLabel) phoneLabel.textContent = dealerPhoneFor(dealerId) || '07506 301 308';
         currentImages = (car.images || []).filter(img => img && img.trim() !== '');
         
         // If no images, use placeholder
