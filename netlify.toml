@@ -3,7 +3,59 @@
   edge_functions = "netlify/edge-functions"
 
 [[edge_functions]]
-  path = ["/", "/index", "/index/", "/index.html", "/privacy", "/privacy/", "/privacy.html", "/terms", "/terms/", "/terms.html", "/inquiry", "/inquiry/", "/inquiry.html", "/acquisition", "/acquisition/", "/acquisition.html", "/finForm", "/finForm/", "/finForm/index.html", "/finForm/*"]
+  path = "/"
+  function = "dealer-home-preview"
+
+[[edge_functions]]
+  path = "/index"
+  function = "dealer-home-preview"
+
+[[edge_functions]]
+  path = "/index.html"
+  function = "dealer-home-preview"
+
+[[edge_functions]]
+  path = "/privacy"
+  function = "dealer-home-preview"
+
+[[edge_functions]]
+  path = "/privacy.html"
+  function = "dealer-home-preview"
+
+[[edge_functions]]
+  path = "/terms"
+  function = "dealer-home-preview"
+
+[[edge_functions]]
+  path = "/terms.html"
+  function = "dealer-home-preview"
+
+[[edge_functions]]
+  path = "/inquiry"
+  function = "dealer-home-preview"
+
+[[edge_functions]]
+  path = "/inquiry.html"
+  function = "dealer-home-preview"
+
+[[edge_functions]]
+  path = "/acquisition"
+  function = "dealer-home-preview"
+
+[[edge_functions]]
+  path = "/acquisition.html"
+  function = "dealer-home-preview"
+
+[[edge_functions]]
+  path = "/finForm"
+  function = "dealer-home-preview"
+
+[[edge_functions]]
+  path = "/finForm/index.html"
+  function = "dealer-home-preview"
+
+[[edge_functions]]
+  path = "/finForm/*"
   function = "dealer-home-preview"
 
 [[edge_functions]]
