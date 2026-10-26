@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="mark-title">
+  <title id="mark-title">1st Line Motors</title>
+  <rect width="64" height="64" rx="12" fill="#070b12" />
+  <path d="M10 21h14l8 8h17M15 21l5-7h16l7 7M13 35h39" fill="none" stroke="#11a8ff" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" />
+  <text x="32" y="54" fill="#f7f9fc" font-family="Arial, sans-serif" font-size="24" font-weight="800" text-anchor="middle">1</text>
+</svg>

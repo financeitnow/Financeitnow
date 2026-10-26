@@ -26,16 +26,8 @@
             return window.matchMedia('(max-width: 767px), (hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px)').matches;
         }
     </script>
-        <style>
-            /* Prevent iOS Safari auto-zoom on inputs by ensuring 16px font-size on small screens */
-            @media ((max-width: 767px) or ((hover: none) and (pointer: coarse) and (max-width: 1024px) and (max-height: 600px))) {
-                input, select, textarea { font-size: 16px !important; }
-                html { -webkit-text-size-adjust: 100%; }
-            }
-        </style>
-    
-
-    
+    <style>
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/geolib@3.3.4/lib/index.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
 
@@ -1420,10 +1412,20 @@ const dealerSiteConfigs = {
         dealerId: '10040797',
         dealerName: '1ST LINE MOTORS LTD',
         dealerAddress: '617 Great Horton Road, Bradford, England, BD7 4ED',
+        companyNumber: '17038277',
+        companyType: 'Private limited company',
+        companiesHouseUrl: 'https://find-and-update.company-information.service.gov.uk/company/17038277',
     },
 };
-const dealerSiteConfig = dealerSiteConfigs[window.location.hostname.toLowerCase()];
+const localDealerPreview = ['localhost', '127.0.0.1'].includes(window.location.hostname.toLowerCase())
+    && pageParams.get('dealerPreview') === '1';
+const dealerSiteConfig = dealerSiteConfigs[window.location.hostname.toLowerCase()]
+    || (localDealerPreview ? dealerSiteConfigs['1stlinemotors.netlify.app'] : null);
 const dealerStockId = dealerSiteConfig?.dealerId ?? pageParams.get('dealer');
+const dealerLandingMode = Boolean(dealerSiteConfig) && pageParams.get('view') !== 'stock' && !pageParams.has('car');
+const dealerStockMode = Boolean(dealerSiteConfig) && pageParams.get('view') === 'stock';
+const dealerVehicleMode = Boolean(dealerSiteConfig) && pageParams.has('car');
+const dealerStorefrontMode = Boolean(dealerSiteConfig);
 const DEFAULT_WHATSAPP_PHONE = '447506301308';
 let dealerPhoneIndex = {};
 
@@ -1447,6 +1449,405 @@ function whatsappLinkFor(dealerId, message = '') {
     const params = new URLSearchParams({ phone: normalizedWhatsAppPhone(dealerId) });
     if (message) params.set('text', message);
     return `whatsapp://send?${params.toString()}`;
+}
+
+function dealerPageHref(path, params = {}) {
+    const url = new URL(path, window.location.origin);
+    Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
+    if (localDealerPreview) url.searchParams.set('dealerPreview', '1');
+    return `${url.pathname}${url.search}${url.hash}`;
+}
+
+function dealerHeaderMarkup() {
+    return `
+        <header class="dealer-store-header">
+            <details class="dealer-menu">
+                <summary class="dealer-menu-button" aria-label="Open site menu"><span>Menu</span></summary>
+                <nav class="dealer-menu-panel" aria-label="Main navigation">
+                    <a href="/" data-dealer-home>Home</a>
+                    <a href="/?view=stock" data-dealer-stock>All vehicles</a>
+                    <a href="/#dealer-about" data-dealer-about>About 1st Line</a>
+                    <a href="/#dealer-contact" data-dealer-contact-section>Contact</a>
+                </nav>
+            </details>
+            <a class="dealer-store-logo" href="/" data-dealer-home aria-label="1st Line Motors home">
+                <img src="1stline-logo.svg" alt="1st Line Motors Ltd">
+            </a>
+            <div class="dealer-header-actions">
+                <button class="dealer-search-button" data-dealer-open-search type="button" aria-label="Search vehicle stock">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" fill="none" stroke="currentColor" stroke-width="2"/><path d="m16 16 5 5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"/></svg>
+                    <span>Search</span>
+                </button>
+                <a class="dealer-call-button" data-dealer-call href="#" aria-label="Call 1st Line Motors">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 2.8 9.1 2c.8-.2 1.6.2 1.9 1l1.2 3.1c.3.7.1 1.5-.5 2l-1.6 1.3a15.3 15.3 0 0 0 6.5 6.5l1.3-1.6c.5-.6 1.3-.8 2-.5l3.1 1.2c.8.3 1.2 1.1 1 1.9l-.8 2.5c-.2.7-.9 1.2-1.7 1.2C10.2 20.6 3.4 13.8 3.4 5.4c0-.8.5-1.5 1.2-1.7Z" fill="currentColor"/></svg>
+                    <span>Call</span>
+                </a>
+                <a class="dealer-whatsapp-button" data-dealer-whatsapp href="#" aria-label="Message 1st Line Motors on WhatsApp">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a9.7 9.7 0 0 0-8.3 14.7L2.4 22l5.5-1.4A9.7 9.7 0 1 0 12 2Zm0 17.6c-1.5 0-2.9-.4-4.2-1.2l-.3-.2-3.2.8.9-3.1-.2-.3A7.8 7.8 0 1 1 12 19.6Zm4.3-5.8c-.2-.1-1.3-.7-1.5-.8-.2-.1-.4-.1-.5.1-.2.2-.6.8-.8.9-.1.2-.3.2-.5.1-.2-.1-.9-.3-1.8-1.1-.7-.6-1.1-1.3-1.3-1.5-.1-.2 0-.4.1-.5l.4-.5c.1-.1.2-.3.2-.4.1-.2 0-.3 0-.4l-.7-1.6c-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9 0 1.1.8 2.1.9 2.2.1.2 1.6 2.5 3.9 3.4.5.2.9.3 1.2.4.5.2 1 .1 1.4.1.4-.1 1.3-.5 1.5-1 .2-.5.2-1 .1-1.1-.1-.1-.2-.2-.4-.3Z" fill="currentColor"/></svg>
+                    <span>WhatsApp</span>
+                </a>
+            </div>
+            <dialog class="dealer-search-dialog" data-dealer-search-dialog aria-labelledby="dealerSearchTitle">
+                <div class="dealer-search-dialog-header">
+                    <div><p class="dealer-section-kicker">CURRENT 1ST LINE STOCK</p><h2 id="dealerSearchTitle">Find your next car</h2></div>
+                    <button class="dealer-search-close" data-close-dealer-search type="button" aria-label="Close search">×</button>
+                </div>
+                <form class="dealer-search-form" data-dealer-search-form>
+                    <div class="dealer-search-main-grid">
+                        <label class="dealer-filter-field dealer-filter-keyword">Keyword<input data-filter-query type="search" placeholder="Make, model or keyword" autocomplete="off"></label>
+                        <label class="dealer-filter-field">Make<select data-filter-make><option value="">Any make</option></select></label>
+                        <label class="dealer-filter-field">Model<select data-filter-model><option value="">Any model</option></select></label>
+                        <label class="dealer-filter-field">Minimum price<select data-filter-min-price><option value="">No minimum</option></select></label>
+                        <label class="dealer-filter-field">Maximum price<select data-filter-max-price><option value="">No maximum</option></select></label>
+                        <label class="dealer-filter-field">Year from<select data-filter-year-from><option value="">Any year</option></select></label>
+                        <label class="dealer-filter-field">Year to<select data-filter-year-to><option value="">Any year</option></select></label>
+                        <label class="dealer-filter-field">Mileage from<select data-filter-mileage-from><option value="">Any mileage</option></select></label>
+                        <label class="dealer-filter-field">Mileage to<select data-filter-mileage-to><option value="">Any mileage</option></select></label>
+                    </div>
+                    <details class="dealer-more-filters">
+                        <summary>More filters</summary>
+                        <div class="dealer-search-extra-grid">
+                            <fieldset data-filter-group="gearbox"><legend>Gearbox</legend><div data-filter-options="gearbox"></div></fieldset>
+                            <fieldset data-filter-group="condition"><legend>Condition</legend><div data-filter-options="condition"></div></fieldset>
+                            <fieldset data-filter-group="fuel"><legend>Fuel type</legend><div data-filter-options="fuel"></div></fieldset>
+                            <fieldset data-filter-group="body"><legend>Body style</legend><div data-filter-options="body"></div></fieldset>
+                            <fieldset data-filter-group="doors"><legend>Doors</legend><div data-filter-options="doors"></div></fieldset>
+                            <fieldset data-filter-group="seats"><legend>Seats</legend><div data-filter-options="seats"></div></fieldset>
+                            <fieldset data-filter-group="engine"><legend>Engine size</legend><div data-filter-options="engine"></div></fieldset>
+                        </div>
+                        <div class="dealer-distance-search">
+                            <label class="dealer-filter-field">Your postcode<input data-filter-postcode type="text" inputmode="text" autocomplete="postal-code" placeholder="e.g. BD7 4ED"></label>
+                            <label class="dealer-filter-field">Distance<select data-filter-distance disabled><option value="national">National</option></select></label>
+                            <p data-postcode-status aria-live="polite">Enter a postcode to enable distance filtering.</p>
+                        </div>
+                    </details>
+                    <p class="dealer-search-result-preview" data-filter-result-count aria-live="polite">Showing all vehicles</p>
+                    <div class="dealer-search-actions">
+                        <button class="dealer-filter-reset" data-clear-dealer-filters type="reset">Clear all</button>
+                        <button class="dealer-primary-action" type="submit">View vehicles</button>
+                    </div>
+                </form>
+            </dialog>
+        </header>`;
+}
+
+function dealerFilterStateFromParams(params = pageParams) {
+    return {
+        query: params.get('q') || '',
+        make: params.get('make') || '',
+        model: params.get('model') || '',
+        minPrice: Number.parseInt(params.get('minPrice'), 10) || 0,
+        maxPrice: Number.parseInt(params.get('maxPrice'), 10) || 0,
+        yearFrom: Number.parseInt(params.get('yearFrom'), 10) || 0,
+        yearTo: Number.parseInt(params.get('yearTo'), 10) || 0,
+        mileageFrom: Number.parseInt(params.get('mileageFrom'), 10) || 0,
+        mileageTo: Number.parseInt(params.get('mileageTo'), 10) || 0,
+        gearbox: params.getAll('gearbox'),
+        condition: params.getAll('condition'),
+        fuel: params.getAll('fuel'),
+        body: params.getAll('body'),
+        doors: params.getAll('doors'),
+        seats: params.getAll('seats'),
+        engine: params.getAll('engine'),
+        postcode: params.get('postcode') || '',
+        distance: params.get('distance') || 'national',
+    };
+}
+
+function dealerFilterStateFromForm(form) {
+    const value = selector => form.querySelector(selector)?.value || '';
+    const checked = group => [...form.querySelectorAll(`[data-filter-group="${group}"] input:checked`)].map(input => input.value);
+    return {
+        query: value('[data-filter-query]').trim(),
+        make: value('[data-filter-make]'),
+        model: value('[data-filter-model]'),
+        minPrice: Number.parseInt(value('[data-filter-min-price]'), 10) || 0,
+        maxPrice: Number.parseInt(value('[data-filter-max-price]'), 10) || 0,
+        yearFrom: Number.parseInt(value('[data-filter-year-from]'), 10) || 0,
+        yearTo: Number.parseInt(value('[data-filter-year-to]'), 10) || 0,
+        mileageFrom: Number.parseInt(value('[data-filter-mileage-from]'), 10) || 0,
+        mileageTo: Number.parseInt(value('[data-filter-mileage-to]'), 10) || 0,
+        gearbox: checked('gearbox'),
+        condition: checked('condition'),
+        fuel: checked('fuel'),
+        body: checked('body'),
+        doors: checked('doors'),
+        seats: checked('seats'),
+        engine: checked('engine'),
+        postcode: value('[data-filter-postcode]').trim(),
+        distance: value('[data-filter-distance]') || 'national',
+    };
+}
+
+function filterDealerCars(cars, filters) {
+    const minimumYear = filters.yearFrom && filters.yearTo ? Math.min(filters.yearFrom, filters.yearTo) : filters.yearFrom;
+    const maximumYear = filters.yearFrom && filters.yearTo ? Math.max(filters.yearFrom, filters.yearTo) : filters.yearTo;
+    const minimumMileage = filters.mileageFrom && filters.mileageTo ? Math.min(filters.mileageFrom, filters.mileageTo) : filters.mileageFrom;
+    const maximumMileage = filters.mileageFrom && filters.mileageTo ? Math.max(filters.mileageFrom, filters.mileageTo) : filters.mileageTo;
+    let results = cars.filter(car => {
+        const price = Number.parseInt(car.price, 10) || 0;
+        const year = Number.parseInt(car.year_reg || car.year, 10) || 0;
+        const mileage = parseMileage(car.mileage);
+        const make = String(car.make || '').trim();
+        const model = String(car.model || '').trim();
+        const searchable = [make, model, car.year_reg, car.year, car.attention_grabber].filter(Boolean).join(' ').toLowerCase();
+        const gearbox = String(car.gearbox || car.Gearbox || '').trim();
+        const fuel = String(car.fuel_type || '').trim();
+        const body = String(car.body_type || '').trim();
+        const category = String(car.write_off_category || '').trim();
+        if (filters.query && !searchable.includes(filters.query.toLowerCase())) return false;
+        if (filters.make && make !== filters.make) return false;
+        if (filters.model && model !== filters.model) return false;
+        if (filters.minPrice && price < filters.minPrice) return false;
+        if (filters.maxPrice && (!price || price > filters.maxPrice)) return false;
+        if (minimumYear && (!year || year < minimumYear)) return false;
+        if (maximumYear && (!year || year > maximumYear)) return false;
+        if (minimumMileage && (mileage === null || mileage < minimumMileage)) return false;
+        if (maximumMileage && (mileage === null || mileage > maximumMileage)) return false;
+        if (filters.gearbox.length && !filters.gearbox.includes(gearbox)) return false;
+        if (filters.fuel.length && !filters.fuel.includes(fuel)) return false;
+        if (filters.body.length && !filters.body.includes(body)) return false;
+        if (filters.doors.length && !filters.doors.includes(String(car.doors))) return false;
+        if (filters.seats.length && !filters.seats.includes(String(car.seats))) return false;
+        if (filters.engine.length && !filters.engine.includes(String(car.engine))) return false;
+        if (filters.condition.length === 1) {
+            if (filters.condition[0] === 'cat' && !category) return false;
+            if (filters.condition[0] === 'hpi' && category) return false;
+        }
+        return true;
+    });
+
+    if (filters.postcode && isValidPostcodeForDistance(filters.postcode)) {
+        results = sortCarsByDistance(filters.postcode, results);
+        if (filters.distance !== 'national') {
+            const radius = Number.parseInt(filters.distance, 10);
+            results = results.filter(car => {
+                const distance = calculateDistanceFromUserToCar(filters.postcode, car.frontOfPostCode);
+                return distance !== null && Number.isFinite(distance) && distance <= radius;
+            });
+        }
+    }
+    return results;
+}
+
+function populateDealerSelect(select, values) {
+    const placeholder = select.options[0]?.cloneNode(true);
+    select.replaceChildren();
+    if (placeholder) select.appendChild(placeholder);
+    for (const value of values) {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        select.appendChild(option);
+    }
+}
+
+function populateDealerCheckboxGroup(form, group, values, stateValues) {
+    const container = form.querySelector(`[data-filter-options="${group}"]`);
+    if (!container) return;
+    container.replaceChildren();
+    for (const option of values) {
+        const label = document.createElement('label');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = option.value;
+        checkbox.checked = stateValues.includes(option.value);
+        checkbox.dataset.filterGroup = group;
+        checkbox.disabled = Boolean(option.disabled);
+        const text = document.createElement('span');
+        text.textContent = option.label;
+        label.append(checkbox, text);
+        container.appendChild(label);
+    }
+}
+
+function dealerFilterParams(filters) {
+    const params = new URLSearchParams({ view: 'stock' });
+    const scalarFields = ['query', 'make', 'model', 'minPrice', 'maxPrice', 'yearFrom', 'yearTo', 'mileageFrom', 'mileageTo', 'postcode', 'distance'];
+    const paramNames = { query: 'q' };
+    for (const field of scalarFields) {
+        const value = filters[field];
+        if (value !== '' && value !== 0 && value !== 'national') params.set(paramNames[field] || field, String(value));
+    }
+    for (const field of ['gearbox', 'condition', 'fuel', 'body', 'doors', 'seats', 'engine']) {
+        for (const value of filters[field]) params.append(field, value);
+    }
+    return params;
+}
+
+function setupDealerSearchPanel(root, cars) {
+    const dialog = root.querySelector('[data-dealer-search-dialog]');
+    const form = dialog?.querySelector('[data-dealer-search-form]');
+    if (!dialog || !form) return;
+    const state = dealerFilterStateFromParams();
+    const selects = {
+        make: form.querySelector('[data-filter-make]'),
+        model: form.querySelector('[data-filter-model]'),
+        minPrice: form.querySelector('[data-filter-min-price]'),
+        maxPrice: form.querySelector('[data-filter-max-price]'),
+        yearFrom: form.querySelector('[data-filter-year-from]'),
+        yearTo: form.querySelector('[data-filter-year-to]'),
+        mileageFrom: form.querySelector('[data-filter-mileage-from]'),
+        mileageTo: form.querySelector('[data-filter-mileage-to]'),
+        distance: form.querySelector('[data-filter-distance]'),
+    };
+    const makeValues = [...new Set(cars.map(car => knownDealerValue(car.make)).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+    populateDealerSelect(selects.make, makeValues);
+    const availableModels = make => [...new Set(cars.filter(car => !make || car.make === make).map(car => knownDealerValue(car.model)).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+    const setModels = selectedMake => {
+        const current = selects.model.value;
+        populateDealerSelect(selects.model, availableModels(selectedMake));
+        if ([...selects.model.options].some(option => option.value === current)) selects.model.value = current;
+    };
+    const years = [...new Set(cars.map(car => Number.parseInt(car.year_reg || car.year, 10)).filter(Number.isFinite))].sort((a, b) => b - a).map(String);
+    const priceSteps = [
+        { start: 0, end: 10000, step: 500 },
+        { start: 10000, end: 20000, step: 1000 },
+        { start: 20000, end: 30000, step: 2500 },
+        { start: 30000, end: 75000, step: 5000 },
+        { start: 75000, end: 100000, step: 25000 },
+        { start: 100000, end: 250000, step: 150000 },
+        { start: 250000, end: 500000, step: 250000 },
+        { start: 500000, end: 1000000, step: 500000 },
+        { start: 1000000, end: 2000000, step: 1000000 },
+    ];
+    const priceValues = new Set();
+    for (const range of priceSteps) {
+        for (let price = range.start; price <= range.end; price += range.step) {
+            if (price > 0) priceValues.add(price);
+        }
+    }
+    const prices = [...priceValues].sort((a, b) => a - b).map(String);
+    const mileages = [0, 100, 500, 5000, 10000, 15000, 20000, 25000, 30000, 40000, 50000, 75000, 100000, 150000, 200000].map(String);
+    populateDealerSelect(selects.minPrice, prices);
+    populateDealerSelect(selects.maxPrice, prices);
+    for (const select of [selects.minPrice, selects.maxPrice]) {
+        [...select.options].slice(1).forEach(option => {
+            option.textContent = `£${Number(option.value).toLocaleString('en-GB')}`;
+        });
+    }
+    populateDealerSelect(selects.yearFrom, years);
+    populateDealerSelect(selects.yearTo, years);
+    populateDealerSelect(selects.mileageFrom, mileages);
+    populateDealerSelect(selects.mileageTo, mileages);
+    for (const select of [selects.mileageFrom, selects.mileageTo]) {
+        [...select.options].slice(1).forEach(option => {
+            option.textContent = `${Number(option.value).toLocaleString('en-GB')} miles`;
+        });
+    }
+    const distances = ['1', '3', '5', '10', '15', '25', '30', '40', '50', '70', '100', '200'];
+    populateDealerSelect(selects.distance, distances);
+    selects.distance.options[0].textContent = 'National';
+
+    const gearboxValues = [...new Set(cars.map(car => knownDealerValue(car.gearbox || car.Gearbox)).filter(Boolean))].sort();
+    const fuelValues = [...new Set(cars.map(car => knownDealerValue(car.fuel_type)).filter(Boolean))].sort();
+    const bodyValues = [...new Set(cars.map(car => knownDealerValue(car.body_type)).filter(Boolean))].sort();
+    const doorValues = [...new Set(cars.map(car => knownDealerValue(car.doors)).filter(Boolean))].sort((a, b) => Number(a) - Number(b));
+    const seatValues = [...new Set(cars.map(car => knownDealerValue(car.seats)).filter(Boolean))].sort((a, b) => Number(a) - Number(b));
+    const engineValues = [...new Set(cars.map(car => knownDealerValue(car.engine)).filter(Boolean))].sort((a, b) => (parseFloat(a) || 0) - (parseFloat(b) || 0));
+    const conditions = [
+        { value: 'hpi', label: 'HPI clear' },
+        { value: 'cat', label: 'CAT / repaired', disabled: !cars.some(car => car.write_off_category) },
+    ];
+    populateDealerCheckboxGroup(form, 'gearbox', gearboxValues.map(value => ({ value, label: value })), state.gearbox);
+    populateDealerCheckboxGroup(form, 'condition', conditions, state.condition);
+    populateDealerCheckboxGroup(form, 'fuel', fuelValues.map(value => ({ value, label: value })), state.fuel);
+    populateDealerCheckboxGroup(form, 'body', bodyValues.map(value => ({ value, label: value })), state.body);
+    populateDealerCheckboxGroup(form, 'doors', doorValues.map(value => ({ value, label: `${value} doors` })), state.doors);
+    populateDealerCheckboxGroup(form, 'seats', seatValues.map(value => ({ value, label: `${value} seats` })), state.seats);
+    populateDealerCheckboxGroup(form, 'engine', engineValues.map(value => ({ value, label: value })), state.engine);
+
+    form.querySelector('[data-filter-query]').value = state.query;
+    for (const field of ['make', 'minPrice', 'maxPrice', 'yearFrom', 'yearTo', 'mileageFrom', 'mileageTo', 'distance']) {
+        selects[field].value = String(state[field] || (field === 'distance' ? 'national' : ''));
+    }
+    setModels(selects.make.value);
+    selects.model.value = state.model;
+    form.querySelector('[data-filter-postcode]').value = state.postcode;
+
+    const resultLabel = form.querySelector('[data-filter-result-count]');
+    const postcodeInput = form.querySelector('[data-filter-postcode]');
+    const postcodeStatus = form.querySelector('[data-postcode-status]');
+    const updatePreview = () => {
+        const filters = dealerFilterStateFromForm(form);
+        const validPostcode = filters.postcode && isValidPostcodeForDistance(filters.postcode);
+        selects.distance.disabled = !validPostcode;
+        postcodeStatus.textContent = !filters.postcode
+            ? 'Enter a postcode to enable distance filtering.'
+            : validPostcode
+                ? 'Postcode recognized. Choose a radius or search nationally.'
+                : postcodeCoordinates.size
+                    ? 'Enter a valid UK postcode to use distance filtering.'
+                    : 'Postcode lookup is still loading.';
+        resultLabel.textContent = `${filterDealerCars(cars, filters).length} vehicles match`;
+    };
+
+    selects.make.addEventListener('change', () => {
+        selects.model.value = '';
+        setModels(selects.make.value);
+        updatePreview();
+    });
+    form.addEventListener('input', updatePreview);
+    form.addEventListener('change', updatePreview);
+    postcodeInput.addEventListener('input', updatePreview);
+    form.addEventListener('reset', () => requestAnimationFrame(() => {
+        selects.distance.value = 'national';
+        selects.distance.disabled = true;
+        setModels('');
+        postcodeStatus.textContent = 'Enter a postcode to enable distance filtering.';
+        updatePreview();
+    }));
+    form.addEventListener('submit', event => {
+        event.preventDefault();
+        const filters = dealerFilterStateFromForm(form);
+        const target = new URL(dealerPageHref('/', { view: 'stock' }), window.location.origin);
+        const params = dealerFilterParams(filters);
+        params.forEach((value, key) => {
+            if (key !== 'view') target.searchParams.append(key, value);
+        });
+        window.location.href = `${target.pathname}${target.search}`;
+    });
+
+    const openSearch = root.querySelector('[data-dealer-open-search]');
+    openSearch?.addEventListener('click', () => {
+        if (!dialog.open) dialog.showModal();
+        updatePreview();
+    });
+    dialog.querySelector('[data-close-dealer-search]')?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', event => {
+        if (event.target === dialog) dialog.close();
+    });
+    if (pageParams.get('focus') === 'search') {
+        requestAnimationFrame(() => {
+            if (!dialog.open) dialog.showModal();
+            form.querySelector('[data-filter-query]')?.focus({ preventScroll: true });
+        });
+    }
+    updatePreview();
+}
+
+function applyDealerHeaderLinks(root, car = null, cars = parsedData) {
+    const dealerId = dealerIdForCar(car);
+    root.querySelectorAll('[data-dealer-home]').forEach(link => {
+        link.href = dealerPageHref('/');
+    });
+    root.querySelectorAll('[data-dealer-stock]').forEach(link => {
+        link.href = dealerPageHref('/', { view: 'stock' });
+    });
+    const aboutLink = root.querySelector('[data-dealer-about]');
+    if (aboutLink) aboutLink.href = `${dealerPageHref('/')}#dealer-about`;
+    const contactSectionLink = root.querySelector('[data-dealer-contact-section]');
+    if (contactSectionLink) contactSectionLink.href = `${dealerPageHref('/')}#dealer-contact`;
+    setupDealerSearchPanel(root, cars);
+    const phone = normalizedWhatsAppPhone(dealerId);
+    const callLink = root.querySelector('[data-dealer-call]');
+    if (callLink) callLink.href = `tel:+${phone}`;
+    root.querySelectorAll('[data-dealer-whatsapp]').forEach(whatsAppLink => {
+        const message = car
+            ? `Hi, I'm interested in the ${[car.year_reg || car.year, car.make, car.model].filter(Boolean).join(' ')}. ${dealerPageHref(`/car/${encodeURIComponent(car.car_id)}`)}`
+            : '';
+        whatsAppLink.href = whatsappLinkFor(dealerId, message);
+    });
 }
 
 function applyDealerWhatsAppLinks() {
@@ -1480,6 +1881,29 @@ async function loadDealerPhoneIndex(cacheBust) {
 
 function applyDealerBranding() {
     if (!dealerSiteConfig && pageParams.get('dealerBrand') !== '1') return;
+    if (dealerSiteConfig) {
+        document.body.classList.add('dealer-site-mode');
+        document.documentElement.classList.add('dealer-site-mode');
+        document.body.classList.toggle('dealer-homepage', dealerLandingMode);
+        document.documentElement.classList.toggle('dealer-homepage', dealerLandingMode);
+        document.body.classList.toggle('dealer-stock-view', dealerStockMode);
+        document.body.classList.toggle('dealer-vehicle-view', dealerVehicleMode);
+        let dealerIcon = document.querySelector('link[rel~="icon"]');
+        if (!dealerIcon) {
+            dealerIcon = document.createElement('link');
+            dealerIcon.rel = 'icon';
+            document.head.appendChild(dealerIcon);
+        }
+        dealerIcon.type = 'image/svg+xml';
+        dealerIcon.href = '1stline-mark.svg';
+        if (!document.querySelector('link[data-dealer-theme]')) {
+            const dealerStyles = document.createElement('link');
+            dealerStyles.rel = 'stylesheet';
+            dealerStyles.href = 'dealer.css';
+            dealerStyles.dataset.dealerTheme = 'true';
+            document.head.appendChild(dealerStyles);
+        }
+    }
     const banner = document.getElementById('logoBanner');
     if (!banner) return;
 
@@ -1498,7 +1922,14 @@ function applyDealerBranding() {
     banner.classList.add('dealer-brand-banner');
     document.body.classList.add('dealer-branded');
     banner.setAttribute('aria-label', dealerAddress ? `${dealerName}, ${dealerAddress}` : dealerName);
-    document.title = `${dealerName} | Used Cars`;
+    document.title = dealerLandingMode ? `${dealerName} | Find Your Next Car` : `${dealerName} | Used Cars`;
+    if (dealerSiteConfig && !dealerLandingMode) {
+        const homeLink = document.createElement('a');
+        homeLink.className = 'dealer-brand-home-link';
+        homeLink.href = '/';
+        homeLink.textContent = 'Dealer home';
+        banner.appendChild(homeLink);
+    }
 
     const updateDealerBrandHeight = () => {
         document.documentElement.style.setProperty(
@@ -1514,19 +1945,405 @@ function applyDealerBranding() {
     }
 }
 
+function createDealerFooter() {
+    const footer = document.createElement('footer');
+    footer.className = 'dealer-site-footer';
+
+    const dealerName = document.createElement('strong');
+    dealerName.textContent = dealerSiteConfig.dealerName;
+    const companyDetails = document.createElement('span');
+    companyDetails.append(`${dealerSiteConfig.companyType} registered in England and Wales · Company number `);
+    const companyLink = document.createElement('a');
+    companyLink.href = dealerSiteConfig.companiesHouseUrl;
+    companyLink.target = '_blank';
+    companyLink.rel = 'noopener noreferrer';
+    companyLink.textContent = dealerSiteConfig.companyNumber;
+    companyDetails.append(companyLink);
+    const registeredOffice = document.createElement('span');
+    registeredOffice.textContent = `Registered office: ${dealerSiteConfig.dealerAddress}`;
+    const vehicleNote = document.createElement('span');
+    vehicleNote.textContent = 'Vehicle details and availability should be confirmed with the dealer.';
+    footer.append(dealerName, companyDetails, registeredOffice, vehicleNote);
+    return footer;
+}
+
 function applyDealerFooter() {
     if (!dealerSiteConfig) return;
-    const footer = document.querySelector('footer');
-    if (!footer) return;
+    const footer = document.querySelector('body > footer');
+    if (footer) footer.replaceWith(createDealerFooter());
+}
 
-    const dealerName = document.createElement('p');
+function renderDealerStorefront(cars = null) {
+    if (!dealerLandingMode) return;
+    const currentCars = Array.isArray(cars) ? cars : [];
+    document.getElementById('dealer-storefront')?.remove();
+
+    const storefront = document.createElement('main');
+    storefront.id = 'dealer-storefront';
+    storefront.innerHTML = `
+        ${dealerHeaderMarkup()}
+        <section class="dealer-hero" aria-labelledby="dealerHeroTitle">
+            <div class="dealer-hero-media"><img id="dealerHeroImage" alt="" fetchpriority="high"></div>
+            <div class="dealer-hero-copy">
+                <p class="dealer-hero-kicker">BRADFORD | WEST YORKSHIRE</p>
+                <h1 id="dealerHeroTitle">1ST LINE MOTORS LTD</h1>
+                <p>Find your next car. Explore our latest stock, specialist imports and part-exchange options.</p>
+                <div class="dealer-hero-actions">
+                    <a class="dealer-primary-action" href="/?view=stock">Browse our stock</a>
+                    <a class="dealer-secondary-action" id="dealerHeroWhatsApp" href="#dealer-contact">Message the team</a>
+                </div>
+                <p class="dealer-hero-count"><strong id="dealerStockCount">Loading stock</strong><span>from current dealer stock</span></p>
+            </div>
+        </section>
+        <section class="dealer-service-strip" aria-label="Dealer services">
+            <div class="dealer-service-item"><span class="dealer-service-number">01</span><strong>Import vehicle specialists</strong></div>
+            <div class="dealer-service-item"><span class="dealer-service-number">02</span><strong>Part exchange considered</strong></div>
+            <div class="dealer-service-item"><span class="dealer-service-number">03</span><strong>Speak to the dealer directly</strong></div>
+        </section>
+        <section class="dealer-section dealer-inventory-section" id="dealer-featured" aria-labelledby="dealerFeaturedTitle">
+            <div class="dealer-section-heading">
+                <div><p class="dealer-section-kicker">CURRENT STOCK</p><h2 id="dealerFeaturedTitle">In the spotlight</h2></div>
+                <a class="dealer-secondary-action" href="/?view=stock">View all cars</a>
+            </div>
+            <div class="dealer-featured-grid" id="dealerFeaturedGrid"><p class="dealer-loading-stock">Loading current stock...</p></div>
+            <div class="dealer-inventory-action"><a class="dealer-primary-action" href="/?view=stock">Browse all vehicles</a></div>
+        </section>
+        <section class="dealer-section dealer-about-section" id="dealer-about" aria-labelledby="dealerAboutTitle">
+            <div class="dealer-about-copy">
+                <p class="dealer-section-kicker">ABOUT 1ST LINE</p>
+                <h2 id="dealerAboutTitle">Specialist imports. A straightforward way to find your next car.</h2>
+                <p>Visit or contact 1ST LINE MOTORS LTD in Bradford. Browse the latest vehicles and speak directly with the dealership about a car or part exchange.</p>
+            </div>
+            <div class="dealer-about-points">
+                <div class="dealer-about-point"><span>01</span><strong>Specialist import vehicles</strong></div>
+                <div class="dealer-about-point"><span>02</span><strong>Part exchange enquiries</strong></div>
+                <div class="dealer-about-point"><span>03</span><strong>Live stock linked to the dealer inventory</strong></div>
+            </div>
+        </section>
+        <section class="dealer-section dealer-contact-section" id="dealer-contact" aria-labelledby="dealerContactTitle">
+            <div class="dealer-contact-copy">
+                <p class="dealer-section-kicker">GET IN TOUCH</p>
+                <h2 id="dealerContactTitle">Questions about a vehicle?</h2>
+                <p>Message 1ST LINE MOTORS LTD directly or visit the Bradford showroom.</p>
+                <p>617 Great Horton Road, Bradford, England, BD7 4ED</p>
+            </div>
+            <a class="dealer-primary-action" id="dealerContactWhatsApp" href="#dealer-contact">Contact on WhatsApp</a>
+        </section>
+        <footer class="dealer-site-footer"><strong>1ST LINE MOTORS LTD</strong><span>617 Great Horton Road, Bradford, England, BD7 4ED</span><span>Vehicle details and availability should be confirmed with the dealer.</span></footer>
+    `;
+
+    const dealerName = storefront.querySelector('#dealerHeroTitle');
+    const countLabel = storefront.querySelector('#dealerStockCount');
+    const heroImage = storefront.querySelector('#dealerHeroImage');
+    const featuredGrid = storefront.querySelector('#dealerFeaturedGrid');
+    applyDealerHeaderLinks(storefront);
+    storefront.querySelectorAll('a[href="/?view=stock"]').forEach(link => {
+        link.href = dealerPageHref('/', { view: 'stock' });
+    });
     dealerName.textContent = dealerSiteConfig.dealerName;
-    const dealerAddress = document.createElement('p');
-    dealerAddress.textContent = dealerSiteConfig.dealerAddress;
-    const vehicleNote = document.createElement('p');
-    vehicleNote.textContent = 'Contact the dealer to confirm vehicle details and availability.';
-    footer.classList.add('dealer-site-footer');
-    footer.replaceChildren(dealerName, dealerAddress, vehicleNote);
+    countLabel.textContent = Array.isArray(cars)
+        ? `${currentCars.length} ${currentCars.length === 1 ? 'vehicle' : 'vehicles'} in stock`
+        : 'Loading stock';
+
+    const featuredCars = currentCars
+        .filter(car => Array.isArray(car.images) && car.images.some(image => typeof image === 'string' && image.trim()))
+        .sort((left, right) => {
+            const yearDifference = (parseInt(right.year_reg || right.year, 10) || 0) - (parseInt(left.year_reg || left.year, 10) || 0);
+            if (yearDifference) return yearDifference;
+            return (parseInt(left.price, 10) || 0) - (parseInt(right.price, 10) || 0);
+        })
+        .slice(0, 3);
+    const heroCar = featuredCars[0] || currentCars.find(car => Array.isArray(car.images) && car.images.length);
+    const heroImageUrl = heroCar?.images?.find(image => typeof image === 'string' && image.trim());
+    if (heroImageUrl) {
+        heroImage.src = getThumbnailUrl(heroImageUrl, 1024);
+        heroImage.srcset = buildThumbnailSrcset(heroImageUrl);
+    }
+
+    const dealerWhatsAppUrl = whatsappLinkFor(dealerSiteConfig.dealerId);
+    for (const contactId of ['dealerHeroWhatsApp', 'dealerContactWhatsApp']) {
+        const contactLink = storefront.querySelector(`#${contactId}`);
+        if (contactLink) contactLink.href = dealerWhatsAppUrl;
+    }
+
+    if (!featuredCars.length) {
+        const emptyMessage = document.createElement('p');
+        emptyMessage.className = 'dealer-loading-stock';
+        emptyMessage.textContent = !Array.isArray(cars)
+            ? 'Loading current stock...'
+            : currentCars.length
+                ? 'Contact the dealer for current vehicle photos.'
+                : 'No vehicles are currently listed.';
+        featuredGrid.replaceChildren(emptyMessage);
+    } else {
+        featuredGrid.replaceChildren();
+        for (const car of featuredCars) {
+            const year = car.year_reg || car.year || '';
+            const title = [year, car.make, car.model].filter(Boolean).join(' ');
+            const imageUrl = car.images.find(image => typeof image === 'string' && image.trim());
+            const carLink = document.createElement('a');
+            carLink.className = 'dealer-featured-card';
+            carLink.href = localDealerPreview
+                ? dealerPageHref('/', { car: car.car_id })
+                : `/car/${encodeURIComponent(car.car_id)}`;
+            const image = document.createElement('img');
+            image.className = 'dealer-featured-image';
+            image.src = getThumbnailUrl(imageUrl);
+            image.srcset = buildThumbnailSrcset(imageUrl);
+            image.sizes = '(max-width: 640px) 42vw, (max-width: 960px) 45vw, 31vw';
+            image.alt = title;
+            image.loading = 'lazy';
+            const copy = document.createElement('span');
+            copy.className = 'dealer-featured-copy';
+            const carTitle = document.createElement('span');
+            carTitle.className = 'dealer-featured-title';
+            carTitle.textContent = title;
+            const details = document.createElement('span');
+            details.className = 'dealer-featured-detail';
+            const knownValue = value => {
+                const text = String(value ?? '').trim();
+                return text && !['unknown', 'n/a', 'not available'].includes(text.toLowerCase()) ? text : '';
+            };
+            const mileage = String(car.mileage ?? '').replace(/,/g, '').replace(/\s*miles?$/i, '').trim();
+            const numericMileage = Number.parseInt(mileage, 10);
+            const mileageDetail = Number.isFinite(numericMileage) ? `${numericMileage.toLocaleString('en-GB')} miles` : '';
+            details.textContent = [mileageDetail, knownValue(car.gearbox), knownValue(car.fuel_type)].filter(Boolean).join(' | ');
+            const bottom = document.createElement('span');
+            bottom.className = 'dealer-featured-bottom';
+            const price = document.createElement('span');
+            price.className = 'dealer-featured-price';
+            const numericPrice = parseInt(car.price, 10);
+            price.textContent = numericPrice > 0 ? `£${numericPrice.toLocaleString('en-GB')}` : 'Price on enquiry';
+            const viewCar = document.createElement('span');
+            viewCar.className = 'dealer-featured-link';
+            viewCar.textContent = 'View vehicle';
+            bottom.append(price, viewCar);
+            copy.append(carTitle, details, bottom);
+            carLink.append(image, copy);
+            featuredGrid.appendChild(carLink);
+        }
+    }
+
+    document.body.insertBefore(storefront, document.body.firstChild);
+    storefront.querySelector('footer.dealer-site-footer')?.replaceWith(createDealerFooter());
+}
+
+function knownDealerValue(value) {
+    const text = String(value ?? '').trim();
+    return text && !['unknown', 'n/a', 'not available'].includes(text.toLowerCase()) ? text : '';
+}
+
+function dealerCarPath(car) {
+    return localDealerPreview
+        ? dealerPageHref('/', { car: car.car_id })
+        : `/car/${encodeURIComponent(car.car_id)}`;
+}
+
+function createDealerCarCard(car) {
+    const imageUrl = Array.isArray(car.images) ? car.images.find(image => typeof image === 'string' && image.trim()) : '';
+    if (!imageUrl) return null;
+
+    const year = knownDealerValue(car.year_reg || car.year);
+    const title = [year, knownDealerValue(car.make), knownDealerValue(car.model)].filter(Boolean).join(' ') || 'Used vehicle';
+    const mileageText = String(car.mileage ?? '').replace(/,/g, '').replace(/\s*miles?$/i, '').trim();
+    const mileage = Number.parseInt(mileageText, 10);
+    const details = [
+        Number.isFinite(mileage) ? `${mileage.toLocaleString('en-GB')} miles` : '',
+        knownDealerValue(car.gearbox || car.Gearbox),
+        knownDealerValue(car.fuel_type),
+    ].filter(Boolean).join(' | ');
+    const numericPrice = Number.parseInt(car.price, 10);
+
+    const card = document.createElement('a');
+    card.className = 'dealer-featured-card';
+    card.href = dealerCarPath(car);
+    const image = document.createElement('img');
+    image.className = 'dealer-featured-image';
+    image.src = getThumbnailUrl(imageUrl);
+    image.srcset = buildThumbnailSrcset(imageUrl);
+    image.sizes = '(max-width: 640px) 86vw, (max-width: 960px) 45vw, 31vw';
+    image.alt = title;
+    image.loading = 'lazy';
+    const copy = document.createElement('span');
+    copy.className = 'dealer-featured-copy';
+    const name = document.createElement('span');
+    name.className = 'dealer-featured-title';
+    name.textContent = title;
+    const detail = document.createElement('span');
+    detail.className = 'dealer-featured-detail';
+    detail.textContent = details;
+    const bottom = document.createElement('span');
+    bottom.className = 'dealer-featured-bottom';
+    const price = document.createElement('span');
+    price.className = 'dealer-featured-price';
+    price.textContent = numericPrice > 0 ? `£${numericPrice.toLocaleString('en-GB')}` : 'Price on enquiry';
+    const view = document.createElement('span');
+    view.className = 'dealer-featured-link';
+    view.textContent = 'View vehicle';
+    bottom.append(price, view);
+    copy.append(name, detail, bottom);
+    card.append(image, copy);
+    return card;
+}
+
+function renderDealerStockPage(cars = null) {
+    const storefront = document.createElement('main');
+    storefront.id = 'dealer-storefront';
+    storefront.className = 'dealer-stock-template';
+    storefront.innerHTML = `
+        ${dealerHeaderMarkup()}
+        <section class="dealer-stock-intro">
+            <p class="dealer-section-kicker">1ST LINE MOTORS | BRADFORD</p>
+            <h1>Our vehicles</h1>
+            <p>Browse the current stock and refine your search to find the right car.</p>
+        </section>
+        <section class="dealer-stock-content" aria-label="Dealer inventory">
+            <div class="dealer-stock-toolbar">
+                <p class="dealer-results-count" id="dealerResultsCount">Loading vehicles...</p>
+                <button class="dealer-filter-reset" data-dealer-open-search type="button">Filters <span aria-hidden="true">+</span></button>
+            </div>
+            <div class="dealer-stock-grid" id="dealerStockGrid"><p class="dealer-loading-stock">Loading current stock...</p></div>
+        </section>
+        <section class="dealer-stock-contact">
+            <p>Need help choosing?</p>
+            <a class="dealer-primary-action" data-dealer-whatsapp href="#">Message 1st Line Motors</a>
+        </section>
+        <footer class="dealer-site-footer"><strong>1ST LINE MOTORS LTD</strong><span>617 Great Horton Road, Bradford, England, BD7 4ED</span><span>Vehicle details and availability should be confirmed with the dealer.</span></footer>
+    `;
+    document.getElementById('dealer-storefront')?.remove();
+    document.body.insertBefore(storefront, document.body.firstChild);
+    storefront.querySelector('footer.dealer-site-footer')?.replaceWith(createDealerFooter());
+    const availableCars = Array.isArray(cars) ? cars : parsedData;
+    applyDealerHeaderLinks(storefront, null, availableCars);
+    const count = storefront.querySelector('#dealerResultsCount');
+    const grid = storefront.querySelector('#dealerStockGrid');
+    if (!Array.isArray(cars)) {
+        count.textContent = 'Loading vehicles...';
+        return;
+    }
+
+    const filters = dealerFilterStateFromParams();
+    const filtered = filterDealerCars(cars, filters);
+    count.textContent = `${filtered.length} ${filtered.length === 1 ? 'vehicle' : 'vehicles'} found`;
+    grid.replaceChildren();
+    if (!filtered.length) {
+        const empty = document.createElement('p');
+        empty.className = 'dealer-loading-stock';
+        empty.textContent = 'No vehicles match those filters. Try changing your search.';
+        grid.appendChild(empty);
+        return;
+    }
+    for (const car of filtered) {
+        const card = createDealerCarCard(car);
+        if (card) grid.appendChild(card);
+    }
+}
+
+function renderDealerVehiclePage(car = null) {
+    const storefront = document.createElement('main');
+    storefront.id = 'dealer-storefront';
+    storefront.className = 'dealer-vehicle-template';
+    storefront.innerHTML = `
+        ${dealerHeaderMarkup()}
+        <div class="dealer-vehicle-back"><a href="/?view=stock" data-dealer-stock>Back to all vehicles</a></div>
+        <section class="dealer-vehicle-detail" id="dealerVehicleDetail"><p class="dealer-loading-stock">Loading vehicle details...</p></section>
+        <footer class="dealer-site-footer"><strong>1ST LINE MOTORS LTD</strong><span>617 Great Horton Road, Bradford, England, BD7 4ED</span><span>Vehicle details and availability should be confirmed with the dealer.</span></footer>
+    `;
+    document.getElementById('dealer-storefront')?.remove();
+    document.body.insertBefore(storefront, document.body.firstChild);
+    storefront.querySelector('footer.dealer-site-footer')?.replaceWith(createDealerFooter());
+    applyDealerHeaderLinks(storefront, car);
+    if (!car) return;
+
+    const detail = storefront.querySelector('#dealerVehicleDetail');
+    const images = Array.isArray(car.images) ? car.images.filter(image => typeof image === 'string' && image.trim()) : [];
+    const displayTitle = [car.year_reg || car.year, car.make, car.model].filter(Boolean).join(' ');
+    const numericPrice = Number.parseInt(car.price, 10);
+    const mileage = String(car.mileage ?? '').replace(/,/g, '').replace(/\s*miles?$/i, '').trim();
+    const mileageValue = Number.parseInt(mileage, 10);
+    const detailValue = value => knownDealerValue(value) || 'Ask the dealer';
+    const detailRows = [
+        ['Year', knownDealerValue(car.year_reg || car.year)],
+        ['Mileage', Number.isFinite(mileageValue) ? `${mileageValue.toLocaleString('en-GB')} miles` : ''],
+        ['Gearbox', knownDealerValue(car.gearbox || car.Gearbox)],
+        ['Fuel', knownDealerValue(car.fuel_type)],
+        ['Body style', knownDealerValue(car.body_type)],
+        ['Engine', knownDealerValue(car.engine)],
+    ].filter(([, value]) => value);
+
+    const detailLayout = document.createElement('div');
+    detailLayout.className = 'dealer-vehicle-layout';
+    const gallery = document.createElement('section');
+    gallery.className = 'dealer-vehicle-gallery';
+    gallery.setAttribute('aria-label', 'Vehicle photos');
+    const mainImage = document.createElement('img');
+    mainImage.className = 'dealer-vehicle-main-image';
+    mainImage.alt = displayTitle;
+    mainImage.src = images[0] || '';
+    gallery.appendChild(mainImage);
+    const thumbs = document.createElement('div');
+    thumbs.className = 'dealer-vehicle-thumbnails';
+    images.slice(0, 8).forEach((imageUrl, index) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'dealer-vehicle-thumbnail';
+        button.setAttribute('aria-label', `Show vehicle photo ${index + 1}`);
+        const thumb = document.createElement('img');
+        thumb.src = getThumbnailUrl(imageUrl, 240);
+        thumb.alt = '';
+        thumb.loading = 'lazy';
+        button.appendChild(thumb);
+        button.addEventListener('click', () => {
+            mainImage.src = imageUrl;
+            thumbs.querySelectorAll('button').forEach(item => item.classList.remove('active'));
+            button.classList.add('active');
+        });
+        if (index === 0) button.classList.add('active');
+        thumbs.appendChild(button);
+    });
+    if (images.length > 1) gallery.appendChild(thumbs);
+
+    const info = document.createElement('section');
+    info.className = 'dealer-vehicle-info';
+    const kicker = document.createElement('p');
+    kicker.className = 'dealer-section-kicker';
+    kicker.textContent = '1ST LINE MOTORS | BRADFORD';
+    const title = document.createElement('h1');
+    title.textContent = displayTitle || 'Used vehicle';
+    const price = document.createElement('p');
+    price.className = 'dealer-vehicle-price';
+    price.textContent = numericPrice > 0 ? `£${numericPrice.toLocaleString('en-GB')}` : 'Price on enquiry';
+    const attributes = document.createElement('dl');
+    attributes.className = 'dealer-vehicle-attributes';
+    for (const [label, value] of detailRows) {
+        const item = document.createElement('div');
+        const term = document.createElement('dt');
+        term.textContent = label;
+        const data = document.createElement('dd');
+        data.textContent = value;
+        item.append(term, data);
+        attributes.appendChild(item);
+    }
+    const message = document.createElement('p');
+    message.className = 'dealer-vehicle-note';
+    message.textContent = 'Contact the dealer to confirm vehicle details and availability.';
+    const actions = document.createElement('div');
+    actions.className = 'dealer-vehicle-actions';
+    const call = document.createElement('a');
+    call.className = 'dealer-primary-action';
+    call.dataset.dealerCall = '';
+    call.textContent = 'Call dealer';
+    const whatsapp = document.createElement('a');
+    whatsapp.className = 'dealer-secondary-action';
+    whatsapp.dataset.dealerWhatsApp = '';
+    whatsapp.textContent = 'Enquire on WhatsApp';
+    const enquiryMessage = `Hi, I'm interested in the ${displayTitle}. ${dealerPageHref(`/car/${encodeURIComponent(car.car_id)}`)}`;
+    whatsapp.href = whatsappLinkFor(dealerIdForCar(car), enquiryMessage);
+    actions.append(call, whatsapp);
+    info.append(kicker, title, price, attributes, message, actions);
+    detailLayout.append(gallery, info);
+    detail.replaceChildren(detailLayout);
+    applyDealerHeaderLinks(storefront, car);
 }
 
 applyDealerBranding();
@@ -1593,6 +2410,9 @@ function shuffleCarsInPlace(cars) {
 async function loadCarsData() {
     const cacheBust = new Date().getTime();
     await loadDealerPhoneIndex(cacheBust);
+    if (dealerLandingMode) renderDealerStorefront();
+    else if (dealerStockMode) renderDealerStockPage();
+    else if (dealerVehicleMode) renderDealerVehiclePage();
 
     async function fetchAllChunks() {
         const manifest = await (await fetch('data/cars/manifest.json?v=' + cacheBust)).json();
@@ -1617,6 +2437,27 @@ async function loadCarsData() {
         dealerStockId.trim() !== '' &&
         String(car.retailer_id || car.dealer_id || '').trim() === dealerStockId.trim()
     );
+
+    if (dealerStorefrontMode) {
+        if (dealerLandingMode) {
+            renderDealerStorefront(parsedData);
+        } else if (dealerStockMode) {
+            renderDealerStockPage(parsedData);
+        } else if (dealerVehicleMode) {
+            const carId = pageParams.get('car');
+            const car = parsedData.find(record => String(record.car_id) === carId);
+            if (car) {
+                renderDealerVehiclePage(car);
+            } else {
+                renderDealerStockPage(parsedData);
+                const title = document.querySelector('.dealer-stock-intro h1');
+                const subtitle = document.querySelector('.dealer-stock-intro > p:last-child');
+                if (title) title.textContent = 'Vehicle no longer available';
+                if (subtitle) subtitle.textContent = 'Browse the dealer’s current stock below.';
+            }
+        }
+        return;
+    }
 
     // Build make/model relationships for dropdowns
     parsedMakeModels = {};

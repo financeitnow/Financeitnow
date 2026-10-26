@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" role="img" aria-labelledby="title description">
+  <title id="title">1st Line Motors</title>
+  <desc id="description">1st Line Motors Ltd wordmark in white and electric blue</desc>
+  <g fill="none" stroke="#08a8ff" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 46h54l30 31h70" stroke-width="8" />
+    <path d="M42 46l13-18h72l25 18" stroke-width="6" />
+    <path d="M47 87h138" stroke-width="5" opacity=".72" />
+  </g>
+  <circle cx="72" cy="88" r="7" fill="#08a8ff" />
+  <circle cx="147" cy="88" r="7" fill="#08a8ff" />
+  <text x="205" y="88" fill="#f6f9ff" font-family="Barlow Condensed, Arial, sans-serif" font-size="66" font-weight="800" letter-spacing="1">1ST</text>
+  <text x="339" y="88" fill="#08a8ff" font-family="Barlow Condensed, Arial, sans-serif" font-size="66" font-weight="800" letter-spacing="1">LINE</text>
+  <path d="M207 104h338" stroke="#08a8ff" stroke-width="4" />
+  <text x="210" y="139" fill="#f6f9ff" font-family="Arial, sans-serif" font-size="22" font-weight="600" letter-spacing="9">MOTORS LTD</text>
+</svg>

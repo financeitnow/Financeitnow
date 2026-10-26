@@ -59,12 +59,12 @@ export default async (request, context) => {
   ).toString();
 
   // ── Build OG content ──────────────────────────────────────────────────────
-  const price = (parseInt(car.price) || 0) + 300;
+  const isFinanceItNowSite = url.hostname.toLowerCase() === 'financeitnow.netlify.app';
+  const price = (parseInt(car.price) || 0) + (isFinanceItNowSite ? 300 : 0);
   const yearStr = car.year_reg || car.year || '';
   const isUnknown = (v) =>
     !v || ['unknown', 'n/a', ''].includes(String(v).trim().toLowerCase());
 
-  const isFinanceItNowSite = url.hostname.toLowerCase() === 'financeitnow.netlify.app';
   const siteName = isFinanceItNowSite ? 'FinanceItNOW' : (car.dealer_name || 'the dealer');
   const title =
     [yearStr, car.make, car.model].filter(Boolean).join(' ') +

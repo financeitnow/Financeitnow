@@ -5,6 +5,9 @@ const DEALER_PREVIEWS = {
     description: 'Browse our latest used cars.',
     dealerName: '1ST LINE MOTORS LTD',
     dealerAddress: '617 Great Horton Road, Bradford, England, BD7 4ED',
+    companyNumber: '17038277',
+    companyType: 'Private limited company',
+    companiesHouseUrl: 'https://find-and-update.company-information.service.gov.uk/company/17038277',
     image: 'https://m.atcdn.co.uk/a/media/w1024/b513e6ecdba844e98644a823a3f751a4.jpg',
   },
 };
@@ -50,7 +53,9 @@ export default async (request, context) => {
   const preview = DEALER_PREVIEWS[url.hostname.toLowerCase()];
   if (!preview) return context.next();
   if (request.method !== 'GET') return context.next();
-  if (url.pathname !== '/') return Response.redirect(new URL('/', url), 302);
+  if (!['/', '/index', '/index.html'].includes(url.pathname)) {
+    return Response.redirect(new URL('/', url), 302);
+  }
 
   const response = await context.next();
   if (!response.headers.get('content-type')?.includes('text/html')) return response;
@@ -59,7 +64,7 @@ export default async (request, context) => {
   const whatsAppHref = `whatsapp://send?phone=${await dealerWhatsAppPhone(url.origin, preview)}`;
   const financeLogo = /FinanceIt<a class=\\?"n-icon\\?"><img src=\\?"netlifyicon3\.png\\?" alt=\\?"N\\?" \/><\/a>OW!/g;
   html = html.replace(financeLogo, escapeHtmlAttribute(preview.dealerName));
-  const dealerFooter = `<footer class="dealer-site-footer"><p>${escapeHtmlAttribute(preview.dealerName)}</p><p>${escapeHtmlAttribute(preview.dealerAddress)}</p><p>Contact the dealer to confirm vehicle details and availability.</p></footer>`;
+  const dealerFooter = `<footer class="dealer-site-footer"><p><strong>${escapeHtmlAttribute(preview.dealerName)}</strong></p><p>${escapeHtmlAttribute(preview.companyType)} registered in England and Wales. Company number <a href="${escapeHtmlAttribute(preview.companiesHouseUrl)}">${escapeHtmlAttribute(preview.companyNumber)}</a>.</p><p>Registered office: ${escapeHtmlAttribute(preview.dealerAddress)}</p><p>Vehicle details and availability should be confirmed with the dealer.</p></footer>`;
   html = html.replace(/<footer\b[^>]*>[\s\S]*?<\/footer>/i, dealerFooter);
   html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtmlAttribute(preview.title)}</title>`);
   html = html.replace(/(<h2\b[^>]*class="finance-title"[^>]*>)[\s\S]*?(<\/h2>)/i, (_, opening, closing) => `${opening}Finance Calculator${closing}`);
@@ -74,7 +79,7 @@ export default async (request, context) => {
   html = replaceMetaContent(html, 'name="twitter:description"', preview.description);
   html = replaceMetaContent(html, 'name="twitter:image"', preview.image);
   html = html.replace(/\s*<meta property="og:image:(?:width|height)" content="[^"]*">/gi, '');
-  html = html.replace(/<link rel="icon"[^>]*>/i, '');
+  html = html.replace(/<link rel="icon"[^>]*>/i, '<link rel="icon" type="image/svg+xml" href="/1stline-mark.svg">');
   for (const id of ['getQuote', 'modalGetQuote', 'getQuoteSheet']) {
     html = replaceLinkById(html, id, whatsAppHref, 'Enquire on WhatsApp');
   }
