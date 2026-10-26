@@ -11,6 +11,11 @@ body.dealer-site-mode {
     font-family: 'Poppins', sans-serif;
 }
 
+html.dealer-site-mode body {
+    background: #070b12;
+    color: #10151d;
+}
+
 body.dealer-homepage {
     background: #070b12;
 }
@@ -23,7 +28,7 @@ html.dealer-site-mode {
     touch-action: pan-y;
 }
 
-body.dealer-site-mode > *:not(#dealer-storefront):not(script):not(style) {
+html.dealer-site-mode body > *:not(#dealer-storefront):not(script):not(style) {
     display: none !important;
 }
 

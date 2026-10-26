@@ -3,6 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <script>
+        const dealerHostname = window.location.hostname.toLowerCase();
+        if (dealerHostname === '1stlinemotors.netlify.app' || (['localhost', '127.0.0.1'].includes(dealerHostname) && new URLSearchParams(window.location.search).get('dealerPreview') === '1')) {
+            document.documentElement.classList.add('dealer-site-mode');
+            const dealerStyles = document.createElement('link');
+            dealerStyles.rel = 'stylesheet';
+            dealerStyles.href = 'dealer.css';
+            dealerStyles.dataset.dealerTheme = 'true';
+            document.head.appendChild(dealerStyles);
+        }
+    </script>
+    <style>
+        html.dealer-site-mode body > *:not(#dealer-storefront):not(script):not(style) {
+            display: none !important;
+        }
+    </style>
     <title>FinanceItNOW | Find Your Next Car</title>
     <meta name="description" content="ANY Car! Any Mileage! Any Year! CATS! IMPORTS! Quick Fast Easy Finance!">
     <meta property="og:type" content="website">
