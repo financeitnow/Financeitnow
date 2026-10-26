@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <script>
         const dealerHostname = window.location.hostname.toLowerCase();
-        if (dealerHostname === '1stlinemotors.netlify.app' || (['localhost', '127.0.0.1'].includes(dealerHostname) && new URLSearchParams(window.location.search).get('dealerPreview') === '1')) {
+        if (['1stlinemotors.netlify.app', '1stlinemotors.com', 'www.1stlinemotors.com'].includes(dealerHostname) || (['localhost', '127.0.0.1'].includes(dealerHostname) && new URLSearchParams(window.location.search).get('dealerPreview') === '1')) {
             document.documentElement.classList.add('dealer-site-mode');
             const dealerStyles = document.createElement('link');
             dealerStyles.rel = 'stylesheet';
@@ -1423,15 +1423,18 @@ We are registered with the Information Commissioner’s Office (ICO), Registrati
 <script>
 let parsedData = [];  // All cars from cars.json
 const pageParams = new URLSearchParams(window.location.search);
+const firstLineDealerConfig = {
+    dealerId: '10040797',
+    dealerName: '1ST LINE MOTORS LTD',
+    dealerAddress: '617 Great Horton Road, Bradford, England, BD7 4ED',
+    companyNumber: '17038277',
+    companyType: 'Private limited company',
+    companiesHouseUrl: 'https://find-and-update.company-information.service.gov.uk/company/17038277',
+};
 const dealerSiteConfigs = {
-    '1stlinemotors.netlify.app': {
-        dealerId: '10040797',
-        dealerName: '1ST LINE MOTORS LTD',
-        dealerAddress: '617 Great Horton Road, Bradford, England, BD7 4ED',
-        companyNumber: '17038277',
-        companyType: 'Private limited company',
-        companiesHouseUrl: 'https://find-and-update.company-information.service.gov.uk/company/17038277',
-    },
+    '1stlinemotors.netlify.app': firstLineDealerConfig,
+    '1stlinemotors.com': firstLineDealerConfig,
+    'www.1stlinemotors.com': firstLineDealerConfig,
 };
 const localDealerPreview = ['localhost', '127.0.0.1'].includes(window.location.hostname.toLowerCase())
     && pageParams.get('dealerPreview') === '1';

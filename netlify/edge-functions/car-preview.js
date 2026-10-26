@@ -89,7 +89,7 @@ export default async (request, context) => {
   // First non-empty image URL
   const image = isFinanceItNowSite
     ? (car.images && car.images.find((i) => i && i.trim())) || ''
-    : 'https://1stlinemotors.netlify.app/1stline-logo.svg';
+    : new URL('/1stline-logo.svg', url.origin).toString();
 
   // Escape helper (prevents HTML injection from scraped car data)
   const e = (s) =>
