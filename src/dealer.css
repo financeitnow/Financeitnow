@@ -5,7 +5,7 @@ body.dealer-site-mode {
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior: auto;
-    touch-action: auto;
+    touch-action: pan-y;
     background: #070b12;
     color: #10151d;
     font-family: 'Poppins', sans-serif;
@@ -20,6 +20,7 @@ html.dealer-site-mode {
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior: auto;
+    touch-action: pan-y;
 }
 
 body.dealer-site-mode > *:not(#dealer-storefront):not(script):not(style) {

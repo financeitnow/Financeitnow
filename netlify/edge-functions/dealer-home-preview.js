@@ -2,13 +2,13 @@ const DEALER_PREVIEWS = {
   '1stlinemotors.netlify.app': {
     dealerId: '10040797',
     title: '1ST LINE MOTORS LTD | Find Your Next Car',
-    description: 'Browse our latest used cars.',
+    description: 'Import vehicle specialists. Part exchange. Finance available.',
     dealerName: '1ST LINE MOTORS LTD',
     dealerAddress: '617 Great Horton Road, Bradford, England, BD7 4ED',
     companyNumber: '17038277',
     companyType: 'Private limited company',
     companiesHouseUrl: 'https://find-and-update.company-information.service.gov.uk/company/17038277',
-    image: 'https://m.atcdn.co.uk/a/media/w1024/b513e6ecdba844e98644a823a3f751a4.jpg',
+    image: 'https://1stlinemotors.netlify.app/1stline-logo.svg',
   },
 };
 
@@ -73,7 +73,7 @@ export default async (request, context) => {
   html = replaceMetaContent(html, 'property="og:title"', preview.title);
   html = replaceMetaContent(html, 'property="og:description"', preview.description);
   html = replaceMetaContent(html, 'property="og:image"', preview.image);
-  html = replaceMetaContent(html, 'property="og:image:type"', 'image/jpeg');
+  html = replaceMetaContent(html, 'property="og:image:type"', 'image/svg+xml');
   html = replaceMetaContent(html, 'property="og:image:alt"', `${preview.dealerName} vehicle stock`);
   html = replaceMetaContent(html, 'name="twitter:title"', preview.title);
   html = replaceMetaContent(html, 'name="twitter:description"', preview.description);

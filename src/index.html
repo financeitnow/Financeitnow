@@ -6791,6 +6791,7 @@ function resetFilterOrder() {
     }
     function isMobile(){ return isMobileLayout(); }
     if (!isIOS() || !isMobile()) return;
+    if (document.body.classList.contains('dealer-site-mode')) return;
     document.addEventListener('touchmove', function(e){
         if (e.target && e.target.closest('input[type="range"], .finance-range')) return; // allow slider
         if (e.target && e.target.closest('.mobile-card-scroll-container')) return; // allow card scroll

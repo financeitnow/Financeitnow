@@ -83,12 +83,13 @@ export default async (request, context) => {
 
   const availability = isFinanceItNowSite
     ? 'Available now on Flexible Finance at FinanceItNOW.'
-    : `Available now with ${siteName}.`;
+    : 'Import vehicle specialists. Part exchange. Finance available.';
   const description = details ? `${details}\n\n${availability}` : availability;
 
   // First non-empty image URL
-  const image =
-    (car.images && car.images.find((i) => i && i.trim())) || '';
+  const image = isFinanceItNowSite
+    ? (car.images && car.images.find((i) => i && i.trim())) || ''
+    : 'https://1stlinemotors.netlify.app/1stline-logo.svg';
 
   // Escape helper (prevents HTML injection from scraped car data)
   const e = (s) =>
@@ -114,8 +115,7 @@ export default async (request, context) => {
   <meta property="og:description" content="${e(description)}">
   <meta property="og:site_name"   content="${e(siteName)}">
   ${image ? `<meta property="og:image" content="${e(image)}">
-  <meta property="og:image:width"  content="1200">
-  <meta property="og:image:height" content="630">` : ''}
+  ${isFinanceItNowSite ? '<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">' : ''}` : ''}
 
   <!-- Twitter card -->
   <meta name="twitter:card"        content="summary_large_image">
