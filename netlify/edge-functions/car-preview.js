@@ -35,15 +35,23 @@ export default async (request, context) => {
   // fetch the one chunk containing this car, instead of the whole dataset.
   let car = null;
   try {
-    const indexResp = await fetch(new URL('/data/cars/index.json', dataOrigin).toString());
-    if (indexResp.ok) {
-      const index = await indexResp.json();
-      const chunkNumber = index[carId];
-      if (chunkNumber) {
-        const chunkResp = await fetch(new URL(`/data/cars/c${chunkNumber}.json`, dataOrigin).toString());
-        if (chunkResp.ok) {
-          const cars = await chunkResp.json();
-          car = cars.find(c => String(c.car_id) === carId);
+    if (isDealerHost) {
+      const stockResp = await fetch(new URL('/data/dealer-stock/10040797.json', dataOrigin).toString());
+      if (stockResp.ok) {
+        const cars = await stockResp.json();
+        car = Array.isArray(cars) ? cars.find(c => String(c.car_id) === carId) : null;
+      }
+    } else {
+      const indexResp = await fetch(new URL('/data/cars/index.json', dataOrigin).toString());
+      if (indexResp.ok) {
+        const index = await indexResp.json();
+        const chunkNumber = index[carId];
+        if (chunkNumber) {
+          const chunkResp = await fetch(new URL(`/data/cars/c${chunkNumber}.json`, dataOrigin).toString());
+          if (chunkResp.ok) {
+            const cars = await chunkResp.json();
+            car = cars.find(c => String(c.car_id) === carId);
+          }
         }
       }
     }

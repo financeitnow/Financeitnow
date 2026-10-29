@@ -2490,12 +2490,22 @@ async function loadCarsData() {
         return { manifest, records: chunkArrays.flat() };
     }
 
+    async function fetchCarsForCurrentSite() {
+        if (!dealerStorefrontMode) return fetchAllChunks();
+        const stockUrl = `data/dealer-stock/${encodeURIComponent(dealerSiteConfig.dealerId)}.json?v=${cacheBust}`;
+        const response = await fetch(stockUrl);
+        if (!response.ok) throw new Error(`Dealer stock request failed: ${response.status}`);
+        const records = await response.json();
+        if (!Array.isArray(records)) throw new Error('Dealer stock file is not a JSON array.');
+        return { manifest: { count: records.length }, records };
+    }
+
     let manifest, records;
     try {
-        ({ manifest, records } = await fetchAllChunks());
+        ({ manifest, records } = await fetchCarsForCurrentSite());
     } catch (error) {
-        console.error('Failed to load car chunks, retrying once:', error);
-        ({ manifest, records } = await fetchAllChunks());
+        console.error('Failed to load car data, retrying once:', error);
+        ({ manifest, records } = await fetchCarsForCurrentSite());
     }
 
     if (records.length !== manifest.count) {
